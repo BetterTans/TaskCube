@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, AISettings, ThemeMode } from './types';
 import { generateTasksFromRule } from './services/recurringService';
@@ -13,6 +12,8 @@ import { ProjectDetailModal } from './components/ProjectDetailModal';
 import { SettingsModal } from './components/SettingsModal';
 import { Button } from './components/Button';
 import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings } from 'lucide-react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from './db';
 
 // 获取今天的 YYYY-MM-DD 字符串
 const getTodayString = () => {
@@ -22,35 +23,6 @@ const getTodayString = () => {
 };
 
 const TODAY = getTodayString();
-
-// 初始演示数据
-const INITIAL_TASKS: Task[] = [
-  {
-    id: '1',
-    title: '规划本周开发进度',
-    description: '核心模块的联调和测试',
-    completed: false,
-    priority: Priority.HIGH,
-    quadrant: EisenhowerQuadrant.Q1,
-    subTasks: [],
-    createdAt: Date.now(),
-    date: TODAY,
-    startTime: '09:00',
-    duration: 60,
-    isExpanded: false
-  },
-  {
-    id: '2',
-    title: '购买咖啡豆',
-    completed: true,
-    priority: Priority.LOW,
-    quadrant: EisenhowerQuadrant.Q4,
-    subTasks: [],
-    createdAt: Date.now() - 1000,
-    date: TODAY,
-    isExpanded: false
-  }
-];
 
 // 默认 AI 设置
 const DEFAULT_AI_SETTINGS: AISettings = {
@@ -63,16 +35,13 @@ const DEFAULT_AI_SETTINGS: AISettings = {
 type ViewMode = 'calendar' | 'day' | 'table';
 
 export default function App() {
-  // --- 核心状态管理 ---
-  // 数据均存储在 LocalStorage 中，组件加载时读取
-  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
-  const [recurringRules, setRecurringRules] = useState<RecurringRule[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
+  // --- 核心状态管理 (使用 IndexedDB + useLiveQuery) ---
+  const tasks = useLiveQuery(() => db.tasks.toArray()) ?? [];
+  const recurringRules = useLiveQuery(() => db.recurringRules.toArray()) ?? [];
+  const projects = useLiveQuery(() => db.projects.toArray()) ?? [];
   
-  // AI 设置状态
+  // 设置和主题仍然保留在 LocalStorage 中，因为它们体积小且不常变动
   const [aiSettings, setAiSettings] = useState<AISettings>(DEFAULT_AI_SETTINGS);
-  
-  // 主题状态
   const [theme, setTheme] = useState<ThemeMode>('light');
 
   // 视图状态
@@ -98,50 +67,22 @@ export default function App() {
   // 派生状态：当前选中的项目对象
   const selectedProject = projects.find(p => p.id === selectedProjectId) || null;
 
-  // --- 数据持久化 (LocalStorage) ---
-
-  // 初始化：从 Storage 读取数据
+  // --- 初始化与设置持久化 ---
   useEffect(() => {
-    const savedTasks = localStorage.getItem('gemini-tasks-full');
-    const savedRules = localStorage.getItem('gemini-recurring-rules');
-    const savedProjects = localStorage.getItem('gemini-projects');
     const savedSettings = localStorage.getItem('taskcube-ai-settings');
     const savedTheme = localStorage.getItem('taskcube-theme');
     
-    if (savedTasks) {
-      try { setTasks(JSON.parse(savedTasks)); } catch (e) { console.error("Failed to parse tasks"); }
-    }
-    if (savedRules) {
-      try { setRecurringRules(JSON.parse(savedRules)); } catch (e) { console.error("Failed to parse rules"); }
-    }
-    if (savedProjects) {
-      try { setProjects(JSON.parse(savedProjects)); } catch (e) { console.error("Failed to parse projects"); }
-    }
     if (savedSettings) {
       try { setAiSettings(JSON.parse(savedSettings)); } catch (e) { console.error("Failed to parse settings"); }
     }
     if (savedTheme) {
       setTheme(savedTheme as ThemeMode);
     } else {
-       // Check system preference
        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           setTheme('dark');
        }
     }
   }, []);
-
-  // 监听变化并写入 Storage
-  useEffect(() => {
-    localStorage.setItem('gemini-tasks-full', JSON.stringify(tasks));
-  }, [tasks]);
-
-  useEffect(() => {
-    localStorage.setItem('gemini-recurring-rules', JSON.stringify(recurringRules));
-  }, [recurringRules]);
-
-  useEffect(() => {
-    localStorage.setItem('gemini-projects', JSON.stringify(projects));
-  }, [projects]);
   
   useEffect(() => {
     localStorage.setItem('taskcube-ai-settings', JSON.stringify(aiSettings));
@@ -156,7 +97,6 @@ export default function App() {
     } else if (theme === 'light') {
       root.classList.remove('dark');
     } else {
-      // System
       if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
         root.classList.add('dark');
       } else {
@@ -166,20 +106,28 @@ export default function App() {
   }, [theme]);
 
   // --- 周期性任务自动生成 ---
-  // 当规则变化时，检查并生成新的任务实例
   useEffect(() => {
     if (recurringRules.length === 0) return;
-    let newTasks = [...tasks];
-    let hasChanges = false;
-    recurringRules.forEach(rule => {
-      const generated = generateTasksFromRule(rule, newTasks);
-      if (generated.length > 0) {
-        newTasks = [...newTasks, ...generated];
-        hasChanges = true;
-      }
-    });
-    if (hasChanges) setTasks(newTasks);
-  }, [recurringRules]);
+    
+    const generate = async () => {
+       const allTasks = await db.tasks.toArray();
+       const newTasks: Task[] = [];
+       recurringRules.forEach(rule => {
+         // 这里我们假设 generateTasksFromRule 纯逻辑函数依然可用
+         // 注意：此函数内部逻辑需要确保不会生成重复 ID 的任务
+         const generated = generateTasksFromRule(rule, allTasks);
+         if (generated.length > 0) {
+            newTasks.push(...generated);
+         }
+       });
+       
+       if (newTasks.length > 0) {
+          await db.tasks.bulkAdd(newTasks);
+       }
+    };
+    
+    generate();
+  }, [recurringRules]); // 当规则列表变化时检查生成
 
   // --- 导航控制 ---
   const handlePrev = () => {
@@ -204,9 +152,8 @@ export default function App() {
     setCurrentDate(date);
   };
 
-  // --- 任务操作处理函数 ---
+  // --- 任务操作处理函数 (Dexie API) ---
 
-  // 在日历上点击日期，切换到日视图
   const handleDateClick = (dateStr: string) => {
     const clickedDate = new Date(dateStr);
     const d = new Date(clickedDate.getUTCFullYear(), clickedDate.getUTCMonth(), clickedDate.getUTCDate());
@@ -214,7 +161,6 @@ export default function App() {
     setViewMode('day');
   };
 
-  // 打开新建任务模态框
   const openNewTaskModal = (dateStr?: string, time?: string) => {
     setSelectedDateStr(dateStr || getTodayString());
     setEditingTask(null);
@@ -224,7 +170,6 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  // 点击现有任务进行编辑
   const handleTaskClick = (task: Task) => {
     setSelectedDateStr(task.date);
     setEditingTask(task);
@@ -233,13 +178,14 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  // 切换任务完成状态
-  const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  const toggleTask = async (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+       await db.tasks.update(id, { completed: !task.completed });
+    }
   }
 
-  // 保存任务（新建或更新）
-  const saveTask = (taskData: Partial<Task>, ruleData?: Partial<RecurringRule>) => {
+  const saveTask = async (taskData: Partial<Task>, ruleData?: Partial<RecurringRule>) => {
     if (ruleData) {
       // 创建新的周期规则
       const newRule: RecurringRule = {
@@ -259,12 +205,10 @@ export default function App() {
         projectId: ruleData.projectId,
         subTaskTitles: ruleData.subTaskTitles
       };
-      setRecurringRules(prev => [...prev, newRule]);
+      await db.recurringRules.add(newRule);
     } else if (taskData.id) {
       // 更新现有任务
-      setTasks(prev => prev.map(t => 
-        t.id === taskData.id ? { ...t, ...taskData } as Task : t
-      ));
+      await db.tasks.update(taskData.id, taskData);
     } else {
       // 创建新单次任务
       const newTask: Task = {
@@ -282,21 +226,23 @@ export default function App() {
         isExpanded: false,
         projectId: taskData.projectId
       };
-      setTasks(prev => [...prev, newTask]);
+      await db.tasks.add(newTask);
     }
   };
 
-  // 更新周期规则，并同步更新相关的未完成任务
-  const updateRecurringRule = (ruleId: string, ruleData: Partial<RecurringRule>) => {
-    setRecurringRules(prev => prev.map(r => 
-      r.id === ruleId ? { ...r, ...ruleData } : r
-    ));
+  const updateRecurringRule = async (ruleId: string, ruleData: Partial<RecurringRule>) => {
+    await db.recurringRules.update(ruleId, ruleData);
 
     // 同步更新属于该规则且未完成的任务
-    setTasks(prev => prev.map(t => {
-      if (t.recurringRuleId === ruleId && !t.completed) {
-         return {
-            ...t,
+    // Dexie 可以使用 Collection.modify，但这里我们先查找再更新以保持逻辑一致
+    const relatedTasks = await db.tasks.where('recurringRuleId').equals(ruleId).toArray();
+    const activeTasks = relatedTasks.filter(t => !t.completed);
+    
+    if (activeTasks.length > 0) {
+       // 批量更新
+       const updates = activeTasks.map(t => ({
+          key: t.id,
+          changes: {
             title: ruleData.title || t.title,
             description: ruleData.description !== undefined ? ruleData.description : t.description,
             priority: ruleData.priority || t.priority,
@@ -304,27 +250,31 @@ export default function App() {
             projectId: ruleData.projectId !== undefined ? ruleData.projectId : t.projectId,
             startTime: ruleData.startTime !== undefined ? ruleData.startTime : t.startTime,
             duration: ruleData.duration !== undefined ? ruleData.duration : t.duration,
-         };
-      }
-      return t;
-    }));
+          }
+       }));
+       
+       for(const update of updates) {
+          await db.tasks.update(update.key, update.changes);
+       }
+    }
   };
 
-  // 删除任务
-  const deleteTask = (id: string) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+  const deleteTask = async (id: string) => {
+    await db.tasks.delete(id);
   };
 
-  // 删除规则
-  const deleteRule = (ruleId: string) => {
+  const deleteRule = async (ruleId: string) => {
     if (window.confirm("确定要删除这个周期规则吗？将同时删除所有未来生成的任务。")) {
-      setRecurringRules(prev => prev.filter(r => r.id !== ruleId));
-      setTasks(prev => prev.filter(t => t.recurringRuleId !== ruleId || t.completed));
+      await db.recurringRules.delete(ruleId);
+      // 删除关联的未完成任务
+      const relatedTasks = await db.tasks.where('recurringRuleId').equals(ruleId).toArray();
+      const toDelete = relatedTasks.filter(t => !t.completed).map(t => t.id);
+      await db.tasks.bulkDelete(toDelete);
     }
   };
 
   // --- 项目操作 ---
-  const handleCreateProject = (projectData: Partial<Project>) => {
+  const handleCreateProject = async (projectData: Partial<Project>) => {
     const newProject: Project = {
       id: crypto.randomUUID(),
       title: projectData.title!,
@@ -336,22 +286,20 @@ export default function App() {
       createdAt: Date.now(),
       ...projectData
     } as Project;
-    setProjects(prev => [...prev, newProject]);
+    await db.projects.add(newProject);
   };
 
-  const updateProject = (id: string, updates: Partial<Project>) => {
-    setProjects(prev => prev.map(p => {
-      if (p.id === id) {
-        return { ...p, ...updates };
-      }
-      return p;
-    }));
+  const updateProject = async (id: string, updates: Partial<Project>) => {
+    await db.projects.update(id, updates);
   };
 
-  const deleteProject = (id: string) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
+  const deleteProject = async (id: string) => {
+    await db.projects.delete(id);
     // 解除任务与该项目的关联
-    setTasks(prev => prev.map(t => t.projectId === id ? { ...t, projectId: undefined } : t));
+    const projectTasks = await db.tasks.where('projectId').equals(id).toArray();
+    for (const task of projectTasks) {
+       await db.tasks.update(task.id, { projectId: undefined });
+    }
     if (selectedProjectId === id) setSelectedProjectId(null);
   };
 

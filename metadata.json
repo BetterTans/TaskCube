@@ -1,0 +1,5 @@
+{
+  "name": "TaskCube",
+  "description": "AI 驱动的智能待办应用。支持 OpenAI/DeepSeek 接口、深色模式(Dark Mode)、自然语言任务创建及智能拆解。",
+  "requestFramePermissions": []
+}

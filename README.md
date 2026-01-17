@@ -1,11 +1,72 @@
-<div align="center">
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+# TaskCube - AI 驱动的智能待办事项管理
 
-  <h1>Built with AI Studio</h2>
+TaskCube 是一款基于 React 19 构建的现代化待办事项管理应用。它结合了 iOS 风格的流畅交互、强大的任务管理功能与先进的 AI 辅助能力。
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+**最新更新 (v2.0)**：
+1.  **🎨 深色模式 (Dark Mode)**：全面支持浅色、深色及跟随系统自动切换的主题模式。
+2.  **🔧 架构重构**: 引入 `AIServiceAdapter` 适配器模式，底层解耦了具体模型实现。现已全面支持 **OpenAI 接口标准**（OpenAI, DeepSeek, Ollama, Groq 等）。
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## ✨ 主要功能
 
-</div>
+### 🤖 AI 智能辅助 (模型无关 / Model Agnostic)
+*   **⚙️ 灵活配置**: 在设置中自定义 API 地址 (Base URL)、密钥 (API Key) 和模型名称 (Model Name)。
+*   **自然语言输入**: 输入 "明早9点和团队开会"，AI 会自动解析出标题、日期、时间和持续时间。
+*   **智能任务拆解**: 点击任务旁的 ✨ 图标，AI 会自动将复杂任务拆解为可执行的子任务步骤。
+*   **项目规划**: 为项目生成初步的执行计划和建议行动。
+*   **本地化架构**: 通过 Fetch API 直接连接模型服务，无需中间层。
+
+### 🎨 用户体验与交互
+*   **深色模式**: 精心调教的 Dark Mode 配色，适应夜间使用环境。
+*   **iOS 设计语言**: 仿原生 iOS 应用的模糊背景、圆角卡片和触控反馈。
+*   **响应式布局**: 完美适配桌面端与移动端浏览器。
+
+### 📅 多维度视图
+*   **月视图 (Infinite Calendar)**: 支持无限滚动的月历视图，直观展示每日任务分布。
+*   **日视图 (Timeline)**: 基于时间轴的日视图，精确管理每天的时间块，支持当前时间线指示。
+*   **列表视图 (Table)**: 强大的数据表格，支持列宽拖拽调整、多条件筛选（状态、优先级、项目、四象限）和排序。
+
+### 🔄 周期性任务
+*   支持每天、每周（指定星期几）、每月、自定义间隔的重复规则。
+*   支持修改单次任务或更新整个周期系列。
+
+### 📁 项目管理
+*   创建和管理项目，追踪进度条。
+*   记录项目日志（里程碑、笔记）。
+*   甘特图式的任务与日志分离视图。
+
+## 🛠️ 技术架构
+
+*   **前端框架**: React 19
+*   **语言**: TypeScript
+*   **样式**: Tailwind CSS (配置了 `darkMode: 'class'`)
+*   **设计模式**:
+    *   **Adapter Pattern**: `services/aiService.ts` 封装了 AI 交互层，易于扩展其他 SDK。
+    *   **Virtual/Infinite Scroll**: 手动实现的日历和日视图无限滚动逻辑。
+*   **图标库**: Lucide React
+*   **构建/运行**: 浏览器原生 ES Modules (无需 Webpack/Vite 打包步骤，直接运行)
+
+## 🚀 快速开始
+
+1.  **环境准备**:
+    本项目直接使用 ES Modules，无需 `npm install`。
+    
+2.  **运行**:
+    使用任意静态文件服务器打开项目根目录。
+    *   例如使用 VS Code 的 `Live Server` 插件。
+    *   或者使用 Python: `python3 -m http.server 8000`
+
+3.  **配置 AI**:
+    *   启动应用后，点击左上角的 **设置 (⚙️)** 按钮。
+    *   配置您的 OpenAI 兼容接口信息（支持 DeepSeek, Moonshot, LocalAI 等）。
+    *   API Key 仅存储在浏览器 `localStorage` 中。
+
+## 📱 移动端适配
+
+应用针对移动设备进行了深度优化：
+*   **触控优化**: 统一的 36px/44px 触控热区。
+*   **PWA 准备**: 界面结构已为 PWA 封装做好准备（隐藏滚动条、全屏布局）。
+
+## 📝 许可证
+
+MIT License

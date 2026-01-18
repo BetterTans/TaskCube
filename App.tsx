@@ -136,7 +136,7 @@ export default function App() {
   // 计算依赖阻塞状态
   const tasksById = useMemo(() => {
     if (!tasks) return new Map<string, Task>();
-    return new Map(tasks.map(t => [t.id, t]));
+    return new Map<string, Task>(tasks.map(t => [t.id, t] as [string, Task]));
   }, [tasks]);
 
   const blockedTaskIds = useMemo(() => {

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Task, Priority, EisenhowerQuadrant, Project } from '../types';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -79,28 +80,23 @@ const FilterPopover: React.FC<{
     allTags: string[],
 }> = ({ column, anchorRect, onClose, filters, onFilterChange, projects, allTags }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState({ top: 0, left: 0 });
-    const [isReady, setIsReady] = useState(false);
 
-    useEffect(() => {
-        if (anchorRect) {
-            const rect = anchorRect;
-            const popoverWidth = 224; // w-56
-            const viewWidth = window.innerWidth;
-            
-            let left = rect.left;
-            if (left + popoverWidth > viewWidth - 10) {
-                left = rect.right - popoverWidth;
-            }
-            if (left < 10) { left = 10; }
-
-            setPosition({ top: rect.bottom + 4, left });
-            
-            // Wait for the next frame to apply animation, ensuring the new position is rendered first.
-            requestAnimationFrame(() => setIsReady(true));
-        } else {
-            setIsReady(false); // Reset when closing
+    // 同步计算位置，确保首次渲染时位置正确，避免动画从 0,0 飞入
+    const position = useMemo(() => {
+        if (!anchorRect) return { top: 0, left: 0 };
+        const rect = anchorRect;
+        const popoverWidth = 224; // w-56
+        const viewWidth = window.innerWidth;
+        
+        let left = rect.left;
+        // 确保不超出右边界
+        if (left + popoverWidth > viewWidth - 10) {
+            left = rect.right - popoverWidth;
         }
+        // 确保不超出左边界
+        if (left < 10) { left = 10; }
+
+        return { top: rect.bottom + 4, left };
     }, [anchorRect]);
 
     useEffect(() => {
@@ -138,8 +134,11 @@ const FilterPopover: React.FC<{
     return (
         <div
             ref={popoverRef}
-            style={{ top: position.top, left: position.left }}
-            className={`fixed z-30 w-56 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-lg rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 ${isReady ? 'animate-in fade-in zoom-in-95 duration-150' : 'opacity-0'}`}
+            style={{ 
+                top: position.top, 
+                left: position.left,
+            }}
+            className="fixed z-30 w-56 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-lg rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 animate-in fade-in zoom-in-95 duration-200 ease-out origin-top"
         >
           {renderContent()}
           <div className="border-t border-gray-100 dark:border-zinc-700 p-2">
@@ -220,6 +219,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
   
   const rowVirtualizer = useVirtualizer({ count: sortedTasks.length, getScrollElement: () => parentRef.current, estimateSize: () => 53, overscan: 5 });
 
+  // FIX: Cast Object.values result to number[] to ensure correct type inference in reduce.
   const totalWidth = (Object.values(colWidths) as number[]).reduce((acc, w) => acc + w, 0);
   const headers: Record<string, string> = { status: '状态', title: '任务标题', project: '项目', priority: '优先级', quadrant: '四象限', date: '日期', tags: '标签', subtasks: '子任务'};
 

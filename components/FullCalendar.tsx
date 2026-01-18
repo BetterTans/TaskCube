@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 import { Task, Project, Priority, EisenhowerQuadrant } from '../types.ts';
 import { Zap, Star, Bell, Coffee, Lock, ChevronDown } from 'lucide-react';
@@ -195,165 +193,147 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
   };
 
   const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
-  const TODAY = formatDate(new Date());
+  const weekDayNames = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
   return (
-    <div ref={containerRef} className="pb-8">
-      <div className="text-xl font-bold text-gray-800 dark:text-gray-200 p-4 sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm z-10">{date.getFullYear()}年 {monthNames[date.getMonth()]}</div>
-      <div className="flex flex-col border-b border-r border-gray-200 dark:border-zinc-800">
-        {calendarData.map((week, weekIndex) => {
-          const weekEvents = layoutWeekEvents(week, tasks, projects);
-          const maxLanes = weekEvents.length > 0 ? Math.max(0, ...weekEvents.map(e => e.laneIndex)) : -1;
-          const dayHeaderHeight = 32;
-          const eventHeight = 22;
-          const eventGap = 2;
-          const weekContentHeight = (maxLanes + 1) * (eventHeight + eventGap) + 5;
+    <div ref={containerRef} className="h-full flex flex-col bg-white dark:bg-zinc-925 rounded-2xl border border-gray-100 dark:border-zinc-800/50 shadow-sm">
+      <div className="p-4 border-b border-gray-100 dark:border-zinc-800">
+        <h2 className="text-xl font-bold text-center text-gray-800 dark:text-gray-100">{date.getFullYear()}年 {monthNames[date.getMonth()]}</h2>
+      </div>
+      <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-400 dark:text-gray-500 py-2 border-b border-gray-100 dark:border-zinc-800">
+        {weekDayNames.map(day => <div key={day}>{day}</div>)}
+      </div>
+      <div className="flex-1 grid grid-rows-6">
+        {calendarData.map((week, weekIndex) => (
+          <div key={weekIndex} className="grid grid-cols-7 border-b border-gray-100 dark:border-zinc-800 relative">
+            {week.map((day, dayIndex) => {
+              if (!day) return <div key={dayIndex} className="border-l border-gray-100 dark:border-zinc-800" />;
+              
+              const dateStr = formatDate(day);
+              const isToday = dateStr === formatDate(new Date());
 
-          return (
-            <div key={weekIndex} className="grid grid-cols-7 relative border-t border-gray-200 dark:border-zinc-800" style={{ minHeight: `${dayHeaderHeight + weekContentHeight}px` }}>
-              {week.map((day, dayIndex) => {
-                if (!day) return <div key={dayIndex} className="border-l border-gray-200 dark:border-zinc-800" />;
-                const dateStr = formatDate(day);
-                const isToday = dateStr === TODAY;
+              return (
+                <div 
+                  key={dayIndex}
+                  className="p-1.5 border-l border-gray-100 dark:border-zinc-800 flex flex-col h-full overflow-hidden"
+                  onDragOver={(e) => handleDragOver(e, dateStr)}
+                  onDrop={(e) => handleDrop(e, dateStr)}
+                >
+                  <button 
+                    onClick={() => onDateClick(dateStr)}
+                    className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${isToday ? 'bg-indigo-600 text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800'}`}
+                  >
+                    {day.getDate()}
+                  </button>
+                </div>
+              );
+            })}
+            <div className="absolute inset-0 pointer-events-none grid grid-cols-7">
+              {layoutWeekEvents(week, tasks, projects).map(event => {
+                const isBlocked = blockedTaskIds.has(event.task.id);
                 return (
                   <div
-                    key={dayIndex}
-                    onDragOver={(e) => handleDragOver(e, dateStr)}
-                    onDrop={(e) => handleDrop(e, dateStr)}
-                    className="border-l border-gray-200 dark:border-zinc-800 h-full p-1"
+                    key={event.task.id}
+                    draggable={!event.task.completed && !isBlocked}
+                    onDragStart={e => handleDragStart(e, event.task)}
+                    onDragEnd={handleDragEnd}
+                    onClick={(e) => { e.stopPropagation(); onTaskClick(event.task, e); }}
+                    className={`
+                      pointer-events-auto mt-1 mx-px p-1 text-white text-xs rounded-md shadow-sm leading-tight flex items-start gap-1.5
+                      ${event.task.completed ? 'opacity-60' : ''}
+                      ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}
+                      ${draggedTask?.id === event.task.id ? 'opacity-30' : ''}
+                    `}
+                    style={{
+                      gridColumn: `${event.startDayIndex + 1} / span ${event.span}`,
+                      marginTop: `${event.laneIndex * 24 + 32}px`,
+                      backgroundColor: event.color,
+                      height: '22px'
+                    }}
                   >
-                    <button
-                        onClick={() => onDateClick(dateStr)}
-                        className={`w-6 h-6 rounded-full text-xs font-medium flex items-center justify-center transition-colors ${
-                        isToday ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800'
-                        }`}
-                    >
-                        {day.getDate()}
-                    </button>
+                    <div className="flex-shrink-0 mt-px">{isBlocked ? <Lock size={10} className="text-white/80" /> : <QuadrantIcon quadrant={event.task.quadrant} size={10} />}</div>
+                    <span className="truncate flex-1">{event.task.title}</span>
                   </div>
                 )
               })}
-
-              <div className="absolute top-0 left-0 right-0" style={{ top: `${dayHeaderHeight}px` }}>
-                {weekEvents.map(({ task, laneIndex, startDayIndex, span, isStart, isEnd, color }) => {
-                  const isBlocked = blockedTaskIds.has(task.id);
-                  return (
-                  <div
-                    key={task.id}
-                    draggable={!task.completed && !isBlocked}
-                    onDragStart={!task.completed && !isBlocked ? (e) => handleDragStart(e, task) : undefined}
-                    onDragEnd={!task.completed && !isBlocked ? handleDragEnd : undefined}
-                    onClick={(e) => { e.stopPropagation(); onTaskClick(task, e); }}
-                    className={`
-                      absolute flex items-center h-[22px] px-2 text-xs font-medium text-white transition-all duration-100 shadow-sm gap-1.5
-                      ${isStart ? 'rounded-md' : ''} ${isEnd ? 'rounded-md' : ''}
-                      ${task.completed ? 'opacity-60 grayscale' : (isBlocked ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110 cursor-grab')}
-                      ${draggedTask?.id === task.id ? 'opacity-30' : ''}
-                    `}
-                    style={{
-                      top: `${laneIndex * (eventHeight + eventGap)}px`,
-                      left: `calc(${(startDayIndex / 7) * 100}% + 2px)`,
-                      width: `calc(${(span / 7) * 100}% - 4px)`,
-                      backgroundColor: color
-                    }}
-                  >
-                    {isBlocked ? <Lock size={12} className="text-white/80" /> : <QuadrantIcon quadrant={task.quadrant} />}
-                    <span className="truncate">{task.title}</span>
-                  </div>
-                )})}
-              </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
 });
 
-// FIX: Added missing FullCalendarProps interface to resolve the "Cannot find name 'FullCalendarProps'" error.
-interface FullCalendarProps {
+export const FullCalendar: React.FC<{
   currentDate: Date;
   tasks: Task[];
   projects: Project[];
   blockedTaskIds: Set<string>;
   onDateChange: (date: Date) => void;
-  onDateClick: (date: string) => void;
+  onDateClick: (dateStr: string) => void;
   onTaskClick: (task: Task, event: React.MouseEvent) => void;
   onUpdateTask: (task: Partial<Task>) => void;
-}
-
-export const FullCalendar: React.FC<FullCalendarProps> = ({
-  currentDate,
-  tasks,
-  projects,
-  blockedTaskIds,
-  onDateChange,
-  onDateClick,
-  onTaskClick,
-  onUpdateTask
-}) => {
+}> = ({ currentDate, tasks, projects, blockedTaskIds, onDateChange, onDateClick, onTaskClick, onUpdateTask }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isInitialLoad = useRef(true);
-  const [months, setMonths] = useState<Date[]>([]);
-
-  useEffect(() => {
-    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    setMonths([
-      new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() - 1, 1),
-      startOfMonth,
-      new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 1),
-    ]);
-    isInitialLoad.current = true;
-  }, [currentDate]);
+  
+  const [months, setMonths] = useState<Date[]>(() => {
+    const today = new Date(currentDate);
+    today.setDate(1);
+    return Array.from({ length: 5 }, (_, i) => new Date(today.getFullYear(), today.getMonth() + i - 2, 1));
+  });
 
   useLayoutEffect(() => {
     if (isInitialLoad.current && scrollRef.current && months.length > 0) {
-      const middleMonthEl = scrollRef.current.children[1];
-      if (middleMonthEl) {
-        scrollRef.current.scrollTop = (middleMonthEl as HTMLElement).offsetTop;
+      const todayEl = scrollRef.current.children[2];
+      if (todayEl) {
+        scrollRef.current.scrollTop = (todayEl as HTMLElement).offsetTop;
         isInitialLoad.current = false;
       }
     }
   }, [months]);
+  
+  useEffect(() => {
+    const today = new Date(currentDate);
+    today.setDate(1);
+    const initialMonths = Array.from({ length: 5 }, (_, i) => new Date(today.getFullYear(), today.getMonth() + i - 2, 1));
+    setMonths(initialMonths);
+    isInitialLoad.current = true;
+  }, [currentDate]);
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    if (scrollTop < 100) {
-      setMonths(prev => [new Date(prev[0].getFullYear(), prev[0].getMonth() - 1, 1), ...prev]);
+    if (scrollTop < 200) {
+      const firstMonth = months[0];
+      setMonths(prev => [new Date(firstMonth.getFullYear(), firstMonth.getMonth() - 1, 1), ...prev]);
     }
-    if (scrollHeight - scrollTop - clientHeight < 100) {
-      setMonths(prev => [...prev, new Date(prev[prev.length-1].getFullYear(), prev[prev.length-1].getMonth() + 1, 1)]);
+    if (scrollHeight - scrollTop - clientHeight < 200) {
+      const lastMonth = months[months.length - 1];
+      setMonths(prev => [...prev, new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1)]);
     }
   };
-
-  const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
-
+  
+  const handleMonthVisible = (month: Date) => {
+    onDateChange(month);
+  };
+  
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
-      <div className="grid grid-cols-7 sticky top-0 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm z-20 border-b border-gray-100 dark:border-zinc-800">
-        {weekDays.map(d => (
-          <div key={d} className="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2">{d}</div>
-        ))}
-      </div>
-      <div 
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="flex-1 overflow-y-auto custom-scrollbar relative"
-      >
-        {months.map((monthDate) => (
-           <MonthBlock
-             key={monthDate.toISOString()}
-             date={monthDate}
-             tasks={tasks}
-             projects={projects}
-             blockedTaskIds={blockedTaskIds}
-             onDateClick={onDateClick}
-             onTaskClick={onTaskClick}
-             onUpdateTask={onUpdateTask}
-           />
-        ))}
-      </div>
+    <div ref={scrollRef} onScroll={handleScroll} className="h-full overflow-y-auto custom-scrollbar">
+      {months.map(month => (
+        <div key={month.toISOString()} className="h-full">
+          <MonthBlock 
+            date={month} 
+            tasks={tasks}
+            projects={projects}
+            blockedTaskIds={blockedTaskIds}
+            onDateClick={onDateClick}
+            onTaskClick={onTaskClick}
+            onUpdateTask={onUpdateTask}
+            onVisible={() => handleMonthVisible(month)}
+          />
+        </div>
+      ))}
     </div>
   );
 };

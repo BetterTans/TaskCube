@@ -13,7 +13,7 @@ import { SettingsModal } from './components/SettingsModal.tsx';
 import { CommandPalette, Command } from './components/CommandPalette.tsx';
 import { EventPopover } from './components/EventPopover.tsx';
 import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
-import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid, PanelLeftClose, PanelRightClose } from 'lucide-react';
+import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid, PanelLeftClose, PanelRightClose, GripVertical } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db.ts';
 import { useHotkeys } from './hooks/useHotkeys.ts';
@@ -66,7 +66,10 @@ const DEFAULT_HOTKEYS = {
 };
 
 // 视图模式类型
-type ViewMode = 'calendar' | 'day' | 'matrix' | 'table';
+type ViewMode = 'matrix' | 'calendar' | 'day' | 'table';
+
+const VIEW_ORDER_KEY = 'taskcube-view-order';
+const DEFAULT_VIEW_ORDER: ViewMode[] = ['matrix', 'calendar', 'day', 'table'];
 
 export default function App() {
   // --- 核心状态管理 (使用 IndexedDB + useLiveQuery) ---
@@ -81,7 +84,19 @@ export default function App() {
 
   // 视图状态
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('matrix');
+  const [viewOrder, setViewOrder] = useState<ViewMode[]>(() => {
+    const savedOrder = localStorage.getItem(VIEW_ORDER_KEY);
+    if (savedOrder) {
+      try {
+        const parsed = JSON.parse(savedOrder) as ViewMode[];
+        if (Array.isArray(parsed) && parsed.length === DEFAULT_VIEW_ORDER.length && parsed.every(v => DEFAULT_VIEW_ORDER.includes(v))) {
+          return parsed;
+        }
+      } catch (e) { /* ignore parse error */ }
+    }
+    return DEFAULT_VIEW_ORDER;
+  });
+  const [viewMode, setViewMode] = useState<ViewMode>(viewOrder[0]);
   const [matrixDateRange, setMatrixDateRange] = useState(getWeekRange());
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
   
@@ -102,6 +117,10 @@ export default function App() {
   // 新建任务时的初始预设
   const [newTaskInitialTime, setNewTaskInitialTime] = useState<string | undefined>(undefined);
   const [newTaskInitialProjectId, setNewTaskInitialProjectId] = useState<string | null>(null);
+  
+  // 拖拽状态
+  const [draggedView, setDraggedView] = useState<ViewMode | null>(null);
+  const [dragOverView, setDragOverView] = useState<ViewMode | null>(null);
 
   // 派生状态：当前选中的项目对象
   const selectedProject = projects?.find(p => p.id === selectedProjectId) || null;
@@ -126,6 +145,7 @@ export default function App() {
   useEffect(() => { localStorage.setItem('taskcube-ai-settings', JSON.stringify(aiSettings)); }, [aiSettings]);
   useEffect(() => { localStorage.setItem('taskcube-hotkeys', JSON.stringify(hotkeys)); }, [hotkeys]);
   useEffect(() => { localStorage.setItem('sidebarCollapsed', String(isSidebarCollapsed)); }, [isSidebarCollapsed]);
+  useEffect(() => { localStorage.setItem(VIEW_ORDER_KEY, JSON.stringify(viewOrder)); }, [viewOrder]);
 
   // 主题切换副作用
   useEffect(() => {
@@ -299,10 +319,9 @@ export default function App() {
   const getActiveRecurringRule = () => recurringRules.find(r => r.id === (editingRule?.id || editingTask?.recurringRuleId));
   
   const toggleView = useCallback(() => {
-    const views: ViewMode[] = ['matrix', 'calendar', 'day', 'table'];
-    const currentIndex = views.indexOf(viewMode);
-    setViewMode(views[(currentIndex + 1) % views.length]);
-  }, [viewMode]);
+    const currentIndex = viewOrder.indexOf(viewMode);
+    setViewMode(viewOrder[(currentIndex + 1) % viewOrder.length]);
+  }, [viewMode, viewOrder]);
 
   const hotkeyActions = useMemo(() => ({
     [hotkeys.open_palette]: () => setIsCommandPaletteOpen(true),
@@ -339,12 +358,41 @@ export default function App() {
     return [...staticCommands, ...taskCommands];
   }, [tasks, hotkeys, openNewTaskModal, toggleView]);
 
-  const viewOptions: {id: ViewMode, icon: React.ElementType, title: string}[] = [
-      { id: 'matrix', icon: LayoutGrid, title: '四象限' },
-      { id: 'calendar', icon: CalendarIcon, title: '月视图' },
-      { id: 'day', icon: Clock, title: '日视图' },
-      { id: 'table', icon: TableIcon, title: '列表' }
-  ];
+  const viewDetails: Record<ViewMode, {icon: React.ElementType, title: string}> = {
+      matrix: { icon: LayoutGrid, title: '四象限' },
+      calendar: { icon: CalendarIcon, title: '月视图' },
+      day: { icon: Clock, title: '日视图' },
+      table: { icon: TableIcon, title: '列表' }
+  };
+
+  const handleDragStart = (e: React.DragEvent, viewId: ViewMode) => {
+    e.dataTransfer.setData('text/plain', viewId);
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedView(viewId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedView(null);
+    setDragOverView(null);
+  };
+  
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+  
+  const handleDrop = (e: React.DragEvent, dropTargetViewId: ViewMode) => {
+    e.preventDefault();
+    const draggedViewId = e.dataTransfer.getData('text/plain') as ViewMode;
+
+    if (draggedViewId && draggedViewId !== dropTargetViewId) {
+        const newOrder = [...viewOrder];
+        const draggedIndex = newOrder.indexOf(draggedViewId);
+        const dropTargetIndex = newOrder.indexOf(dropTargetViewId);
+        
+        const [draggedItem] = newOrder.splice(draggedIndex, 1);
+        newOrder.splice(dropTargetIndex, 0, draggedItem);
+        setViewOrder(newOrder);
+    }
+    handleDragEnd();
+  };
 
   const renderCurrentView = () => {
     if (tasks === undefined || projects === undefined) {
@@ -374,22 +422,35 @@ export default function App() {
            {!isSidebarCollapsed && <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight animate-in fade-in duration-300">TaskCube</h1>}
         </div>
         <nav className="flex-1 space-y-2">
-          {viewOptions.map(view => {
+          {viewOrder.map(viewId => {
+              const view = viewDetails[viewId];
               const Icon = view.icon;
-              const isActive = viewMode === view.id;
+              const isActive = viewMode === viewId;
+              const isDragOver = dragOverView === viewId;
+
               return (
-                  <button 
-                      key={view.id}
-                      onClick={() => setViewMode(view.id as ViewMode)} 
+                  <button
+                      key={viewId}
+                      draggable={!isSidebarCollapsed}
+                      onDragStart={(e) => handleDragStart(e, viewId)}
+                      onDragEnd={handleDragEnd}
+                      onDragOver={handleDragOver}
+                      onDragEnter={() => setDragOverView(viewId)}
+                      onDragLeave={() => setDragOverView(null)}
+                      onDrop={(e) => handleDrop(e, viewId)}
+                      onClick={() => setViewMode(viewId)}
                       title={view.title}
-                      className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors
+                      className={`group relative w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-all duration-200
                         ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}
                         ${isActive
                           ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm'
                           : 'text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50'
                         }
+                        ${draggedView === viewId ? 'opacity-30' : ''}
+                        ${isDragOver ? 'border-t-2 border-indigo-500' : ''}
                       `}
                   >
+                      {!isSidebarCollapsed && <GripVertical size={16} className="text-gray-300 dark:text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity" />}
                       <Icon size={20} className="flex-shrink-0" />
                       {!isSidebarCollapsed && <span className="animate-in fade-in duration-200">{view.title}</span>}
                   </button>
@@ -426,9 +487,9 @@ export default function App() {
               )}
               {viewMode === 'matrix' && (
                  <div className="flex items-center gap-2 animate-in fade-in duration-200">
-                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
+                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200/80 dark:border-zinc-700/50 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
                     <span className="text-gray-400">-</span>
-                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
+                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200/80 dark:border-zinc-700/50 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
                  </div>
               )}
           </div>

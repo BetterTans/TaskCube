@@ -13,10 +13,10 @@
             colors: {
               gray: {
                 850: '#1f2937',
-                950: '#0a0a0a',
               },
               zinc: {
                 925: '#121217',
+                950: '#0a0a0a',
               }
             }
           }
@@ -38,13 +38,13 @@
       }
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-        background-color: #F7F7F7; /* New softer background */
+        background-color: #ffffff; /* Softer white */
         color: #111827; /* gray-900 */
         -webkit-font-smoothing: antialiased;
         transition: background-color 0.3s ease;
       }
       .dark body {
-        background-color: #121217; /* New zinc-925 for deeper dark mode */
+        background-color: #0a0a0a; /* New zinc-950 for deeper dark mode */
         color: #f4f4f5; /* zinc-100 */
       }
       
@@ -57,19 +57,19 @@
         scrollbar-width: none;
       }
       /* Custom scrollbar for better aesthetics where needed */
-      ::-webkit-scrollbar {
-        width: 4px;
-        height: 4px;
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
       }
-      ::-webkit-scrollbar-track {
+      .custom-scrollbar::-webkit-scrollbar-track {
         background: transparent;
       }
-      ::-webkit-scrollbar-thumb {
-        background-color: rgba(0,0,0,0.1);
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.15);
         border-radius: 20px;
       }
-      .dark ::-webkit-scrollbar-thumb {
-        background-color: rgba(255,255,255,0.2);
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: rgba(255,255,255,0.15);
       }
       .ios-btn-active:active {
         opacity: 0.7;

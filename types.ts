@@ -28,6 +28,16 @@ export const QuadrantColors: Record<EisenhowerQuadrant, string> = {
   [EisenhowerQuadrant.Q4]: '#3B82F6', // Blue-500 for "Eliminate"
 };
 
+/**
+ * 预估任务时长（分钟）
+ */
+export type EstimatedDuration = 15 | 30 | 45 | 60 | 90 | 120;
+
+/**
+ * 偏好执行时间段
+ */
+export type PreferredTimeSlot = 'morning' | 'afternoon' | 'evening' | 'any';
+
 
 /**
  * 子任务接口
@@ -119,6 +129,8 @@ export interface Task {
   tags?: string[]; // 标签
   predecessorIds?: string[]; // 前置任务 ID 列表 (此任务依赖的任务)
   successorIds?: string[];   // 后置任务 ID 列表 (依赖此任务的任务)
+  estimatedDuration?: EstimatedDuration;
+  preferredTimeSlot?: PreferredTimeSlot;
 }
 
 /**

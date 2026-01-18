@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Task, Priority, SubTask, RecurringFrequency, RecurringRule, EisenhowerQuadrant, Project, AISettings } from '../types';
+import { Task, Priority, SubTask, RecurringFrequency, RecurringRule, EisenhowerQuadrant, Project, AISettings, EstimatedDuration, PreferredTimeSlot } from '../types';
 import { breakDownTask, parseTaskFromNaturalLanguage } from '../services/aiService';
 import { parseDate } from '../services/recurringService';
 import { RecurringOptions } from './RecurringOptions';
@@ -24,7 +24,9 @@ import {
   Bell,
   Coffee,
   Wand2,
-  Link2
+  Link2,
+  Timer,
+  Sun
 } from 'lucide-react';
 
 const generateUUID = () => {
@@ -55,6 +57,14 @@ interface TaskDetailModalProps {
   aiSettings: AISettings;
   onOpenSettings: () => void;
 }
+
+const DURATION_OPTIONS: EstimatedDuration[] = [15, 30, 45, 60, 90, 120];
+const TIME_SLOT_OPTIONS: { id: PreferredTimeSlot, label: string }[] = [
+  { id: 'morning', label: '上午' },
+  { id: 'afternoon', label: '下午' },
+  { id: 'evening', label: '晚上' },
+  { id: 'any', label: '任意' }
+];
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   isOpen,
@@ -87,6 +97,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [isAllDay, setIsAllDay] = useState(true);
   const [startTime, setStartTime] = useState('');
   const [duration, setDuration] = useState(60);
+  
+  const [estimatedDuration, setEstimatedDuration] = useState<EstimatedDuration | undefined>();
+  const [preferredTimeSlot, setPreferredTimeSlot] = useState<PreferredTimeSlot | undefined>();
 
   const [subtasks, setSubtasks] = useState<SubTask[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
@@ -127,6 +140,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setSubtasks(task.subTasks || []); 
         setTags(task.tags || []);
         setPredecessorIds(task.predecessorIds || []);
+        setEstimatedDuration(task.estimatedDuration);
+        setPreferredTimeSlot(task.preferredTimeSlot);
         setEditMode('single');
         setIsRecurring(!!recurringRule);
         
@@ -172,6 +187,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setSubtasks([]); 
         setTags([]);
         setPredecessorIds([]);
+        setEstimatedDuration(undefined);
+        setPreferredTimeSlot(undefined);
         setEditMode('single');
         setIsRecurring(false);
         setRecurFreq('daily');
@@ -369,6 +386,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             subTasks: subtasks,
             tags: tags,
             predecessorIds: predecessorIds,
+            estimatedDuration,
+            preferredTimeSlot,
             ...timeData,
         };
         // If task was recurring but is now single, detach it from the rule.
@@ -388,6 +407,12 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     { id: EisenhowerQuadrant.Q3, label: '紧急 & 不重要', desc: '审慎处理', icon: <Bell size={12}/>, selectedClass: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' },
     { id: EisenhowerQuadrant.Q4, label: '不重要 & 不紧急', desc: '暂缓排除', icon: <Coffee size={12}/>, selectedClass: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' },
   ];
+  
+  const formatDuration = (minutes: EstimatedDuration) => {
+    if (minutes < 60) return `${minutes}分钟`;
+    const hours = minutes / 60;
+    return `${hours}小时`;
+  };
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-sm transition-all duration-300">
@@ -562,6 +587,30 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     )}
                 </div>
             </div>
+             
+             <div className="bg-white dark:bg-zinc-900 rounded-xl p-3 space-y-3 shadow-sm border border-gray-200 dark:border-zinc-800">
+                <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                    <div className="bg-sky-500 rounded-md p-1 text-white"><Timer size={14}/></div>
+                    <span className="text-sm font-medium">执行偏好</span>
+                </div>
+                <div>
+                    <label className="text-xs font-semibold text-gray-400 dark:text-gray-500">预估耗时</label>
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                       {DURATION_OPTIONS.map(d => (
+                           <button key={d} onClick={() => setEstimatedDuration(d)} className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${estimatedDuration === d ? 'bg-indigo-600 text-white shadow' : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700'}`}>{formatDuration(d)}</button>
+                       ))}
+                    </div>
+                </div>
+                 <div>
+                    <label className="text-xs font-semibold text-gray-400 dark:text-gray-500">偏好时段</label>
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                       {TIME_SLOT_OPTIONS.map(s => (
+                           <button key={s.id} onClick={() => setPreferredTimeSlot(s.id)} className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${preferredTimeSlot === s.id ? 'bg-indigo-600 text-white shadow' : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700'}`}>{s.label}</button>
+                       ))}
+                    </div>
+                </div>
+             </div>
+
 
              {/* --- Dependencies --- */}
              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">

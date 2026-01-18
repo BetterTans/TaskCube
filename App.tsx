@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings } from './types.ts';
+import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings, PreferredTimeSlot } from './types.ts';
 import { generateTasksFromRule, parseDate } from './services/recurringService.ts';
 import { FullCalendar } from './components/FullCalendar.tsx';
 import { TableView } from './components/TableView.tsx';
@@ -12,6 +12,8 @@ import { ProjectDetailModal } from './components/ProjectDetailModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
 import { CommandPalette, Command } from './components/CommandPalette.tsx';
 import { EventPopover } from './components/EventPopover.tsx';
+import { NextAction } from './components/NextAction.tsx';
+import { ToastContainer, ToastData } from './components/Toast.tsx';
 import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
 import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid, PanelLeftClose, PanelRightClose, GripVertical } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -49,6 +51,13 @@ const getWeekRange = (date = new Date()) => {
     };
 };
 
+const getCurrentTimeSlot = (): PreferredTimeSlot => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 18) return 'afternoon';
+    return 'evening'; // Covers 18:00 to 04:59
+};
+
 const TODAY = getTodayString();
 
 const DEFAULT_AI_SETTINGS: AISettings = {
@@ -83,6 +92,7 @@ export default function App() {
   const [aiSettings, setAiSettings] = useState<AISettings>(DEFAULT_AI_SETTINGS);
   const [hotkeys, setHotkeys] = useState<Record<string, string>>(DEFAULT_HOTKEYS);
   const [theme, setTheme] = useState<ThemeMode>('light');
+  const [toasts, setToasts] = useState<ToastData[]>([]);
 
   // 视图状态
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -101,6 +111,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>(viewOrder[0]);
   const [matrixDateRange, setMatrixDateRange] = useState(getWeekRange());
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
+  const [currentTimeSlot, setCurrentTimeSlot] = useState(getCurrentTimeSlot());
   
   // --- 模态框可见性状态 ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -128,6 +139,15 @@ export default function App() {
   const selectedProject = projects?.find(p => p.id === selectedProjectId) || null;
 
   const openSettings = () => setIsSettingsOpen(true);
+  
+  const showToast = useCallback((message: string, type: 'success' | 'info' = 'success') => {
+      const id = generateUUID();
+      setToasts(prev => [...prev, { id, message, type }]);
+  }, []);
+
+  const removeToast = useCallback((id: string) => {
+      setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
 
   // --- 初始化与设置持久化 ---
   useEffect(() => {
@@ -161,6 +181,14 @@ export default function App() {
     }
   }, [theme]);
 
+  // 定期更新当前时间段以刷新“下一步行动”建议
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentTimeSlot(getCurrentTimeSlot());
+    }, 5 * 60 * 1000); // 每 5 分钟刷新一次
+    return () => clearInterval(intervalId);
+  }, []);
+
   // --- 周期性任务自动生成 ---
   useEffect(() => {
     if (!recurringRules || !tasks) return;
@@ -193,6 +221,51 @@ export default function App() {
     }
     return blocked;
   }, [tasks, tasksById]);
+  
+  const nextActionTasks = useMemo<Task[]>(() => {
+    if (!tasks) return [];
+
+    const priorityMap = { [Priority.HIGH]: 0, [Priority.MEDIUM]: 1, [Priority.LOW]: 2 };
+    const getEffectiveDate = (task: Task) => new Date(task.endDate || task.date).getTime();
+
+    const getTimeSlotScore = (task: Task): number => {
+        if (!task.preferredTimeSlot || task.preferredTimeSlot === 'any') {
+            return 1; // 中性
+        }
+        if (task.preferredTimeSlot === currentTimeSlot) {
+            return 2; // 匹配，获得加分
+        }
+        return 0; // 不匹配，获得减分
+    };
+    
+    const actionableTasks = tasks.filter(task => 
+      !task.completed &&
+      !blockedTaskIds.has(task.id) &&
+      task.date <= TODAY
+    );
+
+    actionableTasks.sort((a, b) => {
+      // 1. 按时段偏好排序 (分数高者优先)
+      const scoreA = getTimeSlotScore(a);
+      const scoreB = getTimeSlotScore(b);
+      if (scoreA !== scoreB) {
+          return scoreB - scoreA;
+      }
+        
+      // 2. 按截止日期排序 (日期近者优先)
+      const dateA = getEffectiveDate(a);
+      const dateB = getEffectiveDate(b);
+      if (dateA !== dateB) {
+        return dateA - dateB;
+      }
+      
+      // 3. 按优先级排序 (高>中>低)
+      return priorityMap[a.priority] - priorityMap[b.priority];
+    });
+
+    return actionableTasks.slice(0, 3);
+  }, [tasks, blockedTaskIds, currentTimeSlot]);
+
 
   const handleDateChange = (date: Date) => {
     const isDifferentMonth = date.getMonth() !== currentDate.getMonth() || date.getFullYear() !== currentDate.getFullYear();
@@ -233,7 +306,13 @@ export default function App() {
   const toggleTask = async (id: string) => {
     if (!tasks) return;
     const task = tasks.find(t => t.id === id);
-    if (task) await db.tasks.update(id, { completed: !task.completed });
+    if (task) {
+      const isCompleting = !task.completed;
+      await db.tasks.update(id, { completed: isCompleting });
+      if (isCompleting) {
+        showToast('完成一步，离目标更近了');
+      }
+    }
   }
 
   const saveTask = async (taskData: Partial<Task>, ruleData?: Partial<RecurringRule>) => {
@@ -260,24 +339,23 @@ export default function App() {
     } else if (taskData.id) {
       await db.tasks.update(taskData.id, taskData);
     } else {
+      const { id, ...restOfTaskData } = taskData;
       const newTask: Task = {
+        // Defaults for a new task
         id: generateUUID(),
-        title: taskData.title!,
-        description: taskData.description,
-        priority: taskData.priority || Priority.MEDIUM,
-        quadrant: taskData.quadrant || EisenhowerQuadrant.Q2,
-        date: taskData.date || selectedDateStr,
-        endDate: taskData.endDate,
-        startTime: taskData.startTime,
-        duration: taskData.duration,
         completed: false,
-        subTasks: taskData.subTasks || [],
         createdAt: Date.now(),
         isExpanded: false,
-        projectId: taskData.projectId,
-        tags: taskData.tags || []
+        // Data from the form modal
+        ...restOfTaskData,
+        // Ensure required fields have a value
+        title: restOfTaskData.title!,
+        priority: restOfTaskData.priority || Priority.MEDIUM,
+        date: restOfTaskData.date || selectedDateStr,
+        subTasks: restOfTaskData.subTasks || [],
+        quadrant: restOfTaskData.quadrant || EisenhowerQuadrant.Q2,
       };
-      await db.tasks.add(newTask);
+      await db.tasks.add(newTask as Task);
     }
   };
 
@@ -504,11 +582,15 @@ export default function App() {
               <button onClick={() => openNewTaskModal(getTodayString())} className="px-4 py-2 flex items-center justify-center gap-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md shadow-indigo-200 dark:shadow-none transition-all active:scale-95 text-sm font-medium" title="添加新任务 (N)"><Plus size={16} /> 新建任务</button>
            </div>
         </header>
+        
+        {tasks && <NextAction tasks={nextActionTasks} onTaskClick={openEditModal} />}
+
         <main className="flex-1 overflow-hidden relative">
           {renderCurrentView()}
         </main>
       </div>
 
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
       <TaskDetailModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingRule(null); setNewTaskInitialTime(undefined); }} task={editingTask} dateStr={selectedDateStr} allTasks={tasks ?? []} initialTime={newTaskInitialTime} recurringRule={getActiveRecurringRule()} projects={projects ?? []} initialProjectId={newTaskInitialProjectId} onSave={saveTask} onUpdateRule={updateRecurringRule} onDelete={deleteTask} aiSettings={aiSettings} onOpenSettings={openSettings} />
       <RecurringManager isOpen={isRecurManagerOpen} onClose={() => setIsRecurManagerOpen(false)} rules={recurringRules} onDeleteRule={deleteRule} onEditRule={(rule) => { setEditingRule(rule); setEditingTask(null); setIsRecurManagerOpen(false); setIsModalOpen(true); }} />

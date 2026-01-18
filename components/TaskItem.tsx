@@ -108,7 +108,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           onClick={() => onToggle(task.id)}
           className={`mt-1 flex-shrink-0 transition-colors ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600 hover:text-indigo-500'}`}
         >
-          {task.completed ? <CheckCircle2 size={24} /> : <Circle size={24} />}
+          {task.completed ? <CheckCircle2 size={24} className="animate-pop-in" /> : <Circle size={24} />}
         </button>
 
         <div className="flex-1 min-w-0">

@@ -91,7 +91,7 @@ export const DayTaskListModal: React.FC<DayTaskListModalProps> = ({
                   onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }}
                   className={`transition-colors ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-zinc-600 hover:text-indigo-500'}`}
                 >
-                  {task.completed ? <CheckCircle2 size={20} /> : <Circle size={20} />}
+                  {task.completed ? <CheckCircle2 size={20} className="animate-pop-in" /> : <Circle size={20} />}
                 </button>
                 {/* 任务标题和描述 */}
                 <div className="flex-1 min-w-0">

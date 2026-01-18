@@ -202,7 +202,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                      {projectTasks.length === 0 ? (<div className="p-8 text-center text-gray-400"><p className="text-sm">暂无任务</p></div>) : (
                         projectTasks.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)).map(task => (
                            <div key={task.id} onClick={() => onTaskClick(task)} className="flex items-center gap-3 p-3.5 hover:bg-gray-50 dark:hover:bg-zinc-800 cursor-pointer active:bg-gray-100 dark:active:bg-zinc-700 transition-colors">
-                              <div className={task.completed ? 'text-gray-300 dark:text-zinc-600' : 'text-gray-300 dark:text-zinc-600'}>{task.completed ? <CheckCircle2 size={20} className="text-green-500" /> : <Circle size={20} />}</div>
+                              <div className={task.completed ? 'text-gray-300 dark:text-zinc-600' : 'text-gray-300 dark:text-zinc-600'}>{task.completed ? <CheckCircle2 size={20} className="text-green-500 animate-pop-in" /> : <Circle size={20} />}</div>
                               <div className="flex-1 min-w-0">
                                  <div className={`text-sm font-medium truncate ${task.completed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</div>
                                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5"><span>{task.date}</span>{task.priority === Priority.HIGH && <span className="text-red-500 font-medium bg-red-50 dark:bg-red-900/20 px-1 rounded">High</span>}</div>

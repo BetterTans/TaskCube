@@ -79,7 +79,7 @@ export interface Project {
   status: ProjectStatus;
   progress: number; // 0-100 进度百分比
   startDate: string;
-  endDate?: string;
+  endDate?: string; // 项目的预计结束日期
   logs: ProjectLog[]; // 项目进展日志
   createdAt: number;
   color: string; // 用于 UI 区分的颜色 (Hex)

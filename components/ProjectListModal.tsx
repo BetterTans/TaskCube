@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Project, ProjectStatus } from '../types';
-import { X, Plus, Briefcase, TrendingUp, ChevronRight, Folder } from 'lucide-react';
+import { X, Plus, ChevronRight, Folder } from 'lucide-react';
 import { Button } from './Button';
 
 interface ProjectListModalProps {
@@ -11,7 +11,6 @@ interface ProjectListModalProps {
   onProjectClick: (project: Project) => void;
 }
 
-// 预定义颜色列表，用于新项目
 const PROJECT_COLORS = [
   '#EF4444', '#F97316', '#F59E0B', '#84CC16', '#22C55E', '#14B8A6',
   '#06B6D4', '#3B82F6', '#8B5CF6', '#EC4899', '#78716C'
@@ -39,50 +38,48 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
       progress: 0,
       startDate: new Date().toISOString().split('T')[0],
       logs: [],
-      // 从调色盘中循环选择一个颜色
       color: PROJECT_COLORS[projects.length % PROJECT_COLORS.length]
     });
     setNewTitle('');
     setNewDesc('');
     setIsCreating(false);
   };
+  
+  const formatDateRange = (p: Project) => {
+    let dateStr = new Date(p.startDate).toLocaleDateString();
+    if (p.endDate) {
+        dateStr += ` → ${new Date(p.endDate).toLocaleDateString()}`;
+    }
+    return dateStr;
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-sm transition-all">
       <div className="bg-[#F2F2F7] dark:bg-black sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[90vh] sm:h-[80vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
         
-        {/* iOS 风格头部 */}
-        <div className="bg-white dark:bg-zinc-900 px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
-           <button onClick={onClose} className="text-indigo-600 dark:text-indigo-400 font-medium text-base">完成</button>
+        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
+           <button onClick={onClose} className="text-indigo-600 dark:text-indigo-400 font-medium text-base ios-btn-active">完成</button>
            <h3 className="font-semibold text-gray-900 dark:text-white text-base">项目</h3>
            <button 
-             onClick={() => setIsCreating(true)} 
-             className="text-indigo-600 dark:text-indigo-400 font-medium text-base"
-             disabled={isCreating}
+             onClick={() => setIsCreating(c => !c)} 
+             className="text-indigo-600 dark:text-indigo-400 font-medium text-base p-1 ios-btn-active"
            >
-             <Plus size={24} />
+             <Plus size={24} className={`transition-transform duration-300 ${isCreating ? 'rotate-45' : ''}`} />
            </button>
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
           
-          {/* 创建项目表单 */}
           {isCreating && (
-             <div className="mb-6 animate-in slide-in-from-top-2 fade-in">
+             <div className="mb-6 animate-in slide-in-from-top-2 fade-in duration-300">
                <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800">
                   <input
                     autoFocus
                     type="text"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="项目名称"
+                    placeholder="新项目名称"
                     className="w-full px-4 py-3 border-b border-gray-100 dark:border-zinc-800 outline-none text-base placeholder:text-gray-400 dark:placeholder:text-zinc-600 bg-transparent text-gray-900 dark:text-white"
-                  />
-                  <textarea
-                    value={newDesc}
-                    onChange={(e) => setNewDesc(e.target.value)}
-                    placeholder="备注..."
-                    className="w-full px-4 py-3 outline-none text-sm text-gray-600 dark:text-gray-300 resize-none h-20 bg-transparent"
                   />
                   <div className="flex border-t border-gray-100 dark:border-zinc-800 divide-x divide-gray-100 dark:divide-zinc-800">
                      <button 
@@ -102,7 +99,6 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
              </div>
           )}
 
-          {/* 项目列表 - iOS 分组风格 */}
           <div className="space-y-6">
              {projects.length === 0 && !isCreating ? (
                 <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -116,7 +112,7 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
                      <div 
                        key={project.id}
                        onClick={() => onProjectClick(project)}
-                       className="flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer group active:bg-gray-100 dark:active:bg-zinc-700"
+                       className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer group active:bg-gray-100 dark:active:bg-zinc-700"
                      >
                         <div 
                            className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0`}
@@ -126,28 +122,21 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                           <div className="flex justify-between items-center mb-0.5">
+                           <div className="flex justify-between items-center">
                               <h4 className={`font-semibold text-base truncate pr-2 ${project.status === 'completed' ? 'text-gray-400' : 'text-gray-900 dark:text-white'}`}>
                                 {project.title}
                               </h4>
-                              <span className="text-xs text-gray-400 font-medium whitespace-nowrap">
-                                {new Date(project.startDate).toLocaleDateString()}
-                              </span>
+                               <span className="text-xs text-gray-500 dark:text-gray-400">{project.progress}%</span>
                            </div>
-                           <div className="flex items-center gap-3">
-                              <div className="flex-1 h-1.5 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden max-w-[100px]">
+                           <div className="flex items-center gap-3 mt-1">
+                              <div className="flex-1 h-1 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                                 <div 
                                   className={`h-full rounded-full`}
                                   style={{ width: `${project.progress}%`, backgroundColor: project.color || '#4F46E5' }}
                                 />
                               </div>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">{project.progress}%</span>
-                              {project.description && (
-                                <span className="text-xs text-gray-400 truncate max-w-[150px] ml-auto">
-                                  {project.description}
-                                </span>
-                              )}
                            </div>
+                           <div className="text-xs text-gray-400 mt-1.5">{formatDateRange(project)}</div>
                         </div>
                         
                         <ChevronRight size={16} className="text-gray-300 dark:text-zinc-600 shrink-0" />

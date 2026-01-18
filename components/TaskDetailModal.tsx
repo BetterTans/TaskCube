@@ -314,44 +314,56 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   };
 
   const handleSave = () => {
-    if (!title.trim()) return;
+    if (isSaveDisabled) return;
+
     const timeData = isAllDay ? { startTime: undefined, duration: undefined } : { startTime, duration };
 
+    // Case 1: Editing the entire series of a recurring task
     if (editMode === 'series' && recurringRule && onUpdateRule) {
-       onUpdateRule(recurringRule.id, {
-         title, description, priority, quadrant,
-         projectId: selectedProjectId || undefined,
-         tags: tags,
-         startTime: timeData.startTime,
-         duration: timeData.duration,
-       });
-    } else if (isRecurring && !task && editMode === 'single') {
-       onSave({}, {
-         title, description, priority, quadrant,
-         frequency: recurFreq,
-         interval: recurInterval,
-         weekDays: recurWeekDays,
-         startDate: recurStartDate,
-         endDate: recurEndDate,
-         projectId: selectedProjectId || undefined,
-         tags: tags,
-         subTaskTitles: subtasks.map(s => s.title),
-         ...timeData
-       });
-    } else {
-      const taskData: Partial<Task> = {
-        id: task?.id, title, description, priority, quadrant,
-        date: startDate,
-        endDate: isRecurring ? undefined : (endDate && endDate >= startDate ? endDate : undefined),
-        projectId: selectedProjectId || undefined,
-        subTasks: subtasks,
-        tags: tags,
-        predecessorIds: predecessorIds,
-        ...timeData,
-      };
-
-      if (task?.recurringRuleId && !isRecurring) taskData.recurringRuleId = undefined;
-      onSave(taskData);
+        onUpdateRule(recurringRule.id, {
+            title, description, priority, quadrant,
+            projectId: selectedProjectId || undefined,
+            tags: tags,
+            startTime: timeData.startTime,
+            duration: timeData.duration,
+        });
+    }
+    // Case 2: Creating a new recurring rule (from scratch OR by converting a single task)
+    else if (isRecurring) {
+        onSave({}, {
+            title, description, priority, quadrant,
+            frequency: recurFreq,
+            interval: recurInterval,
+            weekDays: recurWeekDays,
+            startDate: recurStartDate,
+            endDate: recurEndDate,
+            projectId: selectedProjectId || undefined,
+            tags: tags,
+            subTaskTitles: subtasks.map(s => s.title),
+            ...timeData
+        });
+        // If we were converting an existing single task, delete it.
+        if (task && !task.recurringRuleId) {
+            onDelete(task.id);
+        }
+    }
+    // Case 3: Saving a single task (new or update)
+    else {
+        const taskData: Partial<Task> = {
+            id: task?.id, title, description, priority, quadrant,
+            date: startDate,
+            endDate: endDate && endDate >= startDate ? endDate : undefined,
+            projectId: selectedProjectId || undefined,
+            subTasks: subtasks,
+            tags: tags,
+            predecessorIds: predecessorIds,
+            ...timeData,
+        };
+        // If task was recurring but is now single, detach it from the rule.
+        if (task?.recurringRuleId && editMode === 'single') {
+            taskData.recurringRuleId = undefined; 
+        }
+        onSave(taskData);
     }
     onClose();
   };

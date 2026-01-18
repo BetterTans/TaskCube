@@ -17,6 +17,16 @@ interface ProjectDetailModalProps {
   onTaskClick: (task: Task) => void;
 }
 
+const generateUUID = () => {
+  if (crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   isOpen,
   onClose,
@@ -50,7 +60,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   const handleAddLog = () => {
     if (!logInput.trim()) return;
     const newLog: ProjectLog = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       content: logInput,
       date: Date.now(),
       type: 'note'
@@ -77,7 +87,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     });
     // 自动添加一条日志记录生成操作
     const newLog: ProjectLog = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       content: `AI 助手生成了 ${plan.length} 个建议行动计划。`,
       date: Date.now(),
       type: 'milestone'
@@ -164,7 +174,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                        {/* 轨道 */}
                        <div className="absolute left-0 right-0 h-2 bg-gray-100 dark:bg-zinc-700 rounded-full overflow-hidden">
                           <div 
-                             className="h-full bg-indigo-500 transition-all duration-150 ease-out"
+                             className={`h-full bg-indigo-500 transition-all duration-150 ease-out`}
                              style={{ width: `${project.progress}%` }}
                           />
                        </div>

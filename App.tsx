@@ -18,6 +18,17 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db.ts';
 import { useHotkeys } from './hooks/useHotkeys.ts';
 
+// Helper function to generate a UUID, with a fallback for insecure contexts.
+const generateUUID = () => {
+  if (crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 // 获取今天的 YYYY-MM-DD 字符串
 const getTodayString = (date = new Date()) => {
   const d = new Date(date);
@@ -197,7 +208,7 @@ export default function App() {
   const saveTask = async (taskData: Partial<Task>, ruleData?: Partial<RecurringRule>) => {
     if (ruleData) {
       const newRule: RecurringRule = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         title: ruleData.title!,
         description: ruleData.description,
         priority: ruleData.priority || Priority.MEDIUM,
@@ -219,7 +230,7 @@ export default function App() {
       await db.tasks.update(taskData.id, taskData);
     } else {
       const newTask: Task = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         title: taskData.title!,
         description: taskData.description,
         priority: taskData.priority || Priority.MEDIUM,
@@ -267,7 +278,7 @@ export default function App() {
 
   const handleCreateProject = async (projectData: Partial<Project>) => {
     const newProject = {
-      id: crypto.randomUUID(), title: projectData.title!, status: 'active', progress: 0,
+      id: generateUUID(), title: projectData.title!, status: 'active', progress: 0,
       startDate: projectData.startDate || TODAY, logs: [], createdAt: Date.now(),
       color: projectData.color || '#3B82F6', ...projectData
     } as Project;

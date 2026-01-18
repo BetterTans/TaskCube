@@ -28,6 +28,16 @@ import {
   Link2
 } from 'lucide-react';
 
+const generateUUID = () => {
+  if (crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -281,9 +291,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     setIsGenerating(true);
     const subtaskTitles = await breakDownTask(title);
     if (subtaskTitles.length > 0) {
-      const newSubtasks: SubTask[] = subtaskTitles.map(t => ({
-        id: crypto.randomUUID(), title: t, completed: false
-      }));
+      const newSubtasks: SubTask[] = subtaskTitles.map(t => ({ id: generateUUID(), title: t, completed: false }));
       setSubtasks(s => [...s, ...newSubtasks]);
     }
     setIsGenerating(false);
@@ -291,7 +299,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   
   const handleAddSubtask = () => {
     if (newSubtaskTitle.trim()) {
-      setSubtasks([...subtasks, { id: crypto.randomUUID(), title: newSubtaskTitle.trim(), completed: false }]);
+      setSubtasks([...subtasks, { id: generateUUID(), title: newSubtaskTitle.trim(), completed: false }]);
       setNewSubtaskTitle('');
     }
   };

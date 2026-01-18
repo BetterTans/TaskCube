@@ -14,6 +14,16 @@ import {
   Repeat
 } from 'lucide-react';
 
+const generateUUID = () => {
+  if (crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 /**
  * TaskItemProps 接口定义了任务项组件的属性。
  * @property {Task} task - 要渲染的任务对象。
@@ -65,7 +75,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     if (subtaskTitles.length > 0) {
       // 将返回的标题字符串数组转换为 SubTask 对象数组
       const newSubtasks: SubTask[] = subtaskTitles.map(t => ({
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         title: t,
         completed: false
       }));

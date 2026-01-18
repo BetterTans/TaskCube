@@ -1,5 +1,15 @@
 import { RecurringRule, Task } from "../types";
 
+const generateUUID = () => {
+  if (crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 /**
  * 辅助函数：为一个 Date 对象增加指定的天数。
  * @param {Date} date - 原始日期。
@@ -125,7 +135,7 @@ export const generateTasksFromRule = (
       // 如果不存在且日期在规则开始日期之后（或当天），则创建任务
       if (!exists && dateStr >= rule.startDate) {
         newTasks.push({
-          id: crypto.randomUUID(),
+          id: generateUUID(),
           title: rule.title,
           description: rule.description,
           priority: rule.priority,
@@ -133,7 +143,7 @@ export const generateTasksFromRule = (
           completed: false,
           // 每个实例都从模板重新创建子任务列表
           subTasks: rule.subTaskTitles ? rule.subTaskTitles.map(t => ({
-             id: crypto.randomUUID(),
+             id: generateUUID(),
              title: t,
              completed: false
           })) : [], 

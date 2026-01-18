@@ -17,10 +17,9 @@ interface SettingsModalProps {
 }
 
 const DEFAULT_AI_SETTINGS: AISettings = {
-  // FIX: Gemini doesn't use a Base URL in this context. API Key is from env.
-  baseUrl: '',
+  baseUrl: 'https://api.openai.com/v1',
   apiKey: '',
-  model: 'gemini-3-flash-preview'
+  model: 'gpt-3.5-turbo'
 };
 
 const HOTKEY_LABELS: Record<string, string> = {
@@ -159,19 +158,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI 模型设置</h2>
              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Base URL</label>
+                  <div className="relative">
+                    <Server className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16}/>
+                    <input 
+                      type="text" 
+                      value={formData.baseUrl} 
+                      onChange={(e) => setFormData(p => ({...p, baseUrl: e.target.value}))} 
+                      placeholder="https://api.openai.com/v1" 
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-gray-900 dark:text-white"
+                    />
+                  </div>
+                </div>
                <div>
-                  {/* FIX: API Key is handled by environment variable */}
                   <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">API Key</label>
                   <div className="relative">
                     <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16}/>
                     <input 
-                      type="text" 
-                      value="已从环境中加载" 
-                      disabled 
-                      className="w-full pl-10 pr-4 py-2.5 bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 outline-none transition-all"
+                      type="password" 
+                      value={formData.apiKey} 
+                      onChange={(e) => setFormData(p => ({...p, apiKey: e.target.value}))} 
+                      placeholder="sk-..." 
+                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-gray-900 dark:text-white"
                     />
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">API 密钥通过 `process.env.API_KEY` 安全提供。</p>
                </div>
                <div>
                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">模型名称</label>
@@ -181,11 +192,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                      type="text" 
                      value={formData.model} 
                      onChange={(e) => setFormData(p => ({...p, model: e.target.value}))} 
-                     placeholder="gemini-3-flash-preview" 
+                     placeholder="gpt-3.5-turbo" 
                      className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-gray-900 dark:text-white"
                    />
                  </div>
                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+                  支持任何兼容 OpenAI API 格式的服务，包括本地模型。
+                </p>
              </div>
           </div>
         );

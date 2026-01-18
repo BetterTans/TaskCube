@@ -182,10 +182,10 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
 
   const quadrantOrder: EisenhowerQuadrant[] = [EisenhowerQuadrant.Q1, EisenhowerQuadrant.Q2, EisenhowerQuadrant.Q3, EisenhowerQuadrant.Q4];
   const quadrantInfo = {
-    [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', subtitle: 'Do', icon: <Zap size={16} className="text-red-500"/> },
-    [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', subtitle: 'Plan', icon: <Star size={16} className="text-green-500"/> },
-    [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', subtitle: 'Delegate', icon: <Bell size={16} className="text-orange-500"/> },
-    [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', subtitle: 'Eliminate', icon: <Coffee size={16} className="text-blue-500"/> },
+    [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', subtitle: '立即处理', icon: <Zap size={16} className="text-red-500"/> },
+    [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', subtitle: '计划执行', icon: <Star size={16} className="text-green-600"/> },
+    [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', subtitle: '审慎处理', icon: <Bell size={16} className="text-orange-500"/> },
+    [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', subtitle: '暂缓排除', icon: <Coffee size={16} className="text-blue-500"/> },
   };
 
   return (

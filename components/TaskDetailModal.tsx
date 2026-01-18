@@ -349,10 +349,10 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   };
 
   const quadrantOptions = [
-    { id: EisenhowerQuadrant.Q1, label: '重要 & 紧急', desc: 'Do', icon: <Zap size={12}/>, selectedClass: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200' },
-    { id: EisenhowerQuadrant.Q2, label: '重要 & 不紧急', desc: 'Plan', icon: <Star size={12}/>, selectedClass: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200' },
-    { id: EisenhowerQuadrant.Q3, label: '紧急 & 不重要', desc: 'Delegate', icon: <Bell size={12}/>, selectedClass: 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-200' },
-    { id: EisenhowerQuadrant.Q4, label: '不重要 & 不紧急', desc: 'Eliminate', icon: <Coffee size={12}/>, selectedClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200' },
+    { id: EisenhowerQuadrant.Q1, label: '重要 & 紧急', desc: '立即处理', icon: <Zap size={12}/>, selectedClass: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300' },
+    { id: EisenhowerQuadrant.Q2, label: '重要 & 不紧急', desc: '计划执行', icon: <Star size={12}/>, selectedClass: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' },
+    { id: EisenhowerQuadrant.Q3, label: '紧急 & 不重要', desc: '审慎处理', icon: <Bell size={12}/>, selectedClass: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' },
+    { id: EisenhowerQuadrant.Q4, label: '不重要 & 不紧急', desc: '暂缓排除', icon: <Coffee size={12}/>, selectedClass: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' },
   ];
 
   return (

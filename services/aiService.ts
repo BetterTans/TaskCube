@@ -1,4 +1,3 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import { AISettings, Task, Priority, EisenhowerQuadrant } from "../types";
 
 // Helper to get settings from localStorage
@@ -12,45 +11,58 @@ const getSettings = (): AISettings => {
         }
     }
     return {
-        baseUrl: '', // Base URL is not needed for Gemini
-        apiKey: '', // API Key is now handled by process.env
-        model: 'gemini-3-flash-preview' // Default to a reasonable Gemini model
+        baseUrl: 'https://api.openai.com/v1',
+        apiKey: '',
+        model: 'gpt-3.5-turbo'
     };
 };
 
-// Generic function to call the Gemini API
+// Generic function to call an OpenAI-compatible API
 const callAI = async (prompt: string, model: string, expectJson: boolean) => {
-    // FIX: Use GoogleGenAI with API key from environment variables
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-        console.warn("API_KEY environment variable is not set.");
-        throw new Error("API Key is not configured.");
+    const { apiKey, baseUrl } = getSettings();
+    if (!apiKey || !baseUrl) {
+        throw new Error("AI settings (API Key or Base URL) are not configured.");
     }
-    const ai = new GoogleGenAI({ apiKey });
 
-    // FIX: Use the recommended text model if none is provided.
-    const effectiveModel = model || 'gemini-3-flash-preview';
+    const effectiveModel = model || 'gpt-3.5-turbo';
+    
+    // Construct the request body. OpenAI and compatible APIs use this format.
+    const body: any = {
+        model: effectiveModel,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.3,
+    };
+    
+    // For services supporting JSON mode
+    if (expectJson) {
+        body.response_format = { type: 'json_object' };
+    }
 
     try {
-        // FIX: Switched to ai.models.generateContent
-        const response = await ai.models.generateContent({
-            model: effectiveModel,
-            contents: prompt,
-            config: {
-              ...(expectJson && { responseMimeType: "application/json" }),
-              temperature: 0.3,
-            }
+        const response = await fetch(`${baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(body)
         });
+
+        if (!response.ok) {
+            const errorBody = await response.json();
+            throw new Error(`AI API Error: ${errorBody.error?.message || response.statusText}`);
+        }
+
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
         
-        // FIX: Use response.text to get the content
-        const content = response.text;
         if (!content) {
             throw new Error("AI returned an empty response.");
         }
 
+        // If JSON is expected, parse it from the content string
         if (expectJson) {
             try {
-                // The content itself is a JSON string that needs to be parsed
                 return JSON.parse(content);
             } catch (e) {
                 console.error("Failed to parse AI JSON response:", content);
@@ -59,7 +71,8 @@ const callAI = async (prompt: string, model: string, expectJson: boolean) => {
         }
         return content;
     } catch (error) {
-        console.error("Gemini API Error:", error);
+        console.error("AI Service Error:", error);
+        // Re-throw a more user-friendly error
         throw new Error(`AI request failed: ${error instanceof Error ? error.message : String(error)}`);
     }
 };
@@ -69,7 +82,6 @@ const callAI = async (prompt: string, model: string, expectJson: boolean) => {
  * Breaks down a task title into a list of subtasks using AI.
  */
 export const breakDownTask = async (taskTitle: string): Promise<string[]> => {
-    // FIX: Updated prompt for Gemini's JSON mode
     const prompt = `You are a task breakdown expert. Break down the user's task into a JSON array of 3-5 concise, actionable subtask strings. Your response must be a valid JSON object with a single key 'subtasks' which is an array of strings.
 
 Task to break down: "${taskTitle}"`;
@@ -93,7 +105,6 @@ Task to break down: "${taskTitle}"`;
  */
 export const parseTaskFromNaturalLanguage = async (input: string, referenceDateStr: string): Promise<Partial<Task>> => {
     const todayStr = new Date().toISOString().split('T')[0];
-    // FIX: Updated prompt for Gemini's JSON mode
     const prompt = `You are a JSON parser extracting task details from natural language.
 Context:
 - Today's Date: ${todayStr} (YYYY-MM-DD)
@@ -133,7 +144,6 @@ Parse this: "${input}"`;
  * Generates a preliminary project plan with key tasks.
  */
 export const generateProjectPlan = async (projectTitle: string, projectDesc?: string): Promise<{ title: string; priority: Priority; reason: string }[]> => {
-    // FIX: Updated prompt for Gemini's JSON mode
     const prompt = `You are a project management expert. Create a preliminary action plan for a project.
 List 3-5 key next actions (Tasks).
 Your response must be a valid JSON object with a single key 'tasks', containing an array of objects.
@@ -163,7 +173,6 @@ export const prioritizeTasksAI = async (tasks: Task[]): Promise<{ taskId: string
     if (tasks.length === 0) return [];
     
     const taskSummaries = tasks.map(t => ({ id: t.id, title: t.title, currentPriority: t.priority }));
-    // FIX: Updated prompt for Gemini's JSON mode
     const prompt = `You are a time management master. Analyze the provided JSON list of tasks.
 Re-assign a priority (High, Medium, Low) to each task based on inferred urgency and importance.
 Your response must be a valid JSON object with a key 'orders', containing an array of objects.

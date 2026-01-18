@@ -5,7 +5,8 @@ import React from 'react';
  * @param {{ className?: string }} props - 组件属性。
  * @returns {JSX.Element} - 一个带有动画效果的灰色矩形。
  */
-const SkeletonBox = ({ className }: { className?: string }) => (
+// FIX: Changed to React.FC to correctly handle props like `key` when used in a list.
+const SkeletonBox: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse ${className}`} />
 );
 

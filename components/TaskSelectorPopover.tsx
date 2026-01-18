@@ -22,34 +22,47 @@ export const TaskSelectorPopover: React.FC<TaskSelectorPopoverProps> = ({
   title
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [position, setPosition] = useState({ top: 0, left: 0, opacity: 0 });
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [isReady, setIsReady] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const calculatePosition = () => {
-      if (!anchorEl || !popoverRef.current) return;
-      const anchorRect = anchorEl.getBoundingClientRect();
-      const popoverRect = popoverRef.current.getBoundingClientRect();
-      const viewWidth = window.innerWidth;
+    if (isOpen && anchorEl) {
+      // We need to wait for the popover to be in the DOM to measure it.
+      // A timeout of 0 pushes this to the end of the current call stack.
+      const timer = setTimeout(() => {
+        if (!popoverRef.current) return;
+        const anchorRect = anchorEl.getBoundingClientRect();
+        const popoverRect = popoverRef.current.getBoundingClientRect();
+        const viewWidth = window.innerWidth;
+        const viewHeight = window.innerHeight;
 
-      let top = anchorRect.bottom + 4;
-      let left = anchorRect.left;
+        let top = anchorRect.bottom + 4;
+        let left = anchorRect.left;
 
-      if (left + popoverRect.width > viewWidth - 10) {
-        left = viewWidth - popoverRect.width - 10;
-      }
-      setPosition({ top, left, opacity: 1 });
-    };
+        if (left + popoverRect.width > viewWidth - 10) {
+            left = viewWidth - popoverRect.width - 10;
+        }
+        if (left < 10) {
+            left = 10;
+        }
+        if (top + popoverRect.height > viewHeight - 10) {
+            top = anchorRect.top - popoverRect.height - 4;
+        }
 
-    if (isOpen) {
-      setSearchQuery('');
-      requestAnimationFrame(() => {
-        calculatePosition();
+        setPosition({ top, left });
+        setIsReady(true);
         inputRef.current?.focus();
-      });
+      }, 0);
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsReady(false);
+      setSearchQuery('');
     }
   }, [isOpen, anchorEl]);
+
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(task =>
@@ -65,8 +78,8 @@ export const TaskSelectorPopover: React.FC<TaskSelectorPopoverProps> = ({
     <div className="fixed inset-0 z-[80]" onClick={onClose}>
       <div
         ref={popoverRef}
-        style={{ top: position.top, left: position.left, opacity: position.opacity }}
-        className="fixed w-80 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 flex flex-col max-h-80 animate-in fade-in zoom-in-95 duration-150"
+        style={{ top: position.top, left: position.left }}
+        className={`fixed w-80 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-lg rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 flex flex-col max-h-80 transition-opacity duration-150 ${isReady ? 'opacity-100 animate-in fade-in zoom-in-95' : 'opacity-0'}`}
         onClick={e => e.stopPropagation()}
       >
         <div className="p-3 border-b border-gray-100 dark:border-zinc-800">
@@ -80,7 +93,7 @@ export const TaskSelectorPopover: React.FC<TaskSelectorPopoverProps> = ({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="搜索任务..."
-            className="w-full bg-gray-100 dark:bg-zinc-800 rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full bg-gray-100 dark:bg-zinc-700/50 rounded-lg pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
         <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
@@ -92,7 +105,7 @@ export const TaskSelectorPopover: React.FC<TaskSelectorPopoverProps> = ({
                   onSelect(task.id);
                   onClose();
                 }}
-                className="w-full text-left p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800"
+                className="w-full text-left p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
               >
                 <span className="text-sm text-gray-800 dark:text-gray-200">{task.title}</span>
                 <span className="text-xs text-gray-400 block">{task.date}</span>

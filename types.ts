@@ -18,6 +18,18 @@ export enum EisenhowerQuadrant {
 }
 
 /**
+ * 为艾森豪威尔矩阵的每个象限定义标准颜色。
+ * 这有助于在整个应用中创建一致的视觉语言。
+ */
+export const QuadrantColors: Record<EisenhowerQuadrant, string> = {
+  [EisenhowerQuadrant.Q1]: '#EF4444', // Red-500 for "Do"
+  [EisenhowerQuadrant.Q2]: '#22C55E', // Green-500 for "Schedule"
+  [EisenhowerQuadrant.Q3]: '#F97316', // Orange-500 for "Delegate"
+  [EisenhowerQuadrant.Q4]: '#3B82F6', // Blue-500 for "Eliminate"
+};
+
+
+/**
  * 子任务接口
  */
 export interface SubTask {

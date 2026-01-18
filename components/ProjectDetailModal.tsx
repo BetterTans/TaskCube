@@ -1,8 +1,8 @@
 
+
 import React, { useState } from 'react';
-import { Project, Task, ProjectLog, ProjectStatus, Priority, EisenhowerQuadrant } from '../types';
+import { Project, Task, ProjectLog, ProjectStatus, Priority, EisenhowerQuadrant, AISettings } from '../types';
 import { X, Calendar, Plus, Send, CheckCircle2, PlayCircle, PauseCircle, Trash2, Sparkles, LayoutList, History, Circle, ArrowLeft, MoreHorizontal } from 'lucide-react';
-import { Button } from './Button';
 import { generateProjectPlan } from '../services/aiService';
 
 interface ProjectDetailModalProps {
@@ -15,6 +15,8 @@ interface ProjectDetailModalProps {
   onAddProjectTask: (task: Partial<Task>) => void;
   onCreateTaskClick: (projectId: string) => void;
   onTaskClick: (task: Task) => void;
+  aiSettings: AISettings;
+  onOpenSettings: () => void;
 }
 
 const generateUUID = () => {
@@ -36,11 +38,14 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   onDeleteProject,
   onAddProjectTask,
   onCreateTaskClick,
-  onTaskClick
+  onTaskClick,
+  aiSettings,
+  onOpenSettings
 }) => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'timeline'>('tasks');
   const [logInput, setLogInput] = useState('');
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const isAiConfigured = !!(aiSettings && aiSettings.apiKey && aiSettings.baseUrl);
 
   if (!isOpen || !project) return null;
 
@@ -69,26 +74,33 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   };
 
   const handleGeneratePlan = async () => {
+    if (!isAiConfigured) {
+      onOpenSettings();
+      return;
+    }
     setIsGeneratingPlan(true);
-    const plan = await generateProjectPlan(project.title, project.description);
-    plan.forEach(item => {
-      onAddProjectTask({
-        title: item.title,
-        description: item.reason, 
-        priority: item.priority,
-        projectId: project.id,
-        quadrant: EisenhowerQuadrant.Q2, 
-        date: new Date().toISOString().split('T')[0] 
+    try {
+      const plan = await generateProjectPlan(project.title, project.description);
+      plan.forEach(item => {
+        onAddProjectTask({
+          title: item.title,
+          description: item.reason, 
+          priority: item.priority,
+          projectId: project.id,
+          quadrant: EisenhowerQuadrant.Q2, 
+          date: new Date().toISOString().split('T')[0] 
+        });
       });
-    });
-    const newLog: ProjectLog = {
-      id: generateUUID(),
-      content: `AI 助手生成了 ${plan.length} 个建议行动计划。`,
-      date: Date.now(),
-      type: 'milestone'
-    };
-    onUpdateProject(project.id, { logs: [newLog, ...project.logs] });
-    setIsGeneratingPlan(false);
+      const newLog: ProjectLog = {
+        id: generateUUID(),
+        content: `AI 助手生成了 ${plan.length} 个建议行动计划。`,
+        date: Date.now(),
+        type: 'milestone'
+      };
+      onUpdateProject(project.id, { logs: [newLog, ...project.logs] });
+    } finally {
+      setIsGeneratingPlan(false);
+    }
   };
 
   return (
@@ -172,7 +184,21 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                 <div className="space-y-4">
                   <div className="flex justify-between items-center px-1">
                      <span className="text-xs font-semibold text-gray-400 uppercase">{projectTasks.length} 个任务</span>
-                     <button onClick={handleGeneratePlan} disabled={isGeneratingPlan} className="text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1"><Sparkles size={12} className={isGeneratingPlan ? 'animate-spin' : ''} /> AI 生成计划</button>
+                     <button
+                        onClick={handleGeneratePlan}
+                        disabled={isGeneratingPlan}
+                        className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2 py-1.5 rounded-md transition-colors disabled:opacity-60"
+                      >
+                        {isGeneratingPlan ? (
+                          <svg className="animate-spin h-3.5 w-3.5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <Sparkles size={14} />
+                        )}
+                        <span>{isGeneratingPlan ? '生成中...' : (isAiConfigured ? 'AI 生成计划' : '配置 AI')}</span>
+                      </button>
                   </div>
                   <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800 divide-y divide-gray-100 dark:divide-zinc-800">
                      {projectTasks.length === 0 ? (<div className="p-8 text-center text-gray-400"><p className="text-sm">暂无任务</p></div>) : (

@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Task, Priority, SubTask, RecurringFrequency, RecurringRule, EisenhowerQuadrant, Project } from '../types';
+import { Task, Priority, SubTask, RecurringFrequency, RecurringRule, EisenhowerQuadrant, Project, AISettings } from '../types';
 import { breakDownTask, parseTaskFromNaturalLanguage } from '../services/aiService';
 import { parseDate } from '../services/recurringService';
-import { Button } from './Button';
 import { RecurringOptions } from './RecurringOptions';
 import { TaskSelectorPopover } from './TaskSelectorPopover';
 import { 
@@ -53,6 +52,8 @@ interface TaskDetailModalProps {
   onToggleSubtask?: (taskId: string, subtaskId: string) => void;
   onUpdateSubtasks?: (taskId: string, subtasks: SubTask[]) => void;
   initialTime?: string; // 初始时间（例如从日视图点击时间格）
+  aiSettings: AISettings;
+  onOpenSettings: () => void;
 }
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
@@ -67,7 +68,9 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onSave,
   onUpdateRule,
   onDelete,
-  initialTime
+  initialTime,
+  aiSettings,
+  onOpenSettings,
 }) => {
   // --- 表单状态 ---
   const [title, setTitle] = useState('');
@@ -107,6 +110,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [recurEndDate, setRecurEndDate] = useState('');
   
   const tasksById = useMemo(() => new Map(allTasks.map(t => [t.id, t])), [allTasks]);
+  const isAiConfigured = !!(aiSettings && aiSettings.apiKey && aiSettings.baseUrl);
 
   useEffect(() => {
     if (isOpen) {
@@ -241,6 +245,10 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   // --- Handlers ---
   const handleSmartFill = async () => {
+    if (!isAiConfigured) {
+      onOpenSettings();
+      return;
+    }
     if (!title.trim()) return;
     setIsSmartFilling(true);
     const parsed = await parseTaskFromNaturalLanguage(title, startDate);
@@ -287,6 +295,10 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   };
   
   const handleGenerateSubtasks = async () => {
+    if (!isAiConfigured) {
+      onOpenSettings();
+      return;
+    }
     if (!title.trim()) return;
     setIsGenerating(true);
     const subtaskTitles = await breakDownTask(title);
@@ -401,8 +413,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     <button 
                       onClick={handleSmartFill} 
                       disabled={isSmartFilling}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-500 disabled:text-gray-400 disabled:animate-pulse p-1"
-                      title="智能识别"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 dark:text-gray-500 dark:hover:text-indigo-400 transition-colors disabled:text-gray-400 disabled:animate-pulse p-1"
+                      title={isAiConfigured ? "智能识别" : "请先配置 AI 设置"}
                     >
                       <Wand2 size={18} />
                     </button>
@@ -609,14 +621,21 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                         <div className="bg-cyan-500 rounded-md p-1 text-white"><AlignLeft size={14}/></div>
                         <span className="text-sm font-medium">子任务</span>
                     </div>
-                    <Button
-                      variant="ghost" size="sm"
+                    <button
                       onClick={handleGenerateSubtasks}
-                      isLoading={isGenerating}
-                      className="gap-1 text-indigo-600 dark:text-indigo-400"
+                      disabled={isGenerating}
+                      className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2 py-1.5 rounded-md transition-colors disabled:opacity-60"
                     >
-                      <Sparkles size={14} /> AI 拆解
-                    </Button>
+                      {isGenerating ? (
+                        <svg className="animate-spin h-3.5 w-3.5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : (
+                        <Sparkles size={14} />
+                      )}
+                      <span>{isGenerating ? '生成中...' : (isAiConfigured ? 'AI 拆解' : '配置 AI')}</span>
+                    </button>
                 </div>
                 <div className="p-3 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
                     {subtasks.map(sub => (

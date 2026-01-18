@@ -148,7 +148,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             <button
               onClick={handleGenerateSubtasks}
               disabled={isGenerating}
-              className="p-2 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg tooltip-trigger"
+              className="p-2 text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
               title="AI 智能拆解"
             >
               <Sparkles size={18} className={isGenerating ? "animate-pulse" : ""} />

@@ -28,21 +28,21 @@ const QuadrantHeader = ({
   isCollapsed: boolean;
   onToggleCollapse: (id: EisenhowerQuadrant) => void;
 }) => (
-  <div className="flex items-center justify-between mb-3 px-1">
+  <div className="flex items-center justify-between mb-4 px-2">
     <div className="flex items-center gap-3">
       {icon}
       <div>
-        <h3 className="font-bold text-gray-800 dark:text-gray-100">{title}</h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
+        <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-lg">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
       </div>
     </div>
     <div className="flex items-center gap-2">
-      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+      <span className="text-base font-medium text-gray-500 dark:text-gray-400 bg-gray-200/50 dark:bg-zinc-700/50 w-8 h-8 rounded-full flex items-center justify-center">
         {taskCount}
       </span>
       <button
         onClick={() => onToggleCollapse(id)}
-        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
       >
         <ChevronDown
           size={20}
@@ -75,7 +75,7 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
       onDragStart={(e) => onDragStart(e, task.id)}
       onDragEnd={onDragEnd}
       onClick={(e) => onClick(task, e)}
-      className={`bg-white dark:bg-zinc-800/80 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700/50 transition-all duration-200 ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5'} ${task.completed ? 'opacity-60' : ''}`}
+      className={`bg-white dark:bg-zinc-800/80 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700/50 transition-all duration-200 ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5'} ${task.completed ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 flex items-start gap-2">
@@ -193,20 +193,20 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
 
   const quadrantOrder: EisenhowerQuadrant[] = [EisenhowerQuadrant.Q1, EisenhowerQuadrant.Q2, EisenhowerQuadrant.Q3, EisenhowerQuadrant.Q4];
   const quadrantInfo = {
-    [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', subtitle: '立即处理', icon: <Zap size={20} className="text-red-500"/> },
-    [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', subtitle: '计划执行', icon: <Star size={20} className="text-green-600"/> },
-    [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', subtitle: '审慎处理', icon: <Bell size={20} className="text-orange-500"/> },
-    [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', subtitle: '暂缓排除', icon: <Coffee size={20} className="text-blue-500"/> },
+    [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', subtitle: '立即处理', icon: <Zap size={24} className="text-red-500"/> },
+    [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', subtitle: '计划执行', icon: <Star size={24} className="text-green-600"/> },
+    [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', subtitle: '审慎处理', icon: <Bell size={24} className="text-orange-500"/> },
+    [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', subtitle: '暂缓排除', icon: <Coffee size={24} className="text-blue-500"/> },
   };
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar p-2 sm:p-4 bg-gray-100/50 dark:bg-zinc-900/50">
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
+    <div className="h-full overflow-y-auto custom-scrollbar p-2 sm:p-6">
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {quadrantOrder.map(qId => {
           const isCollapsed = collapsedQuadrants.has(qId);
           const { title, subtitle, icon } = quadrantInfo[qId];
           return (
-            <div key={qId}>
+            <div key={qId} className="flex flex-col">
               <QuadrantHeader
                 id={qId}
                 title={title}
@@ -216,34 +216,28 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
                 isCollapsed={isCollapsed}
                 onToggleCollapse={toggleQuadrantCollapse}
               />
-              <div className={`transition-[grid-template-rows] duration-300 ease-in-out grid ${isCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'}`}>
+              <div className={`transition-[grid-template-rows] duration-300 ease-in-out grid ${isCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'} flex-1`}>
                 <div 
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, qId)}
                   onDragEnter={(e) => handleDragEnter(e, qId)}
                   onDragLeave={handleDragLeave}
-                  className={`rounded-2xl p-3 min-h-[150px] overflow-hidden transition-colors duration-200 border-2 border-dashed ${dragOverQuadrant === qId ? 'border-indigo-400/50 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-transparent'}`}
+                  className={`p-1 min-h-[200px] overflow-hidden transition-colors duration-200 border-2 border-dashed rounded-2xl ${dragOverQuadrant === qId ? 'border-indigo-400/50 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-transparent'}`}
                 >
-                    {quadrants[qId].length > 0 ? (
-                      <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
-                        {quadrants[qId].map(task => (
-                          <div key={task.id} className={`${draggedTaskId === task.id ? 'opacity-30 scale-95' : ''} transition-all`}>
-                            <MatrixTaskCard
-                              task={task}
-                              project={projects.find(p => p.id === task.projectId)}
-                              isBlocked={blockedTaskIds.has(task.id)}
-                              onDragStart={handleDragStart}
-                              onDragEnd={handleDragEnd}
-                              onClick={onTaskClick}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-center text-sm text-gray-400 dark:text-zinc-600 pointer-events-none">
-                        <p>将任务拖到此处</p>
-                      </div>
-                    )}
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
+                      {quadrants[qId].map(task => (
+                        <div key={task.id} className={`${draggedTaskId === task.id ? 'opacity-30 scale-95' : ''} transition-all`}>
+                          <MatrixTaskCard
+                            task={task}
+                            project={projects.find(p => p.id === task.projectId)}
+                            isBlocked={blockedTaskIds.has(task.id)}
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                            onClick={onTaskClick}
+                          />
+                        </div>
+                      ))}
+                    </div>
                 </div>
               </div>
             </div>

@@ -13,7 +13,7 @@ import { SettingsModal } from './components/SettingsModal.tsx';
 import { CommandPalette, Command } from './components/CommandPalette.tsx';
 import { EventPopover } from './components/EventPopover.tsx';
 import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
-import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid } from 'lucide-react';
+import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid, PanelLeftClose, PanelRightClose } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db.ts';
 import { useHotkeys } from './hooks/useHotkeys.ts';
@@ -66,7 +66,7 @@ const DEFAULT_HOTKEYS = {
 };
 
 // 视图模式类型
-type ViewMode = 'calendar' | 'day' | 'table' | 'matrix';
+type ViewMode = 'calendar' | 'day' | 'matrix' | 'table';
 
 export default function App() {
   // --- 核心状态管理 (使用 IndexedDB + useLiveQuery) ---
@@ -81,8 +81,9 @@ export default function App() {
 
   // 视图状态
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
+  const [viewMode, setViewMode] = useState<ViewMode>('matrix');
   const [matrixDateRange, setMatrixDateRange] = useState(getWeekRange());
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
   
   // --- 模态框可见性状态 ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -122,6 +123,7 @@ export default function App() {
   
   useEffect(() => { localStorage.setItem('taskcube-ai-settings', JSON.stringify(aiSettings)); }, [aiSettings]);
   useEffect(() => { localStorage.setItem('taskcube-hotkeys', JSON.stringify(hotkeys)); }, [hotkeys]);
+  useEffect(() => { localStorage.setItem('sidebarCollapsed', String(isSidebarCollapsed)); }, [isSidebarCollapsed]);
 
   // 主题切换副作用
   useEffect(() => {
@@ -295,7 +297,7 @@ export default function App() {
   const getActiveRecurringRule = () => recurringRules.find(r => r.id === (editingRule?.id || editingTask?.recurringRuleId));
   
   const toggleView = useCallback(() => {
-    const views: ViewMode[] = ['calendar', 'day', 'matrix', 'table'];
+    const views: ViewMode[] = ['matrix', 'calendar', 'day', 'table'];
     const currentIndex = views.indexOf(viewMode);
     setViewMode(views[(currentIndex + 1) % views.length]);
   }, [viewMode]);
@@ -336,10 +338,10 @@ export default function App() {
   }, [tasks, hotkeys, openNewTaskModal, toggleView]);
 
   const viewOptions: {id: ViewMode, icon: React.ElementType, title: string}[] = [
+      { id: 'matrix', icon: LayoutGrid, title: '四象限' },
       { id: 'calendar', icon: CalendarIcon, title: '月视图' },
       { id: 'day', icon: Clock, title: '日视图' },
-      { id: 'matrix', icon: LayoutGrid, title: '看板视图' },
-      { id: 'table', icon: TableIcon, title: '列表视图' }
+      { id: 'table', icon: TableIcon, title: '列表' }
   ];
 
   const renderCurrentView = () => {
@@ -363,58 +365,80 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden flex-col transition-colors duration-300">
-      <header className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-4 pt-4 pb-2 shrink-0 z-20 border-b border-gray-100 dark:border-zinc-800 transition-colors">
-        <div className="flex items-center justify-between mb-3">
-           <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                 <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-sm flex items-center justify-center text-white"><Box size={18} /></div>
-                 <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">TaskCube</h1>
-              </div>
-              <button onClick={() => setIsSettingsOpen(true)} className="w-9 h-9 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 bg-gray-100/50 dark:bg-zinc-800/50 hover:bg-gray-200/50 dark:hover:bg-zinc-700/50 rounded-full transition-all active:scale-95" title="设置"><Settings size={18} /></button>
-           </div>
-           <div className="flex items-center gap-3">
-              <button onClick={() => setIsProjectListOpen(true)} className="w-9 h-9 flex items-center justify-center text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-full transition-all active:scale-95" title="项目列表"><Briefcase size={18} /></button>
-              <button onClick={() => openNewTaskModal(getTodayString())} className="w-9 h-9 flex items-center justify-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-md shadow-indigo-200 dark:shadow-none transition-all active:scale-95" title="添加新任务"><Plus size={20} /></button>
-           </div>
+    <div className="flex h-screen w-screen overflow-hidden transition-colors duration-300">
+      <aside className={`relative flex-shrink-0 bg-gray-100/50 dark:bg-zinc-800/20 backdrop-blur-lg border-r border-gray-200/80 dark:border-zinc-700/50 flex flex-col p-4 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <div className={`flex items-center gap-2 mb-8 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-sm flex items-center justify-center text-white flex-shrink-0"><Box size={18} /></div>
+           {!isSidebarCollapsed && <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight animate-in fade-in duration-300">TaskCube</h1>}
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-y-2 min-h-[32px]">
-           <div className="flex items-center h-full">
+        <nav className="flex-1 space-y-2">
+          {viewOptions.map(view => {
+              const Icon = view.icon;
+              const isActive = viewMode === view.id;
+              return (
+                  <button 
+                      key={view.id}
+                      onClick={() => setViewMode(view.id as ViewMode)} 
+                      title={view.title}
+                      className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors
+                        ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}
+                        ${isActive
+                          ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm'
+                          : 'text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50'
+                        }
+                      `}
+                  >
+                      <Icon size={20} className="flex-shrink-0" />
+                      {!isSidebarCollapsed && <span className="animate-in fade-in duration-200">{view.title}</span>}
+                  </button>
+              );
+          })}
+        </nav>
+        <div className="flex flex-col gap-2">
+          <button onClick={() => setIsProjectListOpen(true)} title="项目" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
+            <Briefcase size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">项目</span>}
+          </button>
+           <button onClick={() => setIsSettingsOpen(true)} title="设置" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
+            <Settings size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">设置</span>}
+          </button>
+        </div>
+        <button
+          onMouseDown={() => setIsSidebarCollapsed(prev => !prev)}
+          onClick={(e) => e.preventDefault()}
+          title={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
+          className="absolute bottom-5 left-full -translate-x-1/2 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm shadow-md border border-gray-200/80 dark:border-zinc-700/50 text-gray-500 dark:text-gray-400 hover:shadow-lg hover:border-gray-300 dark:hover:border-zinc-600 hover:text-gray-900 dark:hover:text-white transition-all"
+        >
+          {isSidebarCollapsed ? <PanelRightClose size={16} /> : <PanelLeftClose size={16} />}
+        </button>
+      </aside>
+      
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-lg px-6 py-4 shrink-0 z-20 border-b border-gray-100 dark:border-zinc-800 transition-colors flex items-center justify-between">
+          <div className="flex items-center h-full">
               {(viewMode === 'calendar' || viewMode === 'day') && (
                  <div className="flex items-center animate-in fade-in duration-200">
-                   <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - (viewMode === 'calendar' ? 1 : 0), d.getDate() - (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 font-medium flex items-center h-full px-1"><ChevronLeft size={20} /></button>
-                   <span className="text-lg font-bold text-gray-900 dark:text-gray-100 mx-2 min-w-[100px] text-center">{viewMode === 'day' ? (getTodayString(currentDate) === TODAY ? '今天' : `${currentDate.getMonth()+1}月${currentDate.getDate()}日`) : `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</span>
-                   <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + (viewMode === 'calendar' ? 1 : 0), d.getDate() + (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 font-medium flex items-center h-full px-1"><ChevronRight size={20} /></button>
+                   <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - (viewMode === 'calendar' ? 1 : 0), d.getDate() - (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50"><ChevronLeft size={20} /></button>
+                   <span className="text-xl font-bold text-gray-900 dark:text-gray-100 mx-3 min-w-[120px] text-center">{viewMode === 'day' ? (getTodayString(currentDate) === TODAY ? '今天' : `${currentDate.getMonth()+1}月${currentDate.getDate()}日`) : `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</span>
+                   <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + (viewMode === 'calendar' ? 1 : 0), d.getDate() + (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50"><ChevronRight size={20} /></button>
                  </div>
               )}
               {viewMode === 'matrix' && (
                  <div className="flex items-center gap-2 animate-in fade-in duration-200">
-                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1 text-xs outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-8"/>
+                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
                     <span className="text-gray-400">-</span>
-                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1 text-xs outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-8"/>
+                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
                  </div>
               )}
+          </div>
+          <div className="flex items-center gap-3">
+              <button onClick={() => openNewTaskModal(getTodayString())} className="px-4 py-2 flex items-center justify-center gap-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md shadow-indigo-200 dark:shadow-none transition-all active:scale-95 text-sm font-medium" title="添加新任务 (N)"><Plus size={16} /> 新建任务</button>
            </div>
-           <div className="flex bg-gray-200/80 dark:bg-zinc-800 p-0.5 rounded-lg h-8 items-center transition-colors">
-             {viewOptions.map(view => {
-                const Icon = view.icon;
-                return (
-                    <button 
-                        key={view.id}
-                        onClick={() => setViewMode(view.id as ViewMode)} 
-                        title={view.title}
-                        className={`h-full px-3 rounded-[6px] transition-all flex items-center justify-center ${viewMode === view.id ? 'bg-white dark:bg-zinc-600 shadow text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
-                    >
-                        <Icon size={16} />
-                    </button>
-                );
-             })}
-           </div>
-        </div>
-      </header>
-      <main className="flex-1 overflow-hidden relative">
-        {renderCurrentView()}
-      </main>
+        </header>
+        <main className="flex-1 overflow-hidden relative">
+          {renderCurrentView()}
+        </main>
+      </div>
+
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
       <TaskDetailModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingRule(null); setNewTaskInitialTime(undefined); }} task={editingTask} dateStr={selectedDateStr} allTasks={tasks ?? []} initialTime={newTaskInitialTime} recurringRule={getActiveRecurringRule()} projects={projects ?? []} initialProjectId={newTaskInitialProjectId} onSave={saveTask} onUpdateRule={updateRecurringRule} onDelete={deleteTask} />
       <RecurringManager isOpen={isRecurManagerOpen} onClose={() => setIsRecurManagerOpen(false)} rules={recurringRules} onDeleteRule={deleteRule} onEditRule={(rule) => { setEditingRule(rule); setEditingTask(null); setIsRecurManagerOpen(false); setIsModalOpen(true); }} />

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 import { Task, Project, Priority, EisenhowerQuadrant } from '../types.ts';
 import { Zap, Star, Bell, Coffee, Lock, ChevronDown } from 'lucide-react';
@@ -17,6 +18,16 @@ const parseDate = (dateStr: string): Date => {
 const formatDate = (date: Date): string => {
   const offset = date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() - offset).toISOString().split('T')[0];
+};
+
+const getTaskColor = (task: Task, project?: Project) => {
+    if (project) return project.color;
+    switch (task.priority) {
+      case Priority.HIGH: return '#EF4444'; // red-500
+      case Priority.MEDIUM: return '#F97316'; // orange-500
+      case Priority.LOW: return '#3B82F6'; // blue-500
+      default: return '#6B7280'; // gray-500
+    }
 };
 
 interface WeekEvent {
@@ -51,7 +62,7 @@ const layoutWeekEvents = (week: (Date | null)[], tasks: Task[], projects: Projec
   });
 
   const events: Omit<WeekEvent, 'laneIndex'>[] = [];
-  const projectColorMap = new Map(projects.map(p => [p.id, p.color]));
+  const projectMap = new Map(projects.map(p => [p.id, p]));
 
   for (const task of weekTasks) {
     const taskStart = parseDate(task.date);
@@ -76,7 +87,7 @@ const layoutWeekEvents = (week: (Date | null)[], tasks: Task[], projects: Projec
       span,
       isStart: formatDate(taskStart) >= weekStart,
       isEnd: formatDate(taskEnd) <= weekEnd,
-      color: task.projectId ? (projectColorMap.get(task.projectId) || '#3B82F6') : '#3B82F6',
+      color: getTaskColor(task, task.projectId ? projectMap.get(task.projectId) : undefined),
     });
   }
 
@@ -157,12 +168,6 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
     return () => observer.disconnect();
   }, [onVisible]);
 
-  const priorityBorder = {
-    [Priority.HIGH]: 'border-l-red-500',
-    [Priority.MEDIUM]: 'border-l-orange-400',
-    [Priority.LOW]: 'border-l-blue-400',
-  };
-
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', task.id);
@@ -195,7 +200,7 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
   return (
     <div ref={containerRef} className="pb-8">
       <div className="text-xl font-bold text-gray-800 dark:text-gray-200 p-4 sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm z-10">{date.getFullYear()}年 {monthNames[date.getMonth()]}</div>
-      <div className="flex flex-col border-b border-r border-gray-50 dark:border-zinc-800/50">
+      <div className="flex flex-col border-b border-r border-gray-200 dark:border-zinc-800">
         {calendarData.map((week, weekIndex) => {
           const weekEvents = layoutWeekEvents(week, tasks, projects);
           const maxLanes = weekEvents.length > 0 ? Math.max(0, ...weekEvents.map(e => e.laneIndex)) : -1;
@@ -205,9 +210,9 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
           const weekContentHeight = (maxLanes + 1) * (eventHeight + eventGap) + 5;
 
           return (
-            <div key={weekIndex} className="grid grid-cols-7 relative border-t border-gray-50 dark:border-zinc-800/50" style={{ minHeight: `${dayHeaderHeight + weekContentHeight}px` }}>
+            <div key={weekIndex} className="grid grid-cols-7 relative border-t border-gray-200 dark:border-zinc-800" style={{ minHeight: `${dayHeaderHeight + weekContentHeight}px` }}>
               {week.map((day, dayIndex) => {
-                if (!day) return <div key={dayIndex} className="border-l border-gray-50 dark:border-zinc-800/50" />;
+                if (!day) return <div key={dayIndex} className="border-l border-gray-200 dark:border-zinc-800" />;
                 const dateStr = formatDate(day);
                 const isToday = dateStr === TODAY;
                 return (
@@ -215,7 +220,7 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                     key={dayIndex}
                     onDragOver={(e) => handleDragOver(e, dateStr)}
                     onDrop={(e) => handleDrop(e, dateStr)}
-                    className="border-l border-gray-50 dark:border-zinc-800/50 h-full p-1"
+                    className="border-l border-gray-200 dark:border-zinc-800 h-full p-1"
                   >
                     <button
                         onClick={() => onDateClick(dateStr)}
@@ -240,9 +245,8 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                     onDragEnd={!task.completed && !isBlocked ? handleDragEnd : undefined}
                     onClick={(e) => { e.stopPropagation(); onTaskClick(task, e); }}
                     className={`
-                      absolute flex items-center h-[22px] px-2 text-xs font-medium text-white transition-all duration-100 shadow-sm border-l-4 gap-1.5
-                      ${isStart ? 'rounded-l-md' : ''} ${isEnd ? 'rounded-r-md' : ''}
-                      ${priorityBorder[task.priority]}
+                      absolute flex items-center h-[22px] px-2 text-xs font-medium text-white transition-all duration-100 shadow-sm gap-1.5
+                      ${isStart ? 'rounded-md' : ''} ${isEnd ? 'rounded-md' : ''}
                       ${task.completed ? 'opacity-60 grayscale' : (isBlocked ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110 cursor-grab')}
                       ${draggedTask?.id === task.id ? 'opacity-30' : ''}
                     `}

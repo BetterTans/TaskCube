@@ -124,7 +124,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setTags(task.tags || []);
         setPredecessorIds(task.predecessorIds || []);
         setEditMode('single');
-        setIsRecurring(!!recurringRule && !task.endDate);
+        setIsRecurring(!!recurringRule);
         
         if (task.startTime) {
            setIsAllDay(false);
@@ -163,7 +163,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setPriority(Priority.MEDIUM);
         setQuadrant(EisenhowerQuadrant.Q2);
         setStartDate(dateStr); 
-        setEndDate('');
+        setEndDate(dateStr);
         setSelectedProjectId(initialProjectId || '');
         setSubtasks([]); 
         setTags([]);
@@ -342,7 +342,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       const taskData: Partial<Task> = {
         id: task?.id, title, description, priority, quadrant,
         date: startDate,
-        endDate: endDate && endDate >= startDate ? endDate : undefined,
+        endDate: isRecurring ? undefined : (endDate && endDate >= startDate ? endDate : undefined),
         projectId: selectedProjectId || undefined,
         subTasks: subtasks,
         tags: tags,
@@ -355,6 +355,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     }
     onClose();
   };
+
+  const isSaveDisabled = !title.trim() || (isRecurring && !recurEndDate);
 
   const quadrantOptions = [
     { id: EisenhowerQuadrant.Q1, label: '重要 & 紧急', desc: '立即处理', icon: <Zap size={12}/>, selectedClass: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300' },
@@ -370,7 +372,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         <div className="bg-white dark:bg-zinc-900 px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
           <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm font-medium px-2 py-1 ios-btn-active">取消</button>
           <div className="font-semibold text-gray-900 dark:text-white">{task ? '编辑事项' : '新建事项'}</div>
-          <button onClick={handleSave} className={`text-indigo-600 dark:text-indigo-400 font-semibold text-sm px-2 py-1 ios-btn-active ${!title.trim() ? 'opacity-50' : ''}`} disabled={!title.trim()}>完成</button>
+          <button onClick={handleSave} className={`text-indigo-600 dark:text-indigo-400 font-semibold text-sm px-2 py-1 ios-btn-active ${isSaveDisabled ? 'opacity-50' : ''}`} disabled={isSaveDisabled}>完成</button>
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
@@ -412,7 +414,13 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                         <div className="flex-1 flex items-center justify-end gap-2 text-sm">
                             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"/>
                             <span>-</span>
-                            <input type="date" value={endDate} onChange={handleEndDateChange} className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"/>
+                            <input 
+                              type="date" 
+                              value={isRecurring ? '' : endDate}
+                              onChange={handleEndDateChange} 
+                              disabled={isRecurring}
+                              className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
                         </div>
                     </div>
                     <div className="flex items-center">
@@ -504,13 +512,21 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                           <div className="w-11 h-6 bg-gray-200 dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                         </label>
                     </div>
-                    {isRecurring && <div className="mt-3"><RecurringOptions frequency={recurFreq} interval={recurInterval} weekDays={recurWeekDays} startDate={recurStartDate} endDate={recurEndDate} onChange={(updates) => {
-                        if (updates.frequency) setRecurFreq(updates.frequency);
-                        if (updates.interval) setRecurInterval(updates.interval);
-                        if (updates.weekDays) setRecurWeekDays(updates.weekDays);
-                        if (updates.startDate) setRecurStartDate(updates.startDate);
-                        if (updates.hasOwnProperty('endDate')) setRecurEndDate(updates.endDate);
-                    }}/></div>}
+                    {isRecurring && <div className="mt-3"><RecurringOptions 
+                        frequency={recurFreq} 
+                        interval={recurInterval} 
+                        weekDays={recurWeekDays} 
+                        startDate={recurStartDate} 
+                        endDate={recurEndDate} 
+                        isRequired={isRecurring}
+                        onChange={(updates) => {
+                            if (updates.frequency) setRecurFreq(updates.frequency);
+                            if (updates.interval) setRecurInterval(updates.interval);
+                            if (updates.weekDays) setRecurWeekDays(updates.weekDays);
+                            if (updates.startDate) setRecurStartDate(updates.startDate);
+                            if (updates.hasOwnProperty('endDate')) setRecurEndDate(updates.endDate);
+                        }}
+                    /></div>}
                     {recurringRule && (
                       <div className="mt-3 bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
                          <p className="mb-1 font-semibold">此为周期任务，你要编辑？</p>

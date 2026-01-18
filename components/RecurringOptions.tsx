@@ -10,6 +10,7 @@ import { parseDate } from '../services/recurringService';
  * @property {number[]} weekDays - 当频率为 'weekly' 时，选中的星期几数组。
  * @property {string} startDate - 周期规则的开始日期。
  * @property {string} endDate - 周期规则的结束日期。
+ * @property {boolean} [isRequired] - 结束日期是否为必填项。
  * @property {function} onChange - 当任何选项改变时调用的回调。
  */
 interface RecurringOptionsProps {
@@ -18,6 +19,7 @@ interface RecurringOptionsProps {
   weekDays: number[];
   startDate: string;
   endDate: string;
+  isRequired?: boolean;
   onChange: (updates: any) => void;
 }
 
@@ -32,6 +34,7 @@ export const RecurringOptions: React.FC<RecurringOptionsProps> = ({
   weekDays,
   startDate,
   endDate,
+  isRequired,
   onChange
 }) => {
   const weekDayLabels = ['日', '一', '二', '三', '四', '五', '六'];
@@ -159,13 +162,15 @@ export const RecurringOptions: React.FC<RecurringOptionsProps> = ({
       {/* 结束日期选择 */}
       <div className="pt-3 border-t border-gray-100 dark:border-zinc-800">
         <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">结束日期</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+              结束日期
+              {isRequired && !endDate && <span className="text-red-500 ml-1 font-bold">*</span>}
+            </label>
             <input 
               type="date" 
               value={endDate}
               onChange={(e) => onChange({ endDate: e.target.value })}
               className="text-sm bg-transparent outline-none text-gray-600 dark:text-gray-400 text-right dark:color-scheme-dark"
-              placeholder="可选"
             />
         </div>
       </div>

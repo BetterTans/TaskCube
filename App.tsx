@@ -366,7 +366,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden transition-colors duration-300">
-      <aside className={`relative flex-shrink-0 bg-gray-100/50 dark:bg-zinc-800/20 backdrop-blur-lg border-r border-gray-200/80 dark:border-zinc-700/50 flex flex-col p-4 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+      <aside className={`relative z-40 flex-shrink-0 bg-gray-100/50 dark:bg-zinc-800/20 backdrop-blur-lg border-r border-gray-200/80 dark:border-zinc-700/50 flex flex-col p-4 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div className={`flex items-center gap-2 mb-8 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-sm flex items-center justify-center text-white flex-shrink-0"><Box size={18} /></div>
            {!isSidebarCollapsed && <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight animate-in fade-in duration-300">TaskCube</h1>}

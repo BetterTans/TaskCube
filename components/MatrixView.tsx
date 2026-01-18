@@ -30,25 +30,23 @@ const QuadrantHeader = ({
 }) => (
   <div className="flex items-center justify-between mb-3 px-1">
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-zinc-800 shadow-sm border border-gray-100 dark:border-zinc-700">
-        {icon}
-      </div>
+      {icon}
       <div>
         <h3 className="font-bold text-gray-800 dark:text-gray-100">{title}</h3>
         <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
       </div>
     </div>
     <div className="flex items-center gap-2">
-      <span className="text-sm font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-zinc-800 w-6 h-6 flex items-center justify-center rounded-full">
+      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
         {taskCount}
       </span>
       <button
         onClick={() => onToggleCollapse(id)}
-        className="text-gray-400 hover:text-gray-600"
+        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
       >
         <ChevronDown
           size={20}
-          className={`transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+          className={`transition-transform duration-300 ${isCollapsed ? '-rotate-90' : ''}`}
         />
       </button>
     </div>
@@ -77,7 +75,7 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
       onDragStart={(e) => onDragStart(e, task.id)}
       onDragEnd={onDragEnd}
       onClick={(e) => onClick(task, e)}
-      className={`bg-white dark:bg-zinc-800/50 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700/50 transition-all duration-200 ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5'} ${task.completed ? 'opacity-60' : ''}`}
+      className={`bg-white dark:bg-zinc-800/80 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-zinc-700/50 transition-all duration-200 ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5'} ${task.completed ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 flex items-start gap-2">
@@ -113,15 +111,14 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
 });
 
 export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blockedTaskIds, dateRange, onUpdateTask, onTaskClick }) => {
-  // FIX: Define state for drag and drop
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [dragOverQuadrant, setDragOverQuadrant] = useState<EisenhowerQuadrant | null>(null);
   const [collapsedQuadrants, setCollapsedQuadrants] = useState<Set<EisenhowerQuadrant>>(new Set());
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => task.date >= dateRange.start && task.date <= dateRange.end);
   }, [tasks, dateRange]);
 
-  // FIX: Calculate quadrants object
   const quadrants = useMemo(() => {
     const q: Record<EisenhowerQuadrant, Task[]> = {
       [EisenhowerQuadrant.Q1]: [],
@@ -163,9 +160,10 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
   
   const handleDragEnd = useCallback(() => {
     setDraggedTaskId(null);
+    setDragOverQuadrant(null);
   }, []);
   
-  const handleDragOver = (e: React.DragEvent, quadrant: EisenhowerQuadrant) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
@@ -174,18 +172,31 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
     e.preventDefault();
     const taskId = e.dataTransfer.getData('text/plain');
     const task = tasks.find(t => t.id === taskId);
-    if (task && task.quadrant !== targetQuadrant) {
+    if (task && (task.quadrant || 'Q2') !== targetQuadrant) {
       onUpdateTask({ id: taskId, quadrant: targetQuadrant });
     }
     setDraggedTaskId(null);
+    setDragOverQuadrant(null);
   };
+  
+  const handleDragEnter = (e: React.DragEvent, quadrant: EisenhowerQuadrant) => {
+     e.preventDefault();
+     if(draggedTaskId) {
+         setDragOverQuadrant(quadrant);
+     }
+  }
+  
+  const handleDragLeave = (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOverQuadrant(null);
+  }
 
   const quadrantOrder: EisenhowerQuadrant[] = [EisenhowerQuadrant.Q1, EisenhowerQuadrant.Q2, EisenhowerQuadrant.Q3, EisenhowerQuadrant.Q4];
   const quadrantInfo = {
-    [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', subtitle: '立即处理', icon: <Zap size={16} className="text-red-500"/> },
-    [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', subtitle: '计划执行', icon: <Star size={16} className="text-green-600"/> },
-    [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', subtitle: '审慎处理', icon: <Bell size={16} className="text-orange-500"/> },
-    [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', subtitle: '暂缓排除', icon: <Coffee size={16} className="text-blue-500"/> },
+    [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', subtitle: '立即处理', icon: <Zap size={20} className="text-red-500"/> },
+    [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', subtitle: '计划执行', icon: <Star size={20} className="text-green-600"/> },
+    [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', subtitle: '审慎处理', icon: <Bell size={20} className="text-orange-500"/> },
+    [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', subtitle: '暂缓排除', icon: <Coffee size={20} className="text-blue-500"/> },
   };
 
   return (
@@ -207,9 +218,11 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
               />
               <div className={`transition-[grid-template-rows] duration-300 ease-in-out grid ${isCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'}`}>
                 <div 
-                  onDragOver={(e) => handleDragOver(e, qId)}
+                  onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, qId)}
-                  className="bg-gray-50/50 dark:bg-zinc-800/20 rounded-2xl p-3 min-h-[150px] overflow-hidden"
+                  onDragEnter={(e) => handleDragEnter(e, qId)}
+                  onDragLeave={handleDragLeave}
+                  className={`rounded-2xl p-3 min-h-[150px] overflow-hidden transition-colors duration-200 border-2 border-dashed ${dragOverQuadrant === qId ? 'border-indigo-400/50 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-transparent'}`}
                 >
                     {quadrants[qId].length > 0 ? (
                       <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3">
@@ -227,7 +240,7 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
                         ))}
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-center text-sm text-gray-400 dark:text-zinc-600">
+                      <div className="flex flex-col items-center justify-center h-full text-center text-sm text-gray-400 dark:text-zinc-600 pointer-events-none">
                         <p>将任务拖到此处</p>
                       </div>
                     )}

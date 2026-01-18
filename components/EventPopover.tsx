@@ -127,7 +127,7 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
             title={isBlocked ? "被前置任务阻塞" : "标记为完成"}
             className={`flex-shrink-0 ml-2 mt-0.5 transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600 hover:text-indigo-500'}`}
           >
-            {task.completed ? <CheckCircle2 size={22} className="animate-pop-in" /> : <Circle size={22} />}
+            {task.completed ? <CheckCircle2 size={22} /> : <Circle size={22} />}
           </button>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings, PreferredTimeSlot } from './types.ts';
+import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings } from './types.ts';
 import { generateTasksFromRule, parseDate } from './services/recurringService.ts';
 import { FullCalendar } from './components/FullCalendar.tsx';
 import { TableView } from './components/TableView.tsx';
@@ -12,10 +12,8 @@ import { ProjectDetailModal } from './components/ProjectDetailModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
 import { CommandPalette, Command } from './components/CommandPalette.tsx';
 import { EventPopover } from './components/EventPopover.tsx';
-import { NextAction } from './components/NextAction.tsx';
-import { ToastContainer, ToastData } from './components/Toast.tsx';
 import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
-import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid, PanelLeftClose, PanelRightClose, GripVertical } from 'lucide-react';
+import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid, PanelLeftClose, PanelRightClose } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db.ts';
 import { useHotkeys } from './hooks/useHotkeys.ts';
@@ -51,13 +49,6 @@ const getWeekRange = (date = new Date()) => {
     };
 };
 
-const getCurrentTimeSlot = (): PreferredTimeSlot => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) return 'morning';
-    if (hour >= 12 && hour < 18) return 'afternoon';
-    return 'evening'; // Covers 18:00 to 04:59
-};
-
 const TODAY = getTodayString();
 
 const DEFAULT_AI_SETTINGS: AISettings = {
@@ -75,12 +66,7 @@ const DEFAULT_HOTKEYS = {
 };
 
 // 视图模式类型
-type ViewMode = 'matrix' | 'calendar' | 'day' | 'table';
-
-const VIEW_ORDER_KEY = 'taskcube-view-order';
-const DEFAULT_VIEW_ORDER: ViewMode[] = ['matrix', 'calendar', 'day', 'table'];
-
-const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+type ViewMode = 'calendar' | 'day' | 'matrix' | 'table';
 
 export default function App() {
   // --- 核心状态管理 (使用 IndexedDB + useLiveQuery) ---
@@ -92,26 +78,12 @@ export default function App() {
   const [aiSettings, setAiSettings] = useState<AISettings>(DEFAULT_AI_SETTINGS);
   const [hotkeys, setHotkeys] = useState<Record<string, string>>(DEFAULT_HOTKEYS);
   const [theme, setTheme] = useState<ThemeMode>('light');
-  const [toasts, setToasts] = useState<ToastData[]>([]);
 
   // 视图状态
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewOrder, setViewOrder] = useState<ViewMode[]>(() => {
-    const savedOrder = localStorage.getItem(VIEW_ORDER_KEY);
-    if (savedOrder) {
-      try {
-        const parsed = JSON.parse(savedOrder) as ViewMode[];
-        if (Array.isArray(parsed) && parsed.length === DEFAULT_VIEW_ORDER.length && parsed.every(v => DEFAULT_VIEW_ORDER.includes(v))) {
-          return parsed;
-        }
-      } catch (e) { /* ignore parse error */ }
-    }
-    return DEFAULT_VIEW_ORDER;
-  });
-  const [viewMode, setViewMode] = useState<ViewMode>(viewOrder[0]);
+  const [viewMode, setViewMode] = useState<ViewMode>('matrix');
   const [matrixDateRange, setMatrixDateRange] = useState(getWeekRange());
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
-  const [currentTimeSlot, setCurrentTimeSlot] = useState(getCurrentTimeSlot());
   
   // --- 模态框可见性状态 ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -130,24 +102,9 @@ export default function App() {
   // 新建任务时的初始预设
   const [newTaskInitialTime, setNewTaskInitialTime] = useState<string | undefined>(undefined);
   const [newTaskInitialProjectId, setNewTaskInitialProjectId] = useState<string | null>(null);
-  
-  // 拖拽状态
-  const [draggedView, setDraggedView] = useState<ViewMode | null>(null);
-  const [dragOverView, setDragOverView] = useState<ViewMode | null>(null);
 
   // 派生状态：当前选中的项目对象
   const selectedProject = projects?.find(p => p.id === selectedProjectId) || null;
-
-  const openSettings = () => setIsSettingsOpen(true);
-  
-  const showToast = useCallback((message: string, type: 'success' | 'info' = 'success') => {
-      const id = generateUUID();
-      setToasts(prev => [...prev, { id, message, type }]);
-  }, []);
-
-  const removeToast = useCallback((id: string) => {
-      setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
 
   // --- 初始化与设置持久化 ---
   useEffect(() => {
@@ -167,7 +124,6 @@ export default function App() {
   useEffect(() => { localStorage.setItem('taskcube-ai-settings', JSON.stringify(aiSettings)); }, [aiSettings]);
   useEffect(() => { localStorage.setItem('taskcube-hotkeys', JSON.stringify(hotkeys)); }, [hotkeys]);
   useEffect(() => { localStorage.setItem('sidebarCollapsed', String(isSidebarCollapsed)); }, [isSidebarCollapsed]);
-  useEffect(() => { localStorage.setItem(VIEW_ORDER_KEY, JSON.stringify(viewOrder)); }, [viewOrder]);
 
   // 主题切换副作用
   useEffect(() => {
@@ -180,14 +136,6 @@ export default function App() {
       root.classList.add(theme);
     }
   }, [theme]);
-
-  // 定期更新当前时间段以刷新“下一步行动”建议
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentTimeSlot(getCurrentTimeSlot());
-    }, 5 * 60 * 1000); // 每 5 分钟刷新一次
-    return () => clearInterval(intervalId);
-  }, []);
 
   // --- 周期性任务自动生成 ---
   useEffect(() => {
@@ -221,58 +169,8 @@ export default function App() {
     }
     return blocked;
   }, [tasks, tasksById]);
-  
-  const nextActionTasks = useMemo<Task[]>(() => {
-    if (!tasks) return [];
 
-    const priorityMap = { [Priority.HIGH]: 0, [Priority.MEDIUM]: 1, [Priority.LOW]: 2 };
-    const getEffectiveDate = (task: Task) => new Date(task.endDate || task.date).getTime();
-
-    const getTimeSlotScore = (task: Task): number => {
-        if (!task.preferredTimeSlot || task.preferredTimeSlot === 'any') {
-            return 1; // 中性
-        }
-        if (task.preferredTimeSlot === currentTimeSlot) {
-            return 2; // 匹配，获得加分
-        }
-        return 0; // 不匹配，获得减分
-    };
-    
-    const actionableTasks = tasks.filter(task => 
-      !task.completed &&
-      !blockedTaskIds.has(task.id) &&
-      task.date <= TODAY
-    );
-
-    actionableTasks.sort((a, b) => {
-      // 1. 按时段偏好排序 (分数高者优先)
-      const scoreA = getTimeSlotScore(a);
-      const scoreB = getTimeSlotScore(b);
-      if (scoreA !== scoreB) {
-          return scoreB - scoreA;
-      }
-        
-      // 2. 按截止日期排序 (日期近者优先)
-      const dateA = getEffectiveDate(a);
-      const dateB = getEffectiveDate(b);
-      if (dateA !== dateB) {
-        return dateA - dateB;
-      }
-      
-      // 3. 按优先级排序 (高>中>低)
-      return priorityMap[a.priority] - priorityMap[b.priority];
-    });
-
-    return actionableTasks.slice(0, 3);
-  }, [tasks, blockedTaskIds, currentTimeSlot]);
-
-
-  const handleDateChange = (date: Date) => {
-    const isDifferentMonth = date.getMonth() !== currentDate.getMonth() || date.getFullYear() !== currentDate.getFullYear();
-    if (isDifferentMonth) {
-      setCurrentDate(date);
-    }
-  };
+  const handleDateChange = (date: Date) => setCurrentDate(date);
   const handleToday = () => setCurrentDate(new Date());
 
   const handleDateClick = (dateStr: string) => {
@@ -306,13 +204,7 @@ export default function App() {
   const toggleTask = async (id: string) => {
     if (!tasks) return;
     const task = tasks.find(t => t.id === id);
-    if (task) {
-      const isCompleting = !task.completed;
-      await db.tasks.update(id, { completed: isCompleting });
-      if (isCompleting) {
-        showToast('完成一步，离目标更近了');
-      }
-    }
+    if (task) await db.tasks.update(id, { completed: !task.completed });
   }
 
   const saveTask = async (taskData: Partial<Task>, ruleData?: Partial<RecurringRule>) => {
@@ -339,23 +231,24 @@ export default function App() {
     } else if (taskData.id) {
       await db.tasks.update(taskData.id, taskData);
     } else {
-      const { id, ...restOfTaskData } = taskData;
       const newTask: Task = {
-        // Defaults for a new task
         id: generateUUID(),
+        title: taskData.title!,
+        description: taskData.description,
+        priority: taskData.priority || Priority.MEDIUM,
+        quadrant: taskData.quadrant || EisenhowerQuadrant.Q2,
+        date: taskData.date || selectedDateStr,
+        endDate: taskData.endDate,
+        startTime: taskData.startTime,
+        duration: taskData.duration,
         completed: false,
+        subTasks: taskData.subTasks || [],
         createdAt: Date.now(),
         isExpanded: false,
-        // Data from the form modal
-        ...restOfTaskData,
-        // Ensure required fields have a value
-        title: restOfTaskData.title!,
-        priority: restOfTaskData.priority || Priority.MEDIUM,
-        date: restOfTaskData.date || selectedDateStr,
-        subTasks: restOfTaskData.subTasks || [],
-        quadrant: restOfTaskData.quadrant || EisenhowerQuadrant.Q2,
+        projectId: taskData.projectId,
+        tags: taskData.tags || []
       };
-      await db.tasks.add(newTask as Task);
+      await db.tasks.add(newTask);
     }
   };
 
@@ -404,9 +297,10 @@ export default function App() {
   const getActiveRecurringRule = () => recurringRules.find(r => r.id === (editingRule?.id || editingTask?.recurringRuleId));
   
   const toggleView = useCallback(() => {
-    const currentIndex = viewOrder.indexOf(viewMode);
-    setViewMode(viewOrder[(currentIndex + 1) % viewOrder.length]);
-  }, [viewMode, viewOrder]);
+    const views: ViewMode[] = ['matrix', 'calendar', 'day', 'table'];
+    const currentIndex = views.indexOf(viewMode);
+    setViewMode(views[(currentIndex + 1) % views.length]);
+  }, [viewMode]);
 
   const hotkeyActions = useMemo(() => ({
     [hotkeys.open_palette]: () => setIsCommandPaletteOpen(true),
@@ -443,41 +337,12 @@ export default function App() {
     return [...staticCommands, ...taskCommands];
   }, [tasks, hotkeys, openNewTaskModal, toggleView]);
 
-  const viewDetails: Record<ViewMode, {icon: React.ElementType, title: string}> = {
-      matrix: { icon: LayoutGrid, title: '四象限' },
-      calendar: { icon: CalendarIcon, title: '月视图' },
-      day: { icon: Clock, title: '日视图' },
-      table: { icon: TableIcon, title: '列表' }
-  };
-
-  const handleDragStart = (e: React.DragEvent, viewId: ViewMode) => {
-    e.dataTransfer.setData('text/plain', viewId);
-    e.dataTransfer.effectAllowed = 'move';
-    setDraggedView(viewId);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedView(null);
-    setDragOverView(null);
-  };
-  
-  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
-  
-  const handleDrop = (e: React.DragEvent, dropTargetViewId: ViewMode) => {
-    e.preventDefault();
-    const draggedViewId = e.dataTransfer.getData('text/plain') as ViewMode;
-
-    if (draggedViewId && draggedViewId !== dropTargetViewId) {
-        const newOrder = [...viewOrder];
-        const draggedIndex = newOrder.indexOf(draggedViewId);
-        const dropTargetIndex = newOrder.indexOf(dropTargetViewId);
-        
-        const [draggedItem] = newOrder.splice(draggedIndex, 1);
-        newOrder.splice(dropTargetIndex, 0, draggedItem);
-        setViewOrder(newOrder);
-    }
-    handleDragEnd();
-  };
+  const viewOptions: {id: ViewMode, icon: React.ElementType, title: string}[] = [
+      { id: 'matrix', icon: LayoutGrid, title: '四象限' },
+      { id: 'calendar', icon: CalendarIcon, title: '月视图' },
+      { id: 'day', icon: Clock, title: '日视图' },
+      { id: 'table', icon: TableIcon, title: '列表' }
+  ];
 
   const renderCurrentView = () => {
     if (tasks === undefined || projects === undefined) {
@@ -491,8 +356,8 @@ export default function App() {
     }
     
     switch(viewMode) {
-      case 'calendar': return <div className="h-full p-2 sm:p-4"><FullCalendar currentDate={currentDate} tasks={tasks} projects={projects} blockedTaskIds={blockedTaskIds} onDateClick={handleDateClick} onTaskClick={handleTaskPopoverOpen} onUpdateTask={saveTask} /></div>;
-      case 'day': return <DayTimeView currentDate={currentDate} tasks={tasks} blockedTaskIds={blockedTaskIds} onTaskClick={handleTaskPopoverOpen} onTimeSlotClick={(time) => openNewTaskModal(getTodayString(currentDate), time)} onUpdateTask={saveTask} />;
+      case 'calendar': return <div className="h-full p-2 sm:p-4"><FullCalendar currentDate={currentDate} tasks={tasks} projects={projects} blockedTaskIds={blockedTaskIds} onDateChange={handleDateChange} onDateClick={handleDateClick} onTaskClick={handleTaskPopoverOpen} onUpdateTask={saveTask} /></div>;
+      case 'day': return <DayTimeView currentDate={currentDate} tasks={tasks} blockedTaskIds={blockedTaskIds} onTaskClick={handleTaskPopoverOpen} onTimeSlotClick={(time) => openNewTaskModal(getTodayString(currentDate), time)} onToggleTask={toggleTask} onDateChange={handleDateChange} onUpdateTask={saveTask} />;
       case 'matrix': return <MatrixView tasks={tasks} projects={projects} dateRange={matrixDateRange} blockedTaskIds={blockedTaskIds} onUpdateTask={saveTask} onTaskClick={handleTaskPopoverOpen}/>;
       case 'table': return <TableView tasks={tasks} projects={projects} blockedTaskIds={blockedTaskIds} onTaskClick={openEditModal} onToggleTask={toggleTask} onUpdateTask={saveTask} />;
       default: return null;
@@ -501,41 +366,28 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden transition-colors duration-300">
-      <aside className={`relative z-40 flex-shrink-0 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border-r border-gray-200/80 dark:border-zinc-800/80 flex flex-col p-4 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+      <aside className={`relative flex-shrink-0 bg-gray-100/50 dark:bg-zinc-800/20 backdrop-blur-lg border-r border-gray-200/80 dark:border-zinc-700/50 flex flex-col p-4 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div className={`flex items-center gap-2 mb-8 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-sm flex items-center justify-center text-white flex-shrink-0"><Box size={18} /></div>
            {!isSidebarCollapsed && <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight animate-in fade-in duration-300">TaskCube</h1>}
         </div>
         <nav className="flex-1 space-y-2">
-          {viewOrder.map(viewId => {
-              const view = viewDetails[viewId];
+          {viewOptions.map(view => {
               const Icon = view.icon;
-              const isActive = viewMode === viewId;
-              const isDragOver = dragOverView === viewId;
-
+              const isActive = viewMode === view.id;
               return (
-                  <button
-                      key={viewId}
-                      draggable={!isSidebarCollapsed}
-                      onDragStart={(e) => handleDragStart(e, viewId)}
-                      onDragEnd={handleDragEnd}
-                      onDragOver={handleDragOver}
-                      onDragEnter={() => setDragOverView(viewId)}
-                      onDragLeave={() => setDragOverView(null)}
-                      onDrop={(e) => handleDrop(e, viewId)}
-                      onClick={() => setViewMode(viewId)}
+                  <button 
+                      key={view.id}
+                      onClick={() => setViewMode(view.id as ViewMode)} 
                       title={view.title}
-                      className={`group relative w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-all duration-200
+                      className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors
                         ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}
                         ${isActive
-                          ? 'bg-gray-200/80 dark:bg-zinc-700/80 text-gray-900 dark:text-white'
-                          : 'text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/10'
+                          ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm'
+                          : 'text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50'
                         }
-                        ${draggedView === viewId ? 'opacity-30' : ''}
-                        ${isDragOver ? 'border-t-2 border-indigo-500' : ''}
                       `}
                   >
-                      {!isSidebarCollapsed && <GripVertical size={16} className="text-gray-300 dark:text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity" />}
                       <Icon size={20} className="flex-shrink-0" />
                       {!isSidebarCollapsed && <span className="animate-in fade-in duration-200">{view.title}</span>}
                   </button>
@@ -543,10 +395,10 @@ export default function App() {
           })}
         </nav>
         <div className="flex flex-col gap-2">
-          <button onClick={() => setIsProjectListOpen(true)} title="项目" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/10 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
+          <button onClick={() => setIsProjectListOpen(true)} title="项目" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
             <Briefcase size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">项目</span>}
           </button>
-           <button onClick={() => setIsSettingsOpen(true)} title="设置" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/10 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
+           <button onClick={() => setIsSettingsOpen(true)} title="设置" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
             <Settings size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">设置</span>}
           </button>
         </div>
@@ -566,15 +418,15 @@ export default function App() {
               {(viewMode === 'calendar' || viewMode === 'day') && (
                  <div className="flex items-center animate-in fade-in duration-200">
                    <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - (viewMode === 'calendar' ? 1 : 0), d.getDate() - (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50"><ChevronLeft size={20} /></button>
-                   <span className="text-xl font-bold text-gray-900 dark:text-gray-100 mx-3 min-w-[120px] text-center">{viewMode === 'day' ? (getTodayString(currentDate) === TODAY ? '今天' : `${currentDate.getMonth()+1}月${currentDate.getDate()}日`) : `${currentDate.getFullYear()}年 ${monthNames[currentDate.getMonth()]}`}</span>
+                   <span className="text-xl font-bold text-gray-900 dark:text-gray-100 mx-3 min-w-[120px] text-center">{viewMode === 'day' ? (getTodayString(currentDate) === TODAY ? '今天' : `${currentDate.getMonth()+1}月${currentDate.getDate()}日`) : `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</span>
                    <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + (viewMode === 'calendar' ? 1 : 0), d.getDate() + (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50"><ChevronRight size={20} /></button>
                  </div>
               )}
               {viewMode === 'matrix' && (
                  <div className="flex items-center gap-2 animate-in fade-in duration-200">
-                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200/80 dark:border-zinc-700/50 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
+                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
                     <span className="text-gray-400">-</span>
-                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200/80 dark:border-zinc-700/50 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
+                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
                  </div>
               )}
           </div>
@@ -582,20 +434,16 @@ export default function App() {
               <button onClick={() => openNewTaskModal(getTodayString())} className="px-4 py-2 flex items-center justify-center gap-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md shadow-indigo-200 dark:shadow-none transition-all active:scale-95 text-sm font-medium" title="添加新任务 (N)"><Plus size={16} /> 新建任务</button>
            </div>
         </header>
-        
-        {tasks && <NextAction tasks={nextActionTasks} onTaskClick={openEditModal} />}
-
         <main className="flex-1 overflow-hidden relative">
           {renderCurrentView()}
         </main>
       </div>
 
-      <ToastContainer toasts={toasts} onDismiss={removeToast} />
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
-      <TaskDetailModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingRule(null); setNewTaskInitialTime(undefined); }} task={editingTask} dateStr={selectedDateStr} allTasks={tasks ?? []} initialTime={newTaskInitialTime} recurringRule={getActiveRecurringRule()} projects={projects ?? []} initialProjectId={newTaskInitialProjectId} onSave={saveTask} onUpdateRule={updateRecurringRule} onDelete={deleteTask} aiSettings={aiSettings} onOpenSettings={openSettings} />
+      <TaskDetailModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingRule(null); setNewTaskInitialTime(undefined); }} task={editingTask} dateStr={selectedDateStr} allTasks={tasks ?? []} initialTime={newTaskInitialTime} recurringRule={getActiveRecurringRule()} projects={projects ?? []} initialProjectId={newTaskInitialProjectId} onSave={saveTask} onUpdateRule={updateRecurringRule} onDelete={deleteTask} />
       <RecurringManager isOpen={isRecurManagerOpen} onClose={() => setIsRecurManagerOpen(false)} rules={recurringRules} onDeleteRule={deleteRule} onEditRule={(rule) => { setEditingRule(rule); setEditingTask(null); setIsRecurManagerOpen(false); setIsModalOpen(true); }} />
       <ProjectListModal isOpen={isProjectListOpen} onClose={() => setIsProjectListOpen(false)} projects={projects ?? []} onCreateProject={handleCreateProject} onProjectClick={(p) => { setSelectedProjectId(p.id); setIsProjectListOpen(false); }} />
-      {selectedProject && <ProjectDetailModal isOpen={!!selectedProject} onClose={() => { setSelectedProjectId(null); setIsProjectListOpen(true); }} project={selectedProject} tasks={tasks ?? []} onUpdateProject={updateProject} onDeleteProject={deleteProject} onAddProjectTask={saveTask} onCreateTaskClick={(projectId) => { setNewTaskInitialProjectId(projectId); setEditingTask(null); setEditingRule(null); setIsModalOpen(true); }} onTaskClick={(t) => { setSelectedProjectId(null); openEditModal(t); }} aiSettings={aiSettings} onOpenSettings={openSettings} />}
+      {selectedProject && <ProjectDetailModal isOpen={!!selectedProject} onClose={() => { setSelectedProjectId(null); setIsProjectListOpen(true); }} project={selectedProject} tasks={tasks ?? []} onUpdateProject={updateProject} onDeleteProject={deleteProject} onAddProjectTask={saveTask} onCreateTaskClick={(projectId) => { setNewTaskInitialProjectId(projectId); setEditingTask(null); setEditingRule(null); setIsModalOpen(true); }} onTaskClick={(t) => { setSelectedProjectId(null); openEditModal(t); }} />}
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} settings={aiSettings} onSave={setAiSettings} currentTheme={theme} onThemeChange={setTheme} hotkeys={hotkeys} onHotkeysChange={setHotkeys} defaultHotkeys={DEFAULT_HOTKEYS} />
       <EventPopover
         isOpen={!!popoverState.task}

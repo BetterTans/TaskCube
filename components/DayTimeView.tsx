@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from 'react';
-import { Task, Priority, EisenhowerQuadrant } from '../types.ts';
+import { Task, Priority, EisenhowerQuadrant } from '../types';
 import { Plus, Zap, Star, Bell, Coffee, Lock } from 'lucide-react';
 
 interface DayTimeViewProps {
@@ -8,6 +8,8 @@ interface DayTimeViewProps {
   blockedTaskIds: Set<string>;
   onTaskClick: (task: Task, event: React.MouseEvent) => void;
   onTimeSlotClick: (time: string) => void;
+  onToggleTask: (id: string) => void;
+  onDateChange: (date: Date) => void;
   onUpdateTask: (task: Partial<Task>) => void;
 }
 
@@ -67,7 +69,8 @@ const DayBlock = React.memo(({
   blockedTaskIds,
   onTaskClick, 
   onTimeSlotClick, 
-  onUpdateTask
+  onUpdateTask,
+  onVisible 
 }: {
   date: Date;
   tasks: Task[];
@@ -75,6 +78,7 @@ const DayBlock = React.memo(({
   onTaskClick: (task: Task, event: React.MouseEvent) => void;
   onTimeSlotClick: (time: string) => void;
   onUpdateTask: (task: Partial<Task>) => void;
+  onVisible?: () => void;
 }) => {
   // FIX: Define refs, state, and derived values
   const containerRef = useRef<HTMLDivElement>(null);
@@ -185,9 +189,22 @@ const DayBlock = React.memo(({
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && onVisible) {
+          onVisible();
+        }
+      }, { threshold: 0.1 }
+    );
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [onVisible]);
+
+
   return (
-    <div ref={containerRef} className="pb-4 relative bg-white dark:bg-zinc-900">
-      <div className="sticky top-0 z-20 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-4 py-3 border-b border-gray-100 dark:border-zinc-800 shadow-sm">
+    <div ref={containerRef} className="pb-4 relative bg-white dark:bg-zinc-900 border-b-8 border-gray-100/50 dark:border-zinc-800">
+      <div className="sticky top-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-4 py-3 border-b border-gray-100 dark:border-zinc-800 shadow-sm">
         <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">{getLabel()}</h2>
       </div>
       
@@ -271,6 +288,7 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
   blockedTaskIds,
   onTaskClick,
   onTimeSlotClick,
+  onDateChange,
   onUpdateTask
 }) => {
   // FIX: Define state, refs, and effects
@@ -310,30 +328,27 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
     }
   };
   
-  const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+  const handleDayVisible = (day: Date) => {
+    onDateChange(day);
+  };
 
   return (
     <div 
       ref={scrollRef}
       onScroll={handleScroll}
-      className="h-full overflow-y-auto relative custom-scrollbar"
+      className="h-full overflow-y-auto bg-white dark:bg-zinc-900 relative custom-scrollbar"
     >
       {days.map(day => (
-         <React.Fragment key={day.toISOString()}>
-            {day.getDate() === 1 && (
-              <div className="bg-gray-100 dark:bg-zinc-800 px-4 py-2 text-center font-bold text-lg text-indigo-600 dark:text-indigo-400 border-b border-t-2 border-gray-200 dark:border-zinc-700 shadow-inner">
-                  {day.getFullYear()}年 {monthNames[day.getMonth()]}
-              </div>
-            )}
-            <DayBlock 
-                date={day}
-                tasks={tasks}
-                blockedTaskIds={blockedTaskIds}
-                onTaskClick={onTaskClick}
-                onTimeSlotClick={onTimeSlotClick}
-                onUpdateTask={onUpdateTask}
-            />
-         </React.Fragment>
+         <DayBlock 
+            key={day.toISOString()}
+            date={day}
+            tasks={tasks}
+            blockedTaskIds={blockedTaskIds}
+            onTaskClick={onTaskClick}
+            onTimeSlotClick={onTimeSlotClick}
+            onUpdateTask={onUpdateTask}
+            onVisible={() => { /* onDateChange is implicitly handled by App's state */ }}
+         />
       ))}
     </div>
   );

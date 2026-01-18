@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Task, Priority, SubTask, RecurringFrequency, RecurringRule, EisenhowerQuadrant, Project, AISettings, EstimatedDuration, PreferredTimeSlot } from '../types';
+import { Task, Priority, SubTask, RecurringFrequency, RecurringRule, EisenhowerQuadrant, Project } from '../types';
 import { breakDownTask, parseTaskFromNaturalLanguage } from '../services/aiService';
 import { parseDate } from '../services/recurringService';
+import { Button } from './Button';
 import { RecurringOptions } from './RecurringOptions';
 import { TaskSelectorPopover } from './TaskSelectorPopover';
 import { 
@@ -24,9 +25,7 @@ import {
   Bell,
   Coffee,
   Wand2,
-  Link2,
-  Timer,
-  Sun
+  Link2
 } from 'lucide-react';
 
 const generateUUID = () => {
@@ -54,17 +53,7 @@ interface TaskDetailModalProps {
   onToggleSubtask?: (taskId: string, subtaskId: string) => void;
   onUpdateSubtasks?: (taskId: string, subtasks: SubTask[]) => void;
   initialTime?: string; // 初始时间（例如从日视图点击时间格）
-  aiSettings: AISettings;
-  onOpenSettings: () => void;
 }
-
-const DURATION_OPTIONS: EstimatedDuration[] = [15, 30, 45, 60, 90, 120];
-const TIME_SLOT_OPTIONS: { id: PreferredTimeSlot, label: string }[] = [
-  { id: 'morning', label: '上午' },
-  { id: 'afternoon', label: '下午' },
-  { id: 'evening', label: '晚上' },
-  { id: 'any', label: '任意' }
-];
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   isOpen,
@@ -78,9 +67,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onSave,
   onUpdateRule,
   onDelete,
-  initialTime,
-  aiSettings,
-  onOpenSettings,
+  initialTime
 }) => {
   // --- 表单状态 ---
   const [title, setTitle] = useState('');
@@ -97,9 +84,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [isAllDay, setIsAllDay] = useState(true);
   const [startTime, setStartTime] = useState('');
   const [duration, setDuration] = useState(60);
-  
-  const [estimatedDuration, setEstimatedDuration] = useState<EstimatedDuration | undefined>();
-  const [preferredTimeSlot, setPreferredTimeSlot] = useState<PreferredTimeSlot | undefined>();
 
   const [subtasks, setSubtasks] = useState<SubTask[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
@@ -123,7 +107,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [recurEndDate, setRecurEndDate] = useState('');
   
   const tasksById = useMemo(() => new Map(allTasks.map(t => [t.id, t])), [allTasks]);
-  const isAiConfigured = !!(aiSettings && aiSettings.apiKey && aiSettings.baseUrl);
 
   useEffect(() => {
     if (isOpen) {
@@ -140,8 +123,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setSubtasks(task.subTasks || []); 
         setTags(task.tags || []);
         setPredecessorIds(task.predecessorIds || []);
-        setEstimatedDuration(task.estimatedDuration);
-        setPreferredTimeSlot(task.preferredTimeSlot);
         setEditMode('single');
         setIsRecurring(!!recurringRule);
         
@@ -187,8 +168,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setSubtasks([]); 
         setTags([]);
         setPredecessorIds([]);
-        setEstimatedDuration(undefined);
-        setPreferredTimeSlot(undefined);
         setEditMode('single');
         setIsRecurring(false);
         setRecurFreq('daily');
@@ -262,10 +241,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   // --- Handlers ---
   const handleSmartFill = async () => {
-    if (!isAiConfigured) {
-      onOpenSettings();
-      return;
-    }
     if (!title.trim()) return;
     setIsSmartFilling(true);
     const parsed = await parseTaskFromNaturalLanguage(title, startDate);
@@ -312,10 +287,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   };
   
   const handleGenerateSubtasks = async () => {
-    if (!isAiConfigured) {
-      onOpenSettings();
-      return;
-    }
     if (!title.trim()) return;
     setIsGenerating(true);
     const subtaskTitles = await breakDownTask(title);
@@ -386,8 +357,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             subTasks: subtasks,
             tags: tags,
             predecessorIds: predecessorIds,
-            estimatedDuration,
-            preferredTimeSlot,
             ...timeData,
         };
         // If task was recurring but is now single, detach it from the rule.
@@ -407,12 +376,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     { id: EisenhowerQuadrant.Q3, label: '紧急 & 不重要', desc: '审慎处理', icon: <Bell size={12}/>, selectedClass: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' },
     { id: EisenhowerQuadrant.Q4, label: '不重要 & 不紧急', desc: '暂缓排除', icon: <Coffee size={12}/>, selectedClass: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' },
   ];
-  
-  const formatDuration = (minutes: EstimatedDuration) => {
-    if (minutes < 60) return `${minutes}分钟`;
-    const hours = minutes / 60;
-    return `${hours}小时`;
-  };
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-sm transition-all duration-300">
@@ -438,8 +401,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     <button 
                       onClick={handleSmartFill} 
                       disabled={isSmartFilling}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 dark:text-gray-500 dark:hover:text-indigo-400 transition-colors disabled:text-gray-400 disabled:animate-pulse p-1"
-                      title={isAiConfigured ? "智能识别" : "请先配置 AI 设置"}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-500 disabled:text-gray-400 disabled:animate-pulse p-1"
+                      title="智能识别"
                     >
                       <Wand2 size={18} />
                     </button>
@@ -587,30 +550,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     )}
                 </div>
             </div>
-             
-             <div className="bg-white dark:bg-zinc-900 rounded-xl p-3 space-y-3 shadow-sm border border-gray-200 dark:border-zinc-800">
-                <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                    <div className="bg-sky-500 rounded-md p-1 text-white"><Timer size={14}/></div>
-                    <span className="text-sm font-medium">执行偏好</span>
-                </div>
-                <div>
-                    <label className="text-xs font-semibold text-gray-400 dark:text-gray-500">预估耗时</label>
-                    <div className="grid grid-cols-3 gap-2 mt-2">
-                       {DURATION_OPTIONS.map(d => (
-                           <button key={d} onClick={() => setEstimatedDuration(d)} className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${estimatedDuration === d ? 'bg-indigo-600 text-white shadow' : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700'}`}>{formatDuration(d)}</button>
-                       ))}
-                    </div>
-                </div>
-                 <div>
-                    <label className="text-xs font-semibold text-gray-400 dark:text-gray-500">偏好时段</label>
-                    <div className="grid grid-cols-4 gap-2 mt-2">
-                       {TIME_SLOT_OPTIONS.map(s => (
-                           <button key={s.id} onClick={() => setPreferredTimeSlot(s.id)} className={`py-1.5 text-xs font-semibold rounded-lg transition-all ${preferredTimeSlot === s.id ? 'bg-indigo-600 text-white shadow' : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700'}`}>{s.label}</button>
-                       ))}
-                    </div>
-                </div>
-             </div>
-
 
              {/* --- Dependencies --- */}
              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
@@ -670,21 +609,14 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                         <div className="bg-cyan-500 rounded-md p-1 text-white"><AlignLeft size={14}/></div>
                         <span className="text-sm font-medium">子任务</span>
                     </div>
-                    <button
+                    <Button
+                      variant="ghost" size="sm"
                       onClick={handleGenerateSubtasks}
-                      disabled={isGenerating}
-                      className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2 py-1.5 rounded-md transition-colors disabled:opacity-60"
+                      isLoading={isGenerating}
+                      className="gap-1 text-indigo-600 dark:text-indigo-400"
                     >
-                      {isGenerating ? (
-                        <svg className="animate-spin h-3.5 w-3.5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      ) : (
-                        <Sparkles size={14} />
-                      )}
-                      <span>{isGenerating ? '生成中...' : (isAiConfigured ? 'AI 拆解' : '配置 AI')}</span>
-                    </button>
+                      <Sparkles size={14} /> AI 拆解
+                    </Button>
                 </div>
                 <div className="p-3 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
                     {subtasks.map(sub => (

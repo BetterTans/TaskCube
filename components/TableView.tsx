@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Task, Priority, EisenhowerQuadrant, Project } from '../types';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -256,7 +255,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
                   <div key={task.id} className="absolute top-0 left-0 w-full flex border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group" style={{ height: `${virtualRow.size}px`, transform: `translateY(${virtualRow.start}px)` }}>
                     {Object.keys(colWidths).map(key => (
                       <div key={key} style={{ width: colWidths[key] }} className="py-3 px-3 flex items-center flex-shrink-0 overflow-hidden">
-                        {key === 'status' && <div className="w-full text-center"><button disabled={isBlocked} onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }} className={`transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600 hover:text-indigo-500'}`}>{task.completed ? <CheckCircle2 size={18} className="animate-pop-in" /> : <Circle size={18} />}</button></div>}
+                        {key === 'status' && <div className="w-full text-center"><button disabled={isBlocked} onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }} className={`transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600 hover:text-indigo-500'}`}>{task.completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}</button></div>}
                         {key === 'title' && <div onClick={() => onTaskClick(task)} className={`flex items-center font-medium text-sm truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-200'}`}>{isBlocked && <span title="被前置任务阻塞"><Lock size={12} className="mr-1.5 text-gray-400 shrink-0" /></span>}<span className="truncate">{task.title}</span></div>}
                         {key === 'project' && <div className="text-sm text-gray-600 dark:text-gray-300 truncate">{getProjectTitle(task.projectId)}</div>}
                         {key === 'priority' && <div className="text-sm text-gray-600 dark:text-gray-300">{task.priority}</div>}

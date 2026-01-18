@@ -13,10 +13,10 @@
             colors: {
               gray: {
                 850: '#1f2937',
+                950: '#0a0a0a',
               },
               zinc: {
                 925: '#121217',
-                950: '#0a0a0a',
               }
             }
           }
@@ -38,14 +38,14 @@
       }
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-        background-color: #f2f2f7; /* iOS-like light gray */
-        color: #1d1d1f; /* Near black for text */
+        background-color: #F7F7F7; /* New softer background */
+        color: #111827; /* gray-900 */
         -webkit-font-smoothing: antialiased;
         transition: background-color 0.3s ease;
       }
       .dark body {
-        background-color: #000000; /* Pure black for deep dark mode */
-        color: #f5f5f7; /* Off-white for text */
+        background-color: #121217; /* New zinc-925 for deeper dark mode */
+        color: #f4f4f5; /* zinc-100 */
       }
       
       /* Hide scrollbar for cleaner UI */
@@ -57,31 +57,23 @@
         scrollbar-width: none;
       }
       /* Custom scrollbar for better aesthetics where needed */
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
       }
-      .custom-scrollbar::-webkit-scrollbar-track {
+      ::-webkit-scrollbar-track {
         background: transparent;
       }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: rgba(0,0,0,0.15);
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.1);
         border-radius: 20px;
       }
-      .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: rgba(255,255,255,0.15);
+      .dark ::-webkit-scrollbar-thumb {
+        background-color: rgba(255,255,255,0.2);
       }
       .ios-btn-active:active {
         opacity: 0.7;
         transform: scale(0.98);
-      }
-      @keyframes pop-in {
-        0% { transform: scale(0.5); opacity: 0; }
-        75% { transform: scale(1.2); opacity: 1; }
-        100% { transform: scale(1); opacity: 1; }
-      }
-      .animate-pop-in {
-        animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
       }
     </style>
   <script type="importmap">

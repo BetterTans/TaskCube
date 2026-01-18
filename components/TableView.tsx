@@ -220,7 +220,6 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
   
   const rowVirtualizer = useVirtualizer({ count: sortedTasks.length, getScrollElement: () => parentRef.current, estimateSize: () => 53, overscan: 5 });
 
-  // FIX: Cast Object.values result to number[] to ensure correct type inference in reduce.
   const totalWidth = (Object.values(colWidths) as number[]).reduce((acc, w) => acc + w, 0);
   const headers: Record<string, string> = { status: '状态', title: '任务标题', project: '项目', priority: '优先级', quadrant: '四象限', date: '日期', tags: '标签', subtasks: '子任务'};
 

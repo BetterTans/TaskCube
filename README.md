@@ -1,6 +1,6 @@
 # TaskCube - 你的私人 AI 智能任务中心
 
-TaskCube 是一款使用 React 19 构建的现代化、本地优先的待办事项应用。它将优雅的、以键盘为中心的操作界面与灵活强大的 AI 助手相结合，确保您的数据安全私密，工作流程迅捷高效。
+TaskCube 是一款使用 React 构建的现代化、本地优先的待办事项应用。它将优雅的、以键盘为中心的操作界面与灵活强大的 AI 助手相结合，确保您的数据安全私密，工作流程迅捷高效。
 
 **当前版本: v3.1.2**
 
@@ -31,22 +31,29 @@ TaskCube 是一款使用 React 19 构建的现代化、本地优先的待办事�
 
 ## 🚀 快速启动
 
-本应用采用纯前端 ESM 架构，**必须通过 Web 服务器运行**（不能直接双击 `index.html` 打开）。
+本应用采用“零构建”架构，**无需安装任何依赖**。但由于浏览器安全限制，你不能直接双击 `index.html` 文件打开它。你必须通过一个本地 Web 服务器来运行。
 
-### 方式 A：WebStorm (推荐)
-1. 在 WebStorm 中打开项目文件夹。
-2. 右键点击 `index.html`，选择 **Open in Browser** -> **Chrome**。
+以下是几种最简单的方法：
 
-### 方式 B：VS Code
-1. 安装 **Live Server** 扩展。
-2. 点击右下角的 **Go Live** 或右键 `index.html` 选择 **Open with Live Server**。
+### 方式 A: VS Code + Live Server 扩展 (推荐)
+1.  在 VS Code 中打开项目文件夹。
+2.  前往“扩展”面板，搜索并安装 **Live Server** 扩展。
+3.  安装后，在文件浏览器中右键点击 `index.html` 文件。
+4.  选择 **"Open with Live Server"**。
 
-### 方式 C：命令行 (Python)
-如果你安装了 Python，在根目录下运行：
-```bash
-python -m http.server 8000
-```
-然后在浏览器访问 `http://localhost:8000`。
+### 方式 B: WebStorm (或其他 JetBrains IDE)
+1.  在 WebStorm 中打开项目文件夹。
+2.  右键点击 `index.html` 文件。
+3.  选择 **Open in Browser** -> **Chrome** (或你喜欢的浏览器)。
+
+### 方式 C: 使用 Python (如果已安装)
+1.  在项目根目录下打开你的终端或命令行工具。
+2.  运行以下命令启动一个简单的服务器：
+    ```bash
+    # Python 3
+    python -m http.server 8000
+    ```
+3.  然后在浏览器中打开 `http://localhost:8000`。
 
 ---
 

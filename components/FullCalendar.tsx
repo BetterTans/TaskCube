@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 import { Task, Project, Priority, EisenhowerQuadrant } from '../types.ts';
 import { Zap, Star, Bell, Coffee, Lock, ChevronDown } from 'lucide-react';
@@ -266,7 +267,6 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
   );
 });
 
-// FIX: Added missing FullCalendarProps interface to resolve the "Cannot find name 'FullCalendarProps'" error.
 interface FullCalendarProps {
   currentDate: Date;
   tasks: Task[];

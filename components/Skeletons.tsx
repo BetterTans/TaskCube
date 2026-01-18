@@ -5,7 +5,6 @@ import React from 'react';
  * @param {{ className?: string }} props - 组件属性。
  * @returns {JSX.Element} - 一个带有动画效果的灰色矩形。
  */
-// FIX: Changed to React.FC to correctly handle props like `key` when used in a list.
 const SkeletonBox: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse ${className}`} />
 );
@@ -14,18 +13,23 @@ const SkeletonBox: React.FC<{ className?: string }> = ({ className }) => (
  * 日历视图 (FullCalendar) 的骨架屏。
  * 模拟日历的网格布局，在数据加载时提供视觉占位，防止布局跳动。
  */
-export const CalendarSkeleton = () => (
-  <div className="p-4 h-full">
-    <div className="flex flex-col h-full border-b border-r border-gray-100 dark:border-zinc-800">
-       <div className="grid grid-cols-7 h-[16.66%]"><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /></div>
-       <div className="grid grid-cols-7 h-[16.66%]"><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /></div>
-       <div className="grid grid-cols-7 h-[16.66%]"><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /></div>
-       <div className="grid grid-cols-7 h-[16.66%]"><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /></div>
-       <div className="grid grid-cols-7 h-[16.66%]"><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /></div>
-       <div className="grid grid-cols-7 h-[16.66%]"><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /><SkeletonBox className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" /></div>
+export const CalendarSkeleton = () => {
+  const rows = 6;
+  const cols = 7;
+  return (
+    <div className="p-4 h-full">
+      <div className="flex flex-col h-full border-b border-r border-gray-100 dark:border-zinc-800">
+        {Array.from({ length: rows }).map((_, rowIndex) => (
+          <div key={rowIndex} className="grid grid-cols-7 h-[16.66%]">
+            {Array.from({ length: cols }).map((_, colIndex) => (
+              <SkeletonBox key={colIndex} className="w-full h-full border-t border-l border-gray-100 dark:border-zinc-800" />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /**
  * 日视图 (DayTimeView) 的骨架屏。
@@ -58,10 +62,12 @@ export const DayViewSkeleton = () => (
 export const MatrixSkeleton = () => (
   <div className="p-4 h-full overflow-hidden">
      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-        <div className="space-y-3 p-3 bg-gray-50/50 dark:bg-zinc-800/20 rounded-xl"><SkeletonBox className="h-8 w-1/2" /><SkeletonBox className="w-full h-32" /></div>
-        <div className="space-y-3 p-3 bg-gray-50/50 dark:bg-zinc-800/20 rounded-xl"><SkeletonBox className="h-8 w-1/2" /><SkeletonBox className="w-full h-32" /></div>
-        <div className="space-y-3 p-3 bg-gray-50/50 dark:bg-zinc-800/20 rounded-xl"><SkeletonBox className="h-8 w-1/2" /><SkeletonBox className="w-full h-32" /></div>
-        <div className="space-y-3 p-3 bg-gray-50/50 dark:bg-zinc-800/20 rounded-xl"><SkeletonBox className="h-8 w-1/2" /><SkeletonBox className="w-full h-32" /></div>
+       {Array.from({ length: 4 }).map((_, i) => (
+         <div key={i} className="space-y-3 p-3 bg-gray-50/50 dark:bg-zinc-800/20 rounded-xl">
+           <SkeletonBox className="h-8 w-1/2" />
+           <SkeletonBox className="w-full h-32" />
+         </div>
+       ))}
      </div>
   </div>
 );

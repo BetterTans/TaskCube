@@ -83,7 +83,7 @@ export default function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('matrix');
   const [matrixDateRange, setMatrixDateRange] = useState(getWeekRange());
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('sidebarCollapsed') === 'true');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('nextdo-sidebar-collapsed') === 'true');
   
   // --- 模态框可见性状态 ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,9 +108,9 @@ export default function App() {
 
   // --- 初始化与设置持久化 ---
   useEffect(() => {
-    const savedSettings = localStorage.getItem('taskcube-ai-settings');
-    const savedTheme = localStorage.getItem('taskcube-theme');
-    const savedHotkeys = localStorage.getItem('taskcube-hotkeys');
+    const savedSettings = localStorage.getItem('nextdo-ai-settings');
+    const savedTheme = localStorage.getItem('nextdo-theme');
+    const savedHotkeys = localStorage.getItem('nextdo-hotkeys');
     
     if (savedSettings) try { setAiSettings(JSON.parse(savedSettings)); } catch (e) {}
     if (savedHotkeys) try { setHotkeys(JSON.parse(savedHotkeys)); } catch (e) {}
@@ -121,13 +121,13 @@ export default function App() {
     }
   }, []);
   
-  useEffect(() => { localStorage.setItem('taskcube-ai-settings', JSON.stringify(aiSettings)); }, [aiSettings]);
-  useEffect(() => { localStorage.setItem('taskcube-hotkeys', JSON.stringify(hotkeys)); }, [hotkeys]);
-  useEffect(() => { localStorage.setItem('sidebarCollapsed', String(isSidebarCollapsed)); }, [isSidebarCollapsed]);
+  useEffect(() => { localStorage.setItem('nextdo-ai-settings', JSON.stringify(aiSettings)); }, [aiSettings]);
+  useEffect(() => { localStorage.setItem('nextdo-hotkeys', JSON.stringify(hotkeys)); }, [hotkeys]);
+  useEffect(() => { localStorage.setItem('nextdo-sidebar-collapsed', String(isSidebarCollapsed)); }, [isSidebarCollapsed]);
 
   // 主题切换副作用
   useEffect(() => {
-    localStorage.setItem('taskcube-theme', theme);
+    localStorage.setItem('nextdo-theme', theme);
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     if (theme === 'system') {
@@ -369,7 +369,7 @@ export default function App() {
       <aside className={`relative z-40 flex-shrink-0 bg-gray-100/50 dark:bg-zinc-800/20 backdrop-blur-lg border-r border-gray-200/80 dark:border-zinc-700/50 flex flex-col p-4 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div className={`flex items-center gap-2 mb-8 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-sm flex items-center justify-center text-white flex-shrink-0"><Box size={18} /></div>
-           {!isSidebarCollapsed && <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight animate-in fade-in duration-300">TaskCube</h1>}
+           {!isSidebarCollapsed && <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight animate-in fade-in duration-300">NextDo</h1>}
         </div>
         <nav className="flex-1 space-y-2">
           {viewOptions.map(view => {

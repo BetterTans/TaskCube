@@ -1,6 +1,6 @@
-# TaskCube 桌面端打包指南 (Electron)
+# NextDo 桌面端打包指南 (Electron)
 
-本文档详细说明如何将 TaskCube **零构建 (Zero-Build)** 网页版应用打包为 Windows (.exe) 和 macOS (.dmg) 桌面应用程序。
+本文档详细说明如何将 NextDo **零构建 (Zero-Build)** 网页版应用打包为 Windows (.exe) 和 macOS (.dmg) 桌面应用程序。
 
 通过 Electron 打包，应用将拥有独立的数据存储环境，不受浏览器缓存清理策略的影响，从而实现**数据持久化**。
 
@@ -43,7 +43,7 @@ function createWindow() {
       // 在 file:// 协议下，需要显式启用
       webSecurity: false, 
     },
-    title: "TaskCube",
+    title: "NextDo",
     // 注意: 图标文件需要被包含在打包配置中
     icon: path.join(__dirname, 'favicon.ico'), 
     autoHideMenuBar: true, // Windows 下自动隐藏菜单栏
@@ -78,7 +78,7 @@ app.on('activate', () => {
 1.  **设置入口文件**:
     ```json
     {
-      "name": "taskcube",
+      "name": "nextdo",
       "version": "3.1.2",
       "description": "AI 驱动的智能待办应用。",
       "main": "electron-main.js",
@@ -98,8 +98,8 @@ app.on('activate', () => {
     在 `package.json` 的顶层添加 `build` 字段。这是最关键的一步，因为它告诉 `electron-builder` 需要将哪些源文件打包到最终的应用中。
     ```json
     "build": {
-      "appId": "com.taskcube.app",
-      "productName": "TaskCube",
+      "appId": "com.nextdo.app",
+      "productName": "NextDo",
       "files": [
         "**/*",
         "!node_modules/**/*",
@@ -135,7 +135,7 @@ app.on('activate', () => {
 npm run dist
 ```
 
-打包成功后，你会在项目根目录下的 `dist` 文件夹中找到适用于你当前操作系统的安装程序（例如 `TaskCube Setup 3.1.2.exe` 或 `TaskCube-3.1.2.dmg`）。
+打包成功后，你会在项目根目录下的 `dist` 文件夹中找到适用于你当前操作系统的安装程序（例如 `NextDo Setup 3.1.2.exe` 或 `NextDo-3.1.2.dmg`）。
 
 ---
 
@@ -145,8 +145,8 @@ npm run dist
 
 具体路径如下：
 
-*   **Windows**: `C:\Users\<用户名>\AppData\Roaming\TaskCube\IndexedDB`
-*   **macOS**: `/Users/<用户名>/Library/Application Support/TaskCube/IndexedDB`
-*   **Linux**: `~/.config/TaskCube/IndexedDB`
+*   **Windows**: `C:\Users\<用户名>\AppData\Roaming\NextDo\IndexedDB`
+*   **macOS**: `/Users/<用户名>/Library/Application Support/NextDo/IndexedDB`
+*   **Linux**: `~/.config/NextDo/IndexedDB`
 
 只要用户不重装操作系统或手动进入上述目录删除文件，**数据将永久存在**。即使你发布了新版本的安装包，只要 `appId` 保持不变，新版软件安装后依然能自动读取到旧版的数据。

@@ -44,7 +44,7 @@ const quadrantInfo: Record<EisenhowerQuadrant, { title: string; icon: React.Reac
 };
 
 const getInitialFilters = (): TableFilters => {
-    const saved = localStorage.getItem('taskcube-table-filters');
+    const saved = localStorage.getItem('nextdo-table-filters');
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
@@ -162,7 +162,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
   const resizingRef = useRef<{ col: string; startX: number; startWidth: number } | null>(null);
   const parentRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { localStorage.setItem('taskcube-table-filters', JSON.stringify(filters)); }, [filters]);
+  useEffect(() => { localStorage.setItem('nextdo-table-filters', JSON.stringify(filters)); }, [filters]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => { if (resizingRef.current) { const { col, startX, startWidth } = resizingRef.current; const newWidth = startWidth + (e.clientX - startX); setColWidths(prev => ({ ...prev, [col]: Math.max(newWidth, 60) })); } };

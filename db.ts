@@ -3,16 +3,16 @@ import { Task, Project, RecurringRule, Priority, EisenhowerQuadrant } from './ty
 
 /**
  * 定义应用的 IndexedDB 数据库类。
- * TaskCubeDB 继承自 Dexie，用于方便地操作底层的 IndexedDB。
+ * NextDoDB 继承自 Dexie，用于方便地操作底层的 IndexedDB。
  */
-export class TaskCubeDB extends Dexie {
+export class NextDoDB extends Dexie {
   // 定义数据库中的表。'Table' 是 Dexie 提供的类型，用于强类型化表操作。
   tasks!: Table<Task>;
   projects!: Table<Project>;
   recurringRules!: Table<RecurringRule>;
 
   constructor() {
-    super('TaskCubeDB'); // 'TaskCubeDB' 是数据库的名称
+    super('NextDoDB'); // 'NextDoDB' 是数据库的名称
     
     // FIX: Assign `this` to a variable typed as Dexie to help TypeScript resolve inherited methods.
     const db: Dexie = this;
@@ -71,7 +71,7 @@ export class TaskCubeDB extends Dexie {
         this.tasks.bulkAdd([
           {
             id: '1',
-            title: '欢迎使用 TaskCube',
+            title: '欢迎使用 NextDo',
             description: '这是一个基于 IndexedDB 的演示任务',
             completed: false,
             priority: Priority.HIGH,
@@ -105,4 +105,4 @@ export class TaskCubeDB extends Dexie {
 }
 
 // 创建并导出一个全局的数据库实例，供整个应用使用。
-export const db = new TaskCubeDB();
+export const db = new NextDoDB();

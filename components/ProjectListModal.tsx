@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Project, ProjectStatus } from '../types';
 import { X, Plus, Briefcase, TrendingUp, ChevronRight, Folder } from 'lucide-react';
@@ -11,6 +10,12 @@ interface ProjectListModalProps {
   onCreateProject: (project: Partial<Project>) => void;
   onProjectClick: (project: Project) => void;
 }
+
+// 预定义颜色列表，用于新项目
+const PROJECT_COLORS = [
+  '#EF4444', '#F97316', '#F59E0B', '#84CC16', '#22C55E', '#14B8A6',
+  '#06B6D4', '#3B82F6', '#8B5CF6', '#EC4899', '#78716C'
+];
 
 export const ProjectListModal: React.FC<ProjectListModalProps> = ({
   isOpen,
@@ -33,7 +38,9 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
       status: 'active',
       progress: 0,
       startDate: new Date().toISOString().split('T')[0],
-      logs: []
+      logs: [],
+      // 从调色盘中循环选择一个颜色
+      color: PROJECT_COLORS[projects.length % PROJECT_COLORS.length]
     });
     setNewTitle('');
     setNewDesc('');
@@ -111,7 +118,10 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
                        onClick={() => onProjectClick(project)}
                        className="flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer group active:bg-gray-100 dark:active:bg-zinc-700"
                      >
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${project.status === 'completed' ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400' : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'}`}>
+                        <div 
+                           className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0`}
+                           style={{ backgroundColor: project.color ? `${project.color}20` : '#E0E7FF', color: project.color || '#4F46E5' }}
+                        >
                            <Folder size={20} className="fill-current" />
                         </div>
                         
@@ -127,8 +137,8 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
                            <div className="flex items-center gap-3">
                               <div className="flex-1 h-1.5 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden max-w-[100px]">
                                 <div 
-                                  className={`h-full rounded-full ${project.status === 'completed' ? 'bg-gray-400' : 'bg-indigo-500'}`} 
-                                  style={{ width: `${project.progress}%` }}
+                                  className={`h-full rounded-full`}
+                                  style={{ width: `${project.progress}%`, backgroundColor: project.color || '#4F46E5' }}
                                 />
                               </div>
                               <span className="text-xs text-gray-500 dark:text-gray-400">{project.progress}%</span>

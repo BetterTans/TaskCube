@@ -1,202 +1,192 @@
+import { AISettings, Task, Priority, EisenhowerQuadrant } from "../types";
 
-import { Task, Priority, EisenhowerQuadrant, AISettings } from "../types";
-
-// --- Adapter Interfaces ---
-
-/**
- * AI 服务适配器接口 (Adapter Pattern)
- * 
- * 设计目的:
- * 将业务逻辑层（UI 组件）与底层的具体 AI 模型实现解耦。
- * 如果未来需要切换回 Google Gemini SDK、Claude SDK 或其他非 OpenAI 兼容的协议，
- * 只需新建一个实现此接口的类（例如 GeminiAdapter），而无需修改组件代码。
- */
-export interface AIServiceAdapter {
-  breakDownTask(taskTitle: string): Promise<string[]>;
-  parseTaskFromNaturalLanguage(input: string, referenceDateStr: string): Promise<Partial<Task>>;
-  generateProjectPlan(projectTitle: string, projectDesc?: string): Promise<{ title: string; priority: Priority; reason: string }[]>;
-  prioritizeTasks(tasks: Task[]): Promise<{ taskId: string; priority: Priority; reason: string }[]>;
-}
-
-// --- Configuration Management ---
-
-const DEFAULT_SETTINGS: AISettings = {
-  baseUrl: 'https://api.openai.com/v1',
-  apiKey: process.env.API_KEY || '',
-  model: 'gpt-3.5-turbo'
-};
-
+// Helper to get settings from localStorage
 const getSettings = (): AISettings => {
-  const saved = localStorage.getItem('taskcube-ai-settings');
-  if (saved) {
-    return JSON.parse(saved);
-  }
-  return DEFAULT_SETTINGS;
+    const saved = localStorage.getItem('taskcube-ai-settings');
+    if (saved) {
+        try {
+            return JSON.parse(saved);
+        } catch (e) {
+            console.error("Could not parse AI settings, using default.", e);
+        }
+    }
+    return {
+        baseUrl: 'https://api.openai.com/v1',
+        apiKey: '',
+        model: 'gpt-3.5-turbo'
+    };
 };
 
-// --- Base HTTP Helper ---
+// Generic function to call an OpenAI-compatible API
+const callAI = async (messages: {role: string; content: string}[], expectJson: boolean) => {
+    const settings = getSettings();
+    if (!settings.apiKey) {
+        console.warn("AI API Key is not set in settings.");
+        throw new Error("API Key is not configured.");
+    }
 
-/**
- * 通用的 OpenAI 兼容接口调用函数
- * 处理 fetch 请求、鉴权、JSON 模式解析等通用逻辑
- */
-const callOpenAICompatibleAPI = async (
-  systemPrompt: string, 
-  userPrompt: string,
-  jsonMode: boolean = true
-): Promise<any> => {
-  const settings = getSettings();
-  
-  if (!settings.apiKey) {
-    console.warn("API Key is missing. Please configure it in settings.");
-    return null;
-  }
-
-  try {
-    const response = await fetch(`${settings.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
+    const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${settings.apiKey}`
-      },
-      body: JSON.stringify({
+    };
+
+    const body: any = {
         model: settings.model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        // 多数现代模型（GPT-4o, DeepSeek-V3）支持 response_format: { type: "json_object" }
-        // 如果使用较旧模型可能需要移除此字段，并在 Prompt 中加强约束
-        response_format: jsonMode ? { type: "json_object" } : undefined
-      })
+        messages,
+        temperature: 0.3,
+    };
+    
+    // Enable JSON mode if supported by the model/endpoint
+    if (expectJson) {
+        body.response_format = { type: "json_object" };
+    }
+
+    const response = await fetch(`${settings.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI API Error:", response.status, errorText);
-      return null;
+        const errorText = await response.text();
+        console.error("AI API Error:", errorText);
+        throw new Error(`AI request failed: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (jsonMode && content) {
-       // 清理可能存在的 Markdown 代码块标记，防止 JSON.parse 失败
-       const cleanJson = content.replace(/```json\n?|\n?```/g, '');
-       return JSON.parse(cleanJson);
+    const content = data.choices[0].message.content;
+    
+    if (expectJson) {
+        try {
+            // The content itself is a JSON string that needs to be parsed
+            return JSON.parse(content);
+        } catch (e) {
+            console.error("Failed to parse AI JSON response:", content);
+            throw new Error("AI returned invalid JSON.");
+        }
     }
-
     return content;
-
-  } catch (error) {
-    console.error("AI Service Error:", error);
-    return null;
-  }
 };
 
-// --- Concrete Adapter Implementation: OpenAI / Compatible ---
 
-class OpenAIAdapter implements AIServiceAdapter {
-  
-  async breakDownTask(taskTitle: string): Promise<string[]> {
-    const systemPrompt = `你是一个任务拆解专家。请将用户给出的任务分解为 3-5 个简明扼要、可执行的子任务。
-    请直接返回 JSON 格式，不要包含任何其他废话。
-    格式要求: { "subtasks": ["子任务1", "子任务2", ...] }`;
-    
-    const result = await callOpenAICompatibleAPI(systemPrompt, `需拆解的任务: "${taskTitle}"`);
-    return result?.subtasks || [];
-  }
+/**
+ * Breaks down a task title into a list of subtasks using AI.
+ */
+export const breakDownTask = async (taskTitle: string): Promise<string[]> => {
+    const messages = [
+        { role: 'system', content: "You are a task breakdown expert. Break down the user's task into a JSON array of 3-5 concise, actionable subtask strings. Your response must be a valid JSON object with a single key 'subtasks' which is an array of strings." },
+        { role: 'user', content: `Task to break down: "${taskTitle}"` }
+    ];
 
-  async parseTaskFromNaturalLanguage(input: string, referenceDateStr: string): Promise<Partial<Task>> {
-    const d = new Date();
-    const offset = d.getTimezoneOffset() * 60000;
-    const todayStr = new Date(d.getTime() - offset).toISOString().split('T')[0];
-
-    const systemPrompt = `
-      Context:
-      - Today: ${todayStr} (YYYY-MM-DD)
-      - Default Date: ${referenceDateStr} (YYYY-MM-DD)
-      
-      Role: You are a JSON parser extracting task details from natural language.
-      
-      Rules:
-      1. Extract 'date' relative to Today. If no date mentioned, use Default Date.
-      2. Extract 'startTime' in HH:mm (24h) if mentioned.
-      3. Infer 'priority' (High/Medium/Low) and Eisenhower 'quadrant' (Q1/Q2/Q3/Q4).
-      4. Duration defaults to 60 if not specified.
-      
-      Return strict JSON format:
-      {
-        "title": "string",
-        "date": "YYYY-MM-DD",
-        "startTime": "HH:mm" or null,
-        "duration": number,
-        "priority": "High"|"Medium"|"Low",
-        "quadrant": "Q1"|"Q2"|"Q3"|"Q4",
-        "description": "string"
-      }
-    `;
-
-    const result = await callOpenAICompatibleAPI(systemPrompt, `User Input: "${input}"`);
-
-    if (!result) return { title: input };
-
-    const task: Partial<Task> = {
-      title: result.title || input,
-      date: result.date || referenceDateStr,
-      priority: (result.priority as Priority) || Priority.MEDIUM,
-      quadrant: (result.quadrant as EisenhowerQuadrant) || EisenhowerQuadrant.Q2,
-      description: result.description
-    };
-
-    if (result.startTime) {
-      task.startTime = result.startTime;
-      task.duration = result.duration || 60;
+    try {
+        const result = await callAI(messages, true);
+        if (result && Array.isArray(result.subtasks)) {
+            return result.subtasks;
+        }
+        return [];
+    } catch (error) {
+        console.error("AI Service Error (breakDownTask):", error);
+        alert("智能拆解失败，请检查AI设置或网络连接。");
+        return [];
     }
+};
 
-    return task;
-  }
+/**
+ * Parses task details from a natural language string.
+ */
+export const parseTaskFromNaturalLanguage = async (input: string, referenceDateStr: string): Promise<Partial<Task>> => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const systemPrompt = `You are a JSON parser extracting task details from natural language.
+Context:
+- Today's Date: ${todayStr} (YYYY-MM-DD)
+- Default Date (if none specified): ${referenceDateStr} (YYYY-MM-DD)
+Rules:
+1. Extract 'title' as a clean version of the task, without time/date info.
+2. Extract 'date' in YYYY-MM-DD format.
+3. Extract 'startTime' in HH:mm (24h) format.
+4. Extract 'duration' in minutes. Default to 60 if a start time is present but no duration.
+5. Infer 'priority' (High, Medium, Low) and Eisenhower 'quadrant' (Q1, Q2, Q3, Q4).
+Your response must be a valid JSON object with the extracted fields.`;
 
-  async generateProjectPlan(projectTitle: string, projectDesc?: string): Promise<{ title: string; priority: Priority; reason: string }[]> {
-    const systemPrompt = `你是一个项目管理专家。请为一个项目制定初步执行计划。
-    列出 3-6 个关键的下一步行动 (Tasks)。
-    请返回 JSON 格式。
-    格式要求: { "tasks": [{ "title": "任务名", "priority": "High"|"Medium"|"Low", "reason": "理由" }] }`;
+    const messages = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Parse this: "${input}"` }
+    ];
 
-    const userPrompt = `项目名称: "${projectTitle}"\n${projectDesc ? `项目描述: ${projectDesc}` : ''}`;
+    try {
+        const result = await callAI(messages, true);
+        const task: Partial<Task> = {};
+        if (result.title) task.title = result.title;
+        if (result.date) task.date = result.date;
+        if (result.priority && Object.values(Priority).includes(result.priority)) task.priority = result.priority;
+        if (result.quadrant && Object.values(EisenhowerQuadrant).includes(result.quadrant)) task.quadrant = result.quadrant;
+        if (result.description) task.description = result.description;
+        if (result.startTime) {
+            task.startTime = result.startTime;
+            task.duration = result.duration || 60;
+        }
+        return task;
+    } catch (error) {
+        console.error("AI Service Error (parseTaskFromNaturalLanguage):", error);
+        alert("智能识别失败，请检查AI设置。将仅使用输入内容作为标题。");
+        return { title: input }; // Fallback
+    }
+};
 
-    const result = await callOpenAICompatibleAPI(systemPrompt, userPrompt);
+/**
+ * Generates a preliminary project plan with key tasks.
+ */
+export const generateProjectPlan = async (projectTitle: string, projectDesc?: string): Promise<{ title: string; priority: Priority; reason: string }[]> => {
+    const systemPrompt = `You are a project management expert. Create a preliminary action plan for a project.
+List 3-5 key next actions (Tasks).
+Your response must be a valid JSON object with a single key 'tasks', containing an array of objects.
+Each object must have 'title' (string), 'priority' (enum: High, Medium, Low), and 'reason' (string).`;
     
-    return (result?.tasks || []).map((t: any) => ({
-      title: t.title,
-      priority: t.priority as Priority,
-      reason: t.reason
-    }));
-  }
+    const userPrompt = `Project Name: "${projectTitle}"\n${projectDesc ? `Project Description: ${projectDesc}` : ''}`;
+    
+    const messages = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+    ];
 
-  async prioritizeTasks(tasks: Task[]): Promise<{ taskId: string; priority: Priority; reason: string }[]> {
+    try {
+        const result = await callAI(messages, true);
+        if (result && Array.isArray(result.tasks)) {
+            return result.tasks;
+        }
+        return [];
+    } catch (error) {
+        console.error("AI Service Error (generateProjectPlan):", error);
+        alert("生成项目计划失败，请检查AI设置。");
+        return [];
+    }
+};
+
+/**
+ * Analyzes a list of tasks and assigns priorities.
+ */
+export const prioritizeTasksAI = async (tasks: Task[]): Promise<{ taskId: string; priority: Priority; reason: string }[]> => {
     if (tasks.length === 0) return [];
     
-    const systemPrompt = `你是一个时间管理大师。分析任务列表，根据紧迫性和重要性分配优先级。
-    返回 JSON 格式: { "orders": [{ "taskId": "id", "priority": "High"|"Medium"|"Low", "reason": "简短理由" }] }`;
+    const taskSummaries = tasks.map(t => ({ id: t.id, title: t.title, currentPriority: t.priority }));
+    const systemPrompt = `You are a time management master. Analyze the provided JSON list of tasks.
+Re-assign a priority (High, Medium, Low) to each task based on inferred urgency and importance.
+Your response must be a valid JSON object with a key 'orders', containing an array of objects.
+Each object must have 'taskId' (string), 'priority' (enum: High, Medium, Low), and a brief 'reason' (string).`;
 
-    const taskSummaries = tasks.map(t => ({ id: t.id, title: t.title }));
-    const result = await callOpenAICompatibleAPI(systemPrompt, JSON.stringify(taskSummaries));
+    const messages = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: JSON.stringify(taskSummaries) }
+    ];
 
-    return (result?.orders || []).map((o: any) => ({
-      taskId: o.taskId,
-      reason: o.reason,
-      priority: o.priority as Priority
-    }));
-  }
-}
-
-// --- Export Singleton Instance ---
-
-const aiAdapter = new OpenAIAdapter();
-
-// 导出包装函数，保持对外的 API 简洁
-export const breakDownTask = (title: string) => aiAdapter.breakDownTask(title);
-export const parseTaskFromNaturalLanguage = (input: string, refDate: string) => aiAdapter.parseTaskFromNaturalLanguage(input, refDate);
-export const generateProjectPlan = (title: string, desc?: string) => aiAdapter.generateProjectPlan(title, desc);
-export const prioritizeTasksAI = (tasks: Task[]) => aiAdapter.prioritizeTasks(tasks);
+    try {
+        const result = await callAI(messages, true);
+        if (result && Array.isArray(result.orders)) {
+            return result.orders;
+        }
+        return [];
+    } catch (error) {
+        console.error("AI Service Error (prioritizeTasksAI):", error);
+        return [];
+    }
+};

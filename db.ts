@@ -13,6 +13,14 @@ export class TaskCubeDB extends Dexie {
     // 定义表结构
     // 注意: IndexedDB 是 schemaless 的，这里只需要定义索引字段
     // 使用 type assertion (as any) 解决 TypeScript 对 subclass 方法继承的类型推断问题
+    // v2: 添加 tags 索引 (*tags 表示 multi-entry index)
+    (this as any).version(2).stores({
+      tasks: 'id, date, projectId, priority, completed, recurringRuleId, *tags',
+      projects: 'id, status',
+      recurringRules: 'id, *tags'
+    });
+
+    // 保留 v1 定义以支持升级
     (this as any).version(1).stores({
       tasks: 'id, date, projectId, priority, completed, recurringRuleId',
       projects: 'id, status',
@@ -48,7 +56,8 @@ export class TaskCubeDB extends Dexie {
             date: TODAY,
             startTime: '09:00',
             duration: 60,
-            isExpanded: false
+            isExpanded: false,
+            tags: ['演示', '入门']
           }
         ]);
       }

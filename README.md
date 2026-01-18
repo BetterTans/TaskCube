@@ -1,61 +1,71 @@
+# TaskCube - Your Private, AI-Powered Task Hub
 
-# TaskCube - AI 驱动的智能待办事项管理
+TaskCube is a modern, local-first to-do application built with React 19. It combines an elegant, keyboard-driven interface with the power of a flexible AI assistant, ensuring your data remains private and your workflow is lightning-fast.
 
-TaskCube 是一款基于 React 19 构建的现代化待办事项管理应用。它结合了 iOS 风格的流畅交互、强大的任务管理功能与先进的 AI 辅助能力。
+<!-- ![TaskCube Interface Screenshot](placeholder.png) -->
 
-**最新状态 (v2.2)**：
-1.  **💾 本地持久化 (IndexedDB)**: 架构已升级为 **Dexie.js** 驱动，支持存储海量任务与项目数据，性能强劲。
-2.  **🔒 数据安全**: 支持数据的完整 JSON **导出与导入**，保障数据不丢失。
-3.  **🖥️ 桌面端支持**: 提供 Electron 打包方案，可封装为独立运行的 .exe/.dmg 软件。
+**Latest Version: v2.5**
 
-## ✨ 主要功能
+## 💡 Why TaskCube?
 
-### 🤖 AI 智能辅助 (模型无关 / Model Agnostic)
-*   **⚙️ 灵活配置**: 在设置中自定义 API 地址 (Base URL)、密钥 (API Key) 和模型名称 (Model Name)。
-*   **自然语言输入**: 输入 "明早9点和团队开会"，AI 会自动解析出标题、日期、时间和持续时间。
-*   **智能任务拆解**: 点击任务旁的 ✨ 图标，AI 会自动将复杂任务拆解为可执行的子任务步骤。
-*   **项目规划**: 为项目生成初步的执行计划和建议行动。
-*   **优先级建议**: AI 分析任务列表并给出优先级建议。
+*   **🔒 Local First & Private**: Your tasks, projects, and notes are stored directly on your device using IndexedDB. No cloud, no sign-ups, no data collection.
+*   **🤖 Bring Your Own AI**: You are in control. Connect to any OpenAI-compatible API—be it OpenAI, Google Gemini, a self-hosted local model, or any other provider.
+*   **⚡️ Built for Speed**: Inspired by professional developer tools, TaskCube is designed for keyboard-first operation. With a global command palette and customizable hotkeys, you'll fly through your tasks.
+*   **✨ Visually Intuitive**: Switch between a powerful infinite-scroll calendar, a detailed daily timeline, or a versatile table view to manage your work the way you want.
 
-### 📅 多维度视图
-*   **月视图 (Infinite Calendar)**: 支持无限滚动的月历视图，直观展示每日任务分布。
-*   **日视图 (Timeline)**: 基于时间轴的日视图，精确管理每天的时间块，支持当前时间线指示。
-*   **列表视图 (Table)**: 强大的数据表格，支持列宽拖拽调整、多条件筛选（状态、优先级、项目、四象限）和排序。
+---
 
-### 🚀 进阶管理
-*   **项目管理 (Projects)**: 创建项目，追踪进度条，记录里程碑与过程日志。
-*   **周期性任务**: 支持每天、每周、每月或自定义间隔的重复规则。
-*   **四象限法则**: 内置艾森豪威尔矩阵分类（重要/紧急）。
-*   **深色模式**: 精心调教的 Dark Mode 配色，适应夜间使用环境。
+## ✨ Key Features
 
-## 🛠️ 技术架构
+### 🚀 Efficiency & Workflow
+*   **Command Palette**: Press `Cmd/Ctrl + K` anywhere to instantly search tasks, create new ones, switch views, or access any core feature without touching your mouse.
+*   **Customizable Keyboard Shortcuts**: Assign your own hotkeys for actions like "New Task" (`N`), "Go to Today" (`T`), and more for a truly personalized experience.
+*   **Inline Table Editing**: Quickly modify task properties like priority, project, and due date directly within the list view, minimizing clicks and interruptions.
 
-*   **前端框架**: React 19
-*   **语言**: TypeScript
-*   **样式**: Tailwind CSS
-*   **数据库**: **Dexie.js (IndexedDB)** - 高性能本地存储
-*   **图标库**: Lucide React
-*   **构建**: ES Modules (浏览器原生支持) / Electron (桌面封装)
+### 🧠 Flexible AI Assistant
+*   **Model Agnostic Engine**: Configure your preferred AI provider in the settings. Just enter your API Base URL, Key, and Model Name.
+*   **Natural Language Input**: Type "Schedule a team meeting tomorrow at 10am" and let the AI automatically parse the title, date, and time.
+*   **Smart Task Breakdown**: Turn a complex task like "Launch new marketing campaign" into actionable sub-tasks with a single click.
+*   **AI Project Planner**: Kickstart new projects by having the AI generate an initial list of key tasks and milestones.
 
-## 📦 桌面端打包 (Electron)
+### 🗂️ Powerful Organization
+*   **Multiple Views**: Seamlessly switch between a feature-rich **Month Calendar** (with multi-day events), a focused **Day Timeline**, and a data-rich **Table View**.
+*   **Project Management**: Group tasks into projects, track progress with a visual bar, and keep a log of important updates.
+*   **Advanced Recurring Tasks**: Set up tasks that repeat daily, weekly, monthly, or at custom intervals.
+*   **Tags, Priorities & Quadrants**: Organize your work with custom tags, Low/Medium/High priorities, and the Eisenhower Matrix (Important/Urgent).
 
-本项目支持打包为 Windows/macOS 桌面应用，以获得更好的数据持久化体验。
-详细步骤请参考文档：[ELECTRON_GUIDE.md](./ELECTRON_GUIDE.md)
+---
 
-## 🚀 快速开始 (Web 开发)
+## 🛠️ Technical Stack
 
-1.  **环境准备**:
-    本项目直接使用 ES Modules。
-    
-2.  **运行**:
-    使用任意静态文件服务器打开项目根目录。
-    *   VS Code: 使用 `Live Server` 插件。
-    *   Python: `python3 -m http.server 8000`
+*   **Framework**: React 19
+*   **Language**: TypeScript
+*   **Database**: **Dexie.js (IndexedDB)** for robust, local-first storage.
+*   **Styling**: Tailwind CSS for a utility-first, modern design.
+*   **Icons**: Lucide React for crisp, beautiful icons.
 
-3.  **配置 AI**:
-    *   启动应用后，点击左上角的 **设置 (⚙️)** 按钮。
-    *   配置您的 OpenAI 兼容接口信息（支持 DeepSeek, Moonshot, LocalAI 等）。
+---
 
-## 📝 许可证
+## 🚀 Getting Started (Web)
+
+1.  **No installation needed**: The app runs directly in the browser using ES Modules.
+2.  **Run Locally**:
+    *   Use a simple web server. If you have VS Code, the `Live Server` extension is perfect.
+    *   Alternatively, using Python: `python3 -m http.server 8000`
+3.  **Configure AI**:
+    *   Open the app and click the **Settings (⚙️)** icon.
+    *   Enter your AI provider's **Base URL**, **API Key**, and **Model Name**. This works with any OpenAI-compatible endpoint.
+
+## 📦 Desktop App (Electron)
+
+For a more permanent, browser-independent experience, you can package TaskCube as a desktop application. This ensures your data is safely stored in your user directory.
+
+See the full guide: [ELECTRON_GUIDE.md](./ELECTRON_GUIDE.md)
+
+## 🗺️ Roadmap
+
+Curious about what's next? Check out our public [ROADMAP.md](./ROADMAP.md) to see upcoming features like drag-and-drop scheduling, task dependencies, and more!
+
+## 📝 License
 
 MIT License

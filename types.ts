@@ -1,4 +1,3 @@
-
 /**
  * 任务优先级枚举
  */
@@ -52,6 +51,7 @@ export interface RecurringRule {
   createdAt: number;
   projectId?: string; // 关联的项目 ID
   subTaskTitles?: string[]; // 生成任务时自动携带的子任务模板
+  tags?: string[]; // 标签
 }
 
 /**
@@ -82,7 +82,7 @@ export interface Project {
   endDate?: string;
   logs: ProjectLog[]; // 项目进展日志
   createdAt: number;
-  color?: string; // 用于 UI 区分的颜色 (Hex)
+  color: string; // 用于 UI 区分的颜色 (Hex)
 }
 
 /**
@@ -97,39 +97,26 @@ export interface Task {
   quadrant?: EisenhowerQuadrant; // 艾森豪威尔矩阵归类
   subTasks: SubTask[];
   createdAt: number;
-  date: string; // 格式: YYYY-MM-DD
+  date: string; // 格式: YYYY-MM-DD (任务开始日期)
+  endDate?: string; // 格式: YYYY-MM-DD (任务结束日期，可选)
   startTime?: string; // 格式: HH:mm (24h)，若无则为全天任务
   duration?: number; // 持续时间（分钟），默认 60
   isExpanded: boolean; // UI 状态：是否展开显示详情/子任务
   recurringRuleId?: string; // 如果是由周期规则生成的，关联规则 ID
   projectId?: string; // 关联的项目 ID
-}
-
-/**
- * AI 设置接口
- * 用于配置 OpenAI 兼容的 API 连接信息
- */
-export interface AISettings {
-  baseUrl: string; // API 基础地址，例如 https://api.openai.com/v1
-  apiKey: string;  // API 密钥
-  model: string;   // 模型名称，例如 gpt-4o, deepseek-chat
-}
-
-// --- AI 响应结构类型定义 ---
-
-export interface AIResponseSubtasks {
-  subtasks: string[];
-}
-
-export interface AIResponsePriorities {
-  orders: {
-    taskId: string;
-    priority: Priority;
-    reason: string;
-  }[];
+  tags?: string[]; // 标签
 }
 
 /**
  * 主题模式类型
  */
 export type ThemeMode = 'light' | 'dark' | 'system';
+
+/**
+ * AI 模型设置接口
+ */
+export interface AISettings {
+  baseUrl: string;
+  apiKey: string;
+  model: string;
+}

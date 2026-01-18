@@ -1,19 +1,29 @@
-
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from 'react';
-import { Task, Priority } from '../types';
-import { Plus } from 'lucide-react';
+import { Task, Priority, EisenhowerQuadrant } from '../types';
+import { Plus, Zap, Star, Bell, Coffee } from 'lucide-react';
 
 interface DayTimeViewProps {
   currentDate: Date;
   tasks: Task[];
-  onTaskClick: (task: Task) => void;
+  onTaskClick: (task: Task, event: React.MouseEvent) => void;
   onTimeSlotClick: (time: string) => void;
   onToggleTask: (id: string) => void;
   onDateChange: (date: Date) => void;
+  onUpdateTask: (task: Partial<Task>) => void;
 }
 
+const QuadrantIcon = ({ quadrant, size = 12 }: { quadrant?: EisenhowerQuadrant, size?: number }) => {
+  const q = quadrant || EisenhowerQuadrant.Q2;
+  const icons = {
+    [EisenhowerQuadrant.Q1]: <Zap size={size} className="fill-red-500 text-red-500" />,
+    [EisenhowerQuadrant.Q2]: <Star size={size} className="fill-blue-500 text-blue-500" />,
+    [EisenhowerQuadrant.Q3]: <Bell size={size} className="fill-orange-500 text-orange-500" />,
+    [EisenhowerQuadrant.Q4]: <Coffee size={size} className="fill-gray-400 text-gray-400" />,
+  };
+  return <span className="flex-shrink-0">{icons[q]}</span>;
+};
+
 // 当前时间指示线组件
-// 每分钟更新一次位置
 const CurrentTimeIndicator = () => {
     const [minutes, setMinutes] = useState(() => {
         const now = new Date();
@@ -24,12 +34,10 @@ const CurrentTimeIndicator = () => {
         const interval = setInterval(() => {
             const now = new Date();
             setMinutes(now.getHours() * 60 + now.getMinutes());
-        }, 60000); // 每分钟更新
+        }, 60000);
         return () => clearInterval(interval);
     }, []);
 
-    // 渲染一条红线，位置根据分钟数绝对定位
-    // 注意：之前请求中去掉了红点，这里只保留红线
     return (
         <div 
             className="absolute left-14 right-0 border-t-2 border-red-500 z-20 pointer-events-none transition-[top] duration-500"
@@ -38,31 +46,120 @@ const CurrentTimeIndicator = () => {
     );
 };
 
-// 单日区块组件：包含全天任务区和时间轴区
+// 单日区块组件
 const DayBlock = React.memo(({ 
   date, 
   tasks, 
   onTaskClick, 
   onTimeSlotClick, 
+  onUpdateTask,
   onVisible 
 }: {
   date: Date;
   tasks: Task[];
-  onTaskClick: (task: Task) => void;
+  onTaskClick: (task: Task, event: React.MouseEvent) => void;
   onTimeSlotClick: (time: string) => void;
+  onUpdateTask: (task: Partial<Task>) => void;
   onVisible?: () => void;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [dragInfo, setDragInfo] = useState<{
+    type: 'move' | 'resize';
+    task: Task;
+    initialY: number;
+    initialTop: number;
+    initialHeight: number;
+    previewTop: number;
+    previewHeight: number;
+  } | null>(null);
   
-  // 筛选当天的任务
   const offset = date.getTimezoneOffset() * 60000;
-  const dateStr = new Date(date.getTime() - offset).toISOString().split('T')[0];
+  const currentDayStart = new Date(date.getTime() - offset);
+  currentDayStart.setUTCHours(0, 0, 0, 0);
+  const currentDayEnd = new Date(currentDayStart);
+  currentDayEnd.setUTCHours(23, 59, 59, 999);
+  
+  const dateStr = currentDayStart.toISOString().split('T')[0];
 
-  const dayTasks = useMemo(() => tasks.filter(t => t.date === dateStr), [tasks, dateStr]);
+  const dayTasks = useMemo(() => tasks.filter(t => {
+      const taskStart = new Date(t.date + 'T00:00:00Z');
+      const taskEnd = t.endDate ? new Date(t.endDate + 'T23:59:59Z') : taskStart;
+      return currentDayStart <= taskEnd && currentDayEnd >= taskStart;
+  }), [tasks, dateStr]);
+
   const allDayTasks = dayTasks.filter(t => !t.startTime);
-  const timedTasks = dayTasks.filter(t => !!t.startTime);
+  const timedTasks = dayTasks.filter(t => !!t.startTime && t.date === dateStr);
+  
+  // --- Drag & Drop Logic ---
+  const handleDragStart = (e: React.MouseEvent, task: Task, type: 'move' | 'resize') => {
+    if (task.completed) return;
+    e.preventDefault();
+    e.stopPropagation();
 
-  // 生成相对日期标签 (今天/明天/昨天等)
+    const [h, m] = task.startTime!.split(':').map(Number);
+    const startMinutes = h * 60 + m;
+    const height = task.duration || 60;
+    
+    setDragInfo({
+        type,
+        task,
+        initialY: e.clientY,
+        initialTop: startMinutes,
+        initialHeight: height,
+        previewTop: startMinutes,
+        previewHeight: height
+    });
+  };
+
+  useEffect(() => {
+    if (!dragInfo) return;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+        setDragInfo(prev => {
+           if (!prev) return null;
+           const deltaY = e.clientY - prev.initialY;
+           if (prev.type === 'move') {
+               let newTop = prev.initialTop + deltaY;
+               newTop = Math.round(newTop / 15) * 15;
+               newTop = Math.max(0, Math.min(newTop, 24 * 60 - prev.initialHeight));
+               return { ...prev, previewTop: newTop };
+           } else { // resize
+               let newHeight = prev.initialHeight + deltaY;
+               newHeight = Math.max(15, Math.round(newHeight / 15) * 15);
+               newHeight = Math.min(newHeight, 24 * 60 - prev.initialTop);
+               return { ...prev, previewHeight: newHeight };
+           }
+        });
+    };
+    
+    const handleMouseUp = () => {
+        if (!dragInfo) return;
+        
+        if (dragInfo.type === 'move') {
+            const newHours = Math.floor(dragInfo.previewTop / 60);
+            const newMinutes = dragInfo.previewTop % 60;
+            const newStartTime = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+            if(newStartTime !== dragInfo.task.startTime) {
+                onUpdateTask({ id: dragInfo.task.id, startTime: newStartTime });
+            }
+        } else { // resize
+            if (dragInfo.previewHeight !== dragInfo.task.duration) {
+                onUpdateTask({ id: dragInfo.task.id, duration: dragInfo.previewHeight });
+            }
+        }
+        setDragInfo(null);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp, { once: true });
+
+    return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragInfo, onUpdateTask]);
+
   const getLabel = () => {
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -85,12 +182,20 @@ const DayBlock = React.memo(({
     return `${month}月${d}日 ${weekDay}`;
   };
 
-  // 计算时间轴任务的位置和样式
   const getTaskStyle = (task: Task) => {
     if (!task.startTime) return {};
-    const [h, m] = task.startTime.split(':').map(Number);
-    const startMinutes = h * 60 + m;
-    const duration = task.duration || 60;
+    
+    const isDraggingThis = dragInfo?.task.id === task.id;
+    let startMinutes: number, duration: number;
+
+    if (isDraggingThis) {
+        startMinutes = dragInfo.previewTop;
+        duration = dragInfo.previewHeight;
+    } else {
+        const [h, m] = task.startTime.split(':').map(Number);
+        startMinutes = h * 60 + m;
+        duration = task.duration || 60;
+    }
     
     let bgColor = 'bg-blue-100 dark:bg-blue-900/50 border-blue-500 dark:border-blue-700 text-blue-800 dark:text-blue-100';
     if (task.completed) bgColor = 'bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-600 text-gray-400 dark:text-gray-500';
@@ -98,13 +203,13 @@ const DayBlock = React.memo(({
     else if (task.priority === Priority.MEDIUM) bgColor = 'bg-orange-100 dark:bg-orange-900/50 border-orange-500 dark:border-orange-700 text-orange-800 dark:text-orange-100';
 
     return {
-      top: `${startMinutes}px`, // 1分钟 = 1像素
+      top: `${startMinutes}px`,
       height: `${duration}px`,
-      className: `absolute left-2 right-2 rounded-md border-l-4 pl-2 py-1 text-xs shadow-sm overflow-hidden cursor-pointer transition-all hover:brightness-95 z-10 ${bgColor}`
+      className: `absolute left-2 right-2 rounded-md border-l-4 p-1 text-xs shadow-sm overflow-hidden transition-all duration-100 ${bgColor} ${isDraggingThis ? 'opacity-80 scale-105 z-20 shadow-lg cursor-grabbing' : 'cursor-grab'}`
     };
   };
 
-  const hours = Array.from({ length: 25 }, (_, i) => i); // 0 到 24 点
+  const hours = Array.from({ length: 25 }, (_, i) => i);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -119,14 +224,12 @@ const DayBlock = React.memo(({
 
   return (
     <div ref={containerRef} className="pb-4 relative bg-white dark:bg-zinc-900 border-b-8 border-gray-100/50 dark:border-zinc-800">
-      {/* 粘性头部 */}
       <div className="sticky top-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-4 py-3 border-b border-gray-100 dark:border-zinc-800 shadow-sm flex items-center gap-2">
         <span className={`text-lg font-bold ${getLabel().includes('今天') ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-white'}`}>
            {getLabel()}
         </span>
       </div>
 
-      {/* 全天任务区域 */}
       {allDayTasks.length > 0 && (
         <div className="border-b border-gray-100 dark:border-zinc-800 p-2 bg-gray-50/30 dark:bg-zinc-800/30">
           <div className="text-xs text-gray-400 font-semibold mb-1 px-2 uppercase tracking-wide">全天</div>
@@ -134,20 +237,19 @@ const DayBlock = React.memo(({
             {allDayTasks.map(task => (
               <div 
                 key={task.id}
-                onClick={() => onTaskClick(task)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border cursor-pointer ${task.completed ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 border-transparent' : 'bg-white dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 shadow-sm text-gray-800 dark:text-gray-200'}`}
+                onClick={(e) => onTaskClick(task, e)}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm border cursor-pointer ${task.completed ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 border-transparent' : 'bg-white dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 shadow-sm text-gray-800 dark:text-gray-200'}`}
               >
-                <div className={`w-2.5 h-2.5 rounded-full border-2 ${task.completed ? 'border-gray-400 bg-gray-400' : (task.priority === Priority.HIGH ? 'border-red-500' : 'border-indigo-500')}`} />
-                <span className={task.completed ? 'line-through' : ''}>{task.title}</span>
+                <div className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${task.completed ? 'border-gray-400 bg-gray-400' : (task.priority === Priority.HIGH ? 'border-red-500' : 'border-indigo-500')}`} />
+                <QuadrantIcon quadrant={task.quadrant} size={14} />
+                <span className={`truncate ${task.completed ? 'line-through' : ''}`}>{task.title}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* 24小时时间轴网格 */}
-      <div className="relative" style={{ height: '1500px' }}> 
-         {/* 渲染每一个小时的刻度线 */}
+      <div ref={timelineRef} className="relative" style={{ height: '1500px' }}> 
          {hours.map(h => (
             <div 
               key={h} 
@@ -168,21 +270,31 @@ const DayBlock = React.memo(({
             </div>
          ))}
 
-         {/* 如果是今天，渲染红线 */}
          {getLabel().startsWith('今天') && <CurrentTimeIndicator />}
 
-         {/* 渲染时间段任务 */}
-         <div className="absolute top-0 left-14 right-0 bottom-0 pointer-events-none">
+         <div className="absolute top-0 left-14 right-0 bottom-0">
             {timedTasks.map(task => {
                const style = getTaskStyle(task);
                return (
                  <div
                    key={task.id}
-                   className={`${style.className} pointer-events-auto`}
+                   className={`${style.className} flex items-start gap-1.5`}
                    style={{ top: style.top, height: style.height }}
-                   onClick={(e) => { e.stopPropagation(); onTaskClick(task); }}
+                   onMouseDown={(e) => handleDragStart(e, task, 'move')}
                  >
-                   <div className="font-semibold leading-tight truncate">{task.title}</div>
+                   <div 
+                     className="flex-1 h-full"
+                     onClick={(e) => { e.stopPropagation(); onTaskClick(task, e); }}
+                   >
+                     <QuadrantIcon quadrant={task.quadrant} size={10} />
+                     <div className="font-semibold leading-tight truncate">{task.title}</div>
+                   </div>
+                   {!task.completed && (
+                      <div 
+                        className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize"
+                        onMouseDown={(e) => handleDragStart(e, task, 'resize')}
+                      />
+                   )}
                  </div>
                );
             })}
@@ -197,14 +309,14 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
   tasks,
   onTaskClick,
   onTimeSlotClick,
-  onDateChange
+  onDateChange,
+  onUpdateTask
 }) => {
   const [days, setDays] = useState<Date[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const lastReportedDateRef = useRef<Date | null>(null);
 
-  // 初始化加载：前一天、今天、后一天
   useEffect(() => {
     const initDays = [];
     const base = new Date(currentDate);
@@ -218,7 +330,6 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
     setDays(initDays);
     setIsInitialized(true);
     
-    // 自动滚动到当前时间（早上8点或现在）
     setTimeout(() => {
         if (scrollRef.current) {
            const children = scrollRef.current.children;
@@ -232,7 +343,6 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
     }, 100);
   }, []); 
 
-  // 处理外部日期跳转
   useEffect(() => {
     if (!isInitialized) return;
 
@@ -250,7 +360,6 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
         const el = scrollRef.current.children[idx] as HTMLElement;
         if (el) {
            const hour = new Date().getHours();
-           // 如果是今天跳到当前时间，否则跳到早上8点
            const offset = target.toDateString() === new Date().toDateString() ? Math.max(0, (hour - 1) * 60) : 480; 
            el.scrollIntoView({ behavior: 'auto', block: 'start' });
            if (target.toDateString() === new Date().toDateString()) {
@@ -260,7 +369,6 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
            }
         }
     } else {
-        // 重置列表
         const initDays = [];
         for (let i = -1; i <= 1; i++) {
            const d = new Date(target);
@@ -276,14 +384,12 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
             }
         }, 0);
     }
-  }, [currentDate]);
+  }, [currentDate, isInitialized, days]);
 
-  // 无限滚动逻辑（垂直方向的日视图）
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
 
-    // 加载下一天
     if (scrollTop + clientHeight > scrollHeight - 500) {
        setDays(prev => {
           const last = prev[prev.length - 1];
@@ -293,7 +399,6 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
        });
     }
 
-    // 加载前一天
     if (scrollTop < 200) {
        setDays(prev => {
           const first = prev[0];
@@ -304,7 +409,6 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
     }
   }, []);
 
-  // 维持滚动位置
   const prevScrollHeightRef = useRef(0);
   useLayoutEffect(() => {
     if (!scrollRef.current) return;
@@ -336,6 +440,7 @@ export const DayTimeView: React.FC<DayTimeViewProps> = ({
             tasks={tasks}
             onTaskClick={onTaskClick}
             onTimeSlotClick={onTimeSlotClick}
+            onUpdateTask={onUpdateTask}
             onVisible={() => handleDayVisible(day)}
          />
       ))}

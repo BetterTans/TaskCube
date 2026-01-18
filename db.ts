@@ -1,36 +1,57 @@
 import Dexie, { Table } from 'dexie';
 import { Task, Project, RecurringRule, Priority, EisenhowerQuadrant } from './types';
 
-// 定义数据库类
+/**
+ * 定义应用的 IndexedDB 数据库类。
+ * TaskCubeDB 继承自 Dexie，用于方便地操作底层的 IndexedDB。
+ */
 export class TaskCubeDB extends Dexie {
+  // 定义数据库中的表。'Table' 是 Dexie 提供的类型，用于强类型化表操作。
   tasks!: Table<Task>;
   projects!: Table<Project>;
   recurringRules!: Table<RecurringRule>;
 
   constructor() {
-    super('TaskCubeDB');
+    super('TaskCubeDB'); // 'TaskCubeDB' 是数据库的名称
     
-    // 定义表结构
-    // 注意: IndexedDB 是 schemaless 的，这里只需要定义索引字段
-    // 使用 type assertion (as any) 解决 TypeScript 对 subclass 方法继承的类型推断问题
-    // v2: 添加 tags 索引 (*tags 表示 multi-entry index)
-    (this as any).version(2).stores({
+    // 定义数据库的版本和表结构（主要是索引）。
+    // Dexie 支持数据库版本升级。当应用代码需要新的索引时，可以增加一个版本。
+    
+    // 版本 3: 增加任务依赖关系索引
+    this.version(3).stores({
+      tasks: 'id, date, projectId, priority, completed, recurringRuleId, *tags, *predecessorIds, *successorIds',
+      projects: 'id, status',
+      recurringRules: 'id, *tags'
+    });
+
+    // 版本 2：为 tasks 表增加了 'tags' 字段的多入口索引 (*tags)。
+    // 这允许我们高效地查询包含特定标签的任务。
+    this.version(2).stores({
+      // 'id' 是主键。其他字段是索引，用于加速查询。
       tasks: 'id, date, projectId, priority, completed, recurringRuleId, *tags',
       projects: 'id, status',
       recurringRules: 'id, *tags'
     });
 
-    // 保留 v1 定义以支持升级
-    (this as any).version(1).stores({
+    // 版本 1：初始的表结构定义。
+    // 保留旧版本的定义是为了让 Dexie 能够处理从旧版本到新版本的平滑升级。
+    this.version(1).stores({
       tasks: 'id, date, projectId, priority, completed, recurringRuleId',
       projects: 'id, status',
       recurringRules: 'id'
     });
 
-    // 数据迁移逻辑：数据库首次创建时运行
-    (this as any).on('populate', () => {
-      console.log("Populating database from LocalStorage...");
+    /**
+     * 'populate' 事件处理器。
+     * 这个事件仅在数据库首次被创建时触发一次。
+     * 主要用于：
+     * 1. 将旧的、存储在 localStorage 中的数据迁移到新的 IndexedDB 数据库中。
+     * 2. 如果没有任何旧数据，则添加一些初始的演示数据，以引导新用户。
+     */
+    this.on('populate', () => {
+      console.log("Populating database for the first time, checking for legacy LocalStorage data...");
       
+      // 尝试从 localStorage 获取旧数据
       const savedTasks = localStorage.getItem('gemini-tasks-full');
       const savedRules = localStorage.getItem('gemini-recurring-rules');
       const savedProjects = localStorage.getItem('gemini-projects');
@@ -38,10 +59,10 @@ export class TaskCubeDB extends Dexie {
       if (savedTasks) {
         try {
           const tasks = JSON.parse(savedTasks);
-          this.tasks.bulkAdd(tasks);
-        } catch (e) { console.error("Migrate tasks failed", e); }
+          this.tasks.bulkAdd(tasks); // 批量添加到新数据库
+        } catch (e) { console.error("Failed to migrate tasks from LocalStorage:", e); }
       } else {
-        // 如果完全没有数据，添加一些初始演示数据
+        // 如果没有旧数据，添加一条欢迎任务作为演示
         const TODAY = new Date().toISOString().split('T')[0];
         this.tasks.bulkAdd([
           {
@@ -66,17 +87,18 @@ export class TaskCubeDB extends Dexie {
         try {
           const rules = JSON.parse(savedRules);
           this.recurringRules.bulkAdd(rules);
-        } catch (e) { console.error("Migrate rules failed", e); }
+        } catch (e) { console.error("Failed to migrate recurring rules from LocalStorage:", e); }
       }
 
       if (savedProjects) {
         try {
           const projects = JSON.parse(savedProjects);
           this.projects.bulkAdd(projects);
-        } catch (e) { console.error("Migrate projects failed", e); }
+        } catch (e) { console.error("Failed to migrate projects from LocalStorage:", e); }
       }
     });
   }
 }
 
+// 创建并导出一个全局的数据库实例，供整个应用使用。
 export const db = new TaskCubeDB();

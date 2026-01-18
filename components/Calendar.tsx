@@ -1,34 +1,48 @@
-
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Task, Priority } from '../types';
+import { parseDate } from '../services/recurringService';
 
-// 注意：此组件为基础日历组件，实际应用中已使用功能更强大的 FullCalendar.tsx 替代
-// 保留此文件作为简单的日历选择器参考
+// 注意：此组件为基础日历组件，实际应用中已使用功能更强大的 FullCalendar.tsx 替代。
+// 保留此文件作为简单的日历选择器或未来小型日历部件的参考。
 
+/**
+ * CalendarProps 接口定义了基础日历组件的属性。
+ * @property {Task[]} tasks - 用于在日期下方显示指示点的任务数组。
+ * @property {string} selectedDate - 当前选中的日期字符串 (YYYY-MM-DD)。
+ * @property {function} onSelectDate - 当用户点击选择一个新日期时调用的回调。
+ */
 interface CalendarProps {
   tasks: Task[];
   selectedDate: string;
   onSelectDate: (date: string) => void;
 }
 
+/**
+ * 一个简单的、非滚动的月份日历视图组件。
+ */
 export const Calendar: React.FC<CalendarProps> = ({ tasks, selectedDate, onSelectDate }) => {
-  const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
+  // 组件内部状态，管理当前显示的月份
+  const [currentDate, setCurrentDate] = useState(parseDate(selectedDate));
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
+  // 计算当前月份的天数和第一天是星期几
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 是周日
 
+  // 导航到上个月
   const handlePrevMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
   };
 
+  // 导航到下个月
   const handleNextMonth = () => {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  // 格式化日期数字为 'YYYY-MM-DD' 字符串
   const formatDate = (day: number) => {
     const d = new Date(year, month, day);
     // 处理时区偏移以确保获得正确的本地 YYYY-MM-DD
@@ -36,7 +50,11 @@ export const Calendar: React.FC<CalendarProps> = ({ tasks, selectedDate, onSelec
     return new Date(d.getTime() - offset).toISOString().split('T')[0];
   };
 
-  // 渲染日期下方的任务指示点
+  /**
+   * 获取并渲染指定日期下方的任务指示点。
+   * @param {string} dateStr - 日期字符串 'YYYY-MM-DD'。
+   * @returns {React.ReactNode} - 任务指示点的 JSX 或 null。
+   */
   const getTaskIndicators = (dateStr: string) => {
     const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
     if (dayTasks.length === 0) return null;
@@ -55,14 +73,15 @@ export const Calendar: React.FC<CalendarProps> = ({ tasks, selectedDate, onSelec
     );
   };
 
+  // 渲染日历网格中的所有日期单元格
   const renderDays = () => {
     const days = [];
-    // 填充月初空白天数
+    // 填充月初的空白天数
     for (let i = 0; i < firstDayOfMonth; i++) {
       days.push(<div key={`empty-${i}`} className="h-14" />);
     }
 
-    // 渲染实际天数
+    // 渲染月份中的实际天数
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = formatDate(day);
       const isSelected = selectedDate === dateStr;
@@ -93,6 +112,7 @@ export const Calendar: React.FC<CalendarProps> = ({ tasks, selectedDate, onSelec
 
   return (
     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
+      {/* 日历头部：月份和导航 */}
       <div className="flex items-center justify-between mb-4 px-2">
         <h2 className="text-lg font-bold text-gray-800">
           {year}年 {monthNames[month]}
@@ -107,6 +127,7 @@ export const Calendar: React.FC<CalendarProps> = ({ tasks, selectedDate, onSelec
         </div>
       </div>
 
+      {/* 星期标签 */}
       <div className="grid grid-cols-7 mb-2">
         {weekDays.map(d => (
           <div key={d} className="text-center text-xs font-medium text-gray-400 py-1">
@@ -115,6 +136,7 @@ export const Calendar: React.FC<CalendarProps> = ({ tasks, selectedDate, onSelec
         ))}
       </div>
 
+      {/* 日期网格 */}
       <div className="grid grid-cols-7 gap-1">
         {renderDays()}
       </div>

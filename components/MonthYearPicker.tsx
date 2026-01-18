@@ -1,7 +1,12 @@
-
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+/**
+ * MonthYearPickerProps 接口定义了月份/年份选择器的属性。
+ * @property {Date} currentDate - 当前选中的日期，用于初始化选择器。
+ * @property {function} onChange - 当用户选择新的月份时调用的回调。
+ * @property {function} onClose - 关闭选择器的回调。
+ */
 interface MonthYearPickerProps {
   currentDate: Date;
   onChange: (date: Date) => void;
@@ -9,9 +14,11 @@ interface MonthYearPickerProps {
 }
 
 /**
- * 月份/年份快速选择器组件
+ * 月份/年份快速选择器组件。
+ * 当用户点击日历头部的月份年份时，会弹出一个浮层，允许用户快速跳转到其他月份或年份。
  */
 export const MonthYearPicker: React.FC<MonthYearPickerProps> = ({ currentDate, onChange, onClose }) => {
+  // 组件内部状态，用于管理当前视图中的年份
   const [viewYear, setViewYear] = useState(currentDate.getFullYear());
 
   const months = [
@@ -19,10 +26,14 @@ export const MonthYearPicker: React.FC<MonthYearPickerProps> = ({ currentDate, o
     "七月", "八月", "九月", "十月", "十一月", "十二月"
   ];
 
+  /**
+   * 处理用户点击月份的事件。
+   * @param {number} monthIndex - 被点击月份的索引 (0-11)。
+   */
   const handleMonthClick = (monthIndex: number) => {
     const newDate = new Date(viewYear, monthIndex, 1);
-    onChange(newDate);
-    onClose();
+    onChange(newDate); // 更新父组件的日期
+    onClose();       // 关闭选择器
   };
 
   return (

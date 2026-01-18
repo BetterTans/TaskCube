@@ -105,6 +105,8 @@ export interface Task {
   recurringRuleId?: string; // 如果是由周期规则生成的，关联规则 ID
   projectId?: string; // 关联的项目 ID
   tags?: string[]; // 标签
+  predecessorIds?: string[]; // 前置任务 ID 列表 (此任务依赖的任务)
+  successorIds?: string[];   // 后置任务 ID 列表 (依赖此任务的任务)
 }
 
 /**

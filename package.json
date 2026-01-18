@@ -14,7 +14,8 @@
     "react-dom": "^19.2.3",
     "@google/genai": "^1.37.0",
     "dexie": "4.0.1",
-    "dexie-react-hooks": "1.1.6"
+    "dexie-react-hooks": "1.1.6",
+    "@tanstack/react-virtual": "^3.7.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

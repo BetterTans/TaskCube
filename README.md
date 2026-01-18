@@ -1,71 +1,77 @@
-# TaskCube - Your Private, AI-Powered Task Hub
+# TaskCube - 你的私人 AI 智能任务中心
 
-TaskCube is a modern, local-first to-do application built with React 19. It combines an elegant, keyboard-driven interface with the power of a flexible AI assistant, ensuring your data remains private and your workflow is lightning-fast.
+TaskCube 是一款使用 React 19 构建的现代化、本地优先的待办事项应用。它将优雅的、以键盘为中心的操作界面与灵活强大的 AI 助手相结合，确保您的数据安全私密，工作流程迅捷高效。
 
-<!-- ![TaskCube Interface Screenshot](placeholder.png) -->
+**当前版本: v3.1.0**
 
-**Latest Version: v2.5**
+## 💡 为什么选择 TaskCube?
 
-## 💡 Why TaskCube?
-
-*   **🔒 Local First & Private**: Your tasks, projects, and notes are stored directly on your device using IndexedDB. No cloud, no sign-ups, no data collection.
-*   **🤖 Bring Your Own AI**: You are in control. Connect to any OpenAI-compatible API—be it OpenAI, Google Gemini, a self-hosted local model, or any other provider.
-*   **⚡️ Built for Speed**: Inspired by professional developer tools, TaskCube is designed for keyboard-first operation. With a global command palette and customizable hotkeys, you'll fly through your tasks.
-*   **✨ Visually Intuitive**: Switch between a powerful infinite-scroll calendar, a detailed daily timeline, or a versatile table view to manage your work the way you want.
-
----
-
-## ✨ Key Features
-
-### 🚀 Efficiency & Workflow
-*   **Command Palette**: Press `Cmd/Ctrl + K` anywhere to instantly search tasks, create new ones, switch views, or access any core feature without touching your mouse.
-*   **Customizable Keyboard Shortcuts**: Assign your own hotkeys for actions like "New Task" (`N`), "Go to Today" (`T`), and more for a truly personalized experience.
-*   **Inline Table Editing**: Quickly modify task properties like priority, project, and due date directly within the list view, minimizing clicks and interruptions.
-
-### 🧠 Flexible AI Assistant
-*   **Model Agnostic Engine**: Configure your preferred AI provider in the settings. Just enter your API Base URL, Key, and Model Name.
-*   **Natural Language Input**: Type "Schedule a team meeting tomorrow at 10am" and let the AI automatically parse the title, date, and time.
-*   **Smart Task Breakdown**: Turn a complex task like "Launch new marketing campaign" into actionable sub-tasks with a single click.
-*   **AI Project Planner**: Kickstart new projects by having the AI generate an initial list of key tasks and milestones.
-
-### 🗂️ Powerful Organization
-*   **Multiple Views**: Seamlessly switch between a feature-rich **Month Calendar** (with multi-day events), a focused **Day Timeline**, and a data-rich **Table View**.
-*   **Project Management**: Group tasks into projects, track progress with a visual bar, and keep a log of important updates.
-*   **Advanced Recurring Tasks**: Set up tasks that repeat daily, weekly, monthly, or at custom intervals.
-*   **Tags, Priorities & Quadrants**: Organize your work with custom tags, Low/Medium/High priorities, and the Eisenhower Matrix (Important/Urgent).
+*   **🔒 本地优先 & 隐私安全**: 你的任务、项目和笔记都直接存储在你的设备上（使用 IndexedDB）。没有云端，无需注册，不收集任何数据。
+*   **🤖 自定义 AI 模型**: 你拥有完全的控制权。你可以连接到任何兼容 OpenAI 接口的 API——无论是 OpenAI 官方、Google Gemini、自托管的本地模型，还是任何其他供应商。
+*   **⚡️ 为效率而生**: TaskCube 的设计灵感来源于专业的开发者工具，专为键盘优先操作而打造。通过全局指令面板和可自定义的热键，你将能行云流水般地处理任务。
+*   **✨ 直观的可视化**: 通过四个强大的、相互关联的视图来管理你的工作：一个无限滚动的**日历**、一个精细的每日**时间轴**、一个艾森豪威尔矩阵**看板**，以及一个多功能的**表格**。
+*   **🚀 极致性能**: 通过列表虚拟化和精细化的渲染优化，确保应用在处理海量任务时依然迅捷流畅。
 
 ---
 
-## 🛠️ Technical Stack
+## ✨ 核心功能
 
-*   **Framework**: React 19
-*   **Language**: TypeScript
-*   **Database**: **Dexie.js (IndexedDB)** for robust, local-first storage.
-*   **Styling**: Tailwind CSS for a utility-first, modern design.
-*   **Icons**: Lucide React for crisp, beautiful icons.
+### 🧠 灵活的 AI 助手
+*   **模型无关引擎**: 在设置中配置你偏好的 AI 服务商。只需输入你的 API Base URL、密钥和模型名称。
+*   **自然语言输入**: 输入“明天上午10点安排一个团队会议”，AI 将自动解析出标题、日期和时间。
+*   **智能任务拆解**: 只需一键，即可将一个复杂任务（如“启动新的营销活动”）分解为可执行的子任务。
+*   **AI 项目规划**: 通过让 AI 生成关键任务和里程碑的初始列表，快速启动新项目。
+
+### 🗂️ 强大的组织能力 & 多视图
+*   **任务依赖关系**: **(新增!)** 设置任务之间的前后置关系，被阻塞的任务将自动锁定，确保工作流程的正确执行。
+*   **无限滚动日历**: 一个功能丰富的月视图，支持多日事件、项目颜色编码以及优先级/四象限的视觉标记。
+*   **交互式日视图**: 用时间块来可视化你的一天。通过拖拽实时重新安排任务或调整它们的持续时间。
+*   **四象限看板**: 在一个“重要 vs 紧急”的看板中组织任务。在不同象限之间拖动任务，即可即时重新分类。
+*   **高性能表格视图**: 一个强大的、类似电子表格的视图，支持筛选、列宽调整以及行内编辑。通过**列表虚拟化**技术，即使有数千个任务也能流畅滚动。
+*   **项目管理**: 将任务分组到项目中，通过可视化进度条跟踪进展，并记录重要的更新日志。
+*   **高级周期性任务**: 设置每天、每周、每月或按自定义间隔重复的任务。
+*   **标签、优先级 & 四象限**: 使用自定义标签、低/中/高优先级和艾森豪威尔矩阵来组织你的工作。
+
+### 🚀 效率与工作流
+*   **拖拽排程**: 在日历视图中直观地跨天移动任务，或在日视图中调整它们的时间段。
+*   **全局指令面板**: 在任何地方按下 `Cmd/Ctrl + K`，即可即时搜索任务、创建新任务、切换视图或访问任何核心功能，无需触碰鼠标。
+*   **自定义快捷键**: 为“新建任务”(`N`)、“跳转到今天”(`T`) 等高频操作分配你自己的热键。
+*   **事件浮窗**: 点击日历上的任何任务，会弹出一个快速操作浮窗，用于查看详情、完成、编辑或删除。
+*   **表格行内编辑**: 直接在列表视图中快速修改任务的属性，如优先级、项目和截止日期，最大限度地减少点击。
 
 ---
 
-## 🚀 Getting Started (Web)
+## 🛠️ 技术栈
 
-1.  **No installation needed**: The app runs directly in the browser using ES Modules.
-2.  **Run Locally**:
-    *   Use a simple web server. If you have VS Code, the `Live Server` extension is perfect.
-    *   Alternatively, using Python: `python3 -m http.server 8000`
-3.  **Configure AI**:
-    *   Open the app and click the **Settings (⚙️)** icon.
-    *   Enter your AI provider's **Base URL**, **API Key**, and **Model Name**. This works with any OpenAI-compatible endpoint.
+*   **框架**: React 19
+*   **语言**: TypeScript
+*   **数据库**: **Dexie.js (IndexedDB)**，实现健壮的本地优先存储。
+*   **性能**: **TanStack Virtual**，用于实现高性能的列表虚拟化。
+*   **样式**: Tailwind CSS，一个工具优先的现代化设计方案。
+*   **图标**: Lucide React，提供清晰、美观的图标。
 
-## 📦 Desktop App (Electron)
+---
 
-For a more permanent, browser-independent experience, you can package TaskCube as a desktop application. This ensures your data is safely stored in your user directory.
+## 🚀 快速上手 (网页版)
 
-See the full guide: [ELECTRON_GUIDE.md](./ELECTRON_GUIDE.md)
+1.  **无需安装**: 应用使用 ES Modules 直接在浏览器中运行。
+2.  **本地运行**:
+    *   使用一个简单的 Web 服务器。如果你有 VS Code，`Live Server` 扩展是完美的选择。
+    *   或者，使用 Python: `python3 -m http.server 8000`
+3.  **配置 AI**:
+    *   打开应用并点击**设置 (⚙️)** 图标。
+    *   输入你的 AI 服务商的 **Base URL**, **API Key**, 和 **Model Name**。这适用于任何兼容 OpenAI 的端点。
 
-## 🗺️ Roadmap
+## 📦 桌面应用 (Electron)
 
-Curious about what's next? Check out our public [ROADMAP.md](./ROADMAP.md) to see upcoming features like drag-and-drop scheduling, task dependencies, and more!
+为了获得更稳定、独立于浏览器的体验，你可以将 TaskCube 打包成桌面应用。这能确保你的数据被安全地存储在你的用户目录中。
 
-## 📝 License
+查看完整指南: [ELECTRON_GUIDE.md](./ELECTRON_GUIDE.md)
+
+## 🗺️ 路线图
+
+想知道接下来会有什么新功能吗？请查看我们的公开 [ROADMAP.md](./ROADMAP.md) 来了解即将推出的功能，如任务依赖、智能排程等！
+
+## 📝 许可证
 
 MIT License

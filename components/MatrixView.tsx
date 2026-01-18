@@ -75,7 +75,7 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
       onDragStart={(e) => onDragStart(e, task.id)}
       onDragEnd={onDragEnd}
       onClick={(e) => onClick(task, e)}
-      className={`bg-white dark:bg-zinc-800/80 rounded-lg px-3 py-2 shadow-sm border border-gray-100 dark:border-zinc-700/50 transition-all duration-200 ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-md hover:-translate-y-px'} ${task.completed ? 'opacity-60' : ''}`}
+      className={`bg-white dark:bg-zinc-900 rounded-lg px-3 py-2 shadow-sm border border-gray-100 dark:border-zinc-800/80 transition-all duration-200 ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer hover:shadow-md hover:-translate-y-px'} ${task.completed ? 'opacity-60' : ''}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 flex items-start gap-2">

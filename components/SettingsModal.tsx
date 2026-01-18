@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AISettings, ThemeMode } from '../types';
+import { AISettings, ThemeMode } from '../types.ts';
 import { X, Server, Key, Box, Check, RotateCcw, Moon, Sun, Monitor, Download, Upload, Database, Keyboard, Palette } from 'lucide-react';
-import { Button } from './Button';
-import { db } from '../db';
+import { Button } from './Button.tsx';
+import { db } from '../db.ts';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -222,10 +222,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-gray-50 dark:bg-zinc-950 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-zinc-800 flex flex-col h-[70vh] max-h-[600px]">
+      <div className="bg-white dark:bg-zinc-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-zinc-800 flex flex-col h-[70vh] max-h-[600px]">
         <div className="flex-1 flex overflow-hidden">
           {/* Sidebar */}
-          <div className="w-48 bg-gray-100/50 dark:bg-black/20 p-4 border-r border-gray-200 dark:border-zinc-800/50 flex-shrink-0">
+          <div className="w-48 bg-gray-100/50 dark:bg-zinc-800/50 p-4 border-r border-gray-200 dark:border-zinc-700 flex-shrink-0">
             <div className="space-y-1">
               {menuItems.map(item => {
                 const Icon = item.icon;
@@ -236,8 +236,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onClick={() => setActiveView(item.id as SettingsView)}
                     className={`w-full flex items-center gap-3 text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
                       ${isActive
-                        ? 'bg-gray-200/70 dark:bg-zinc-800 text-gray-900 dark:text-white'
-                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-zinc-800/50'
+                        ? 'bg-gray-200/70 dark:bg-zinc-700 text-gray-900 dark:text-white'
+                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-zinc-700/50'
                       }
                     `}
                   >
@@ -250,13 +250,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-white dark:bg-zinc-900">
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
              {renderContent()}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 bg-gray-50/80 dark:bg-zinc-950/80 border-t border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0 backdrop-blur-sm">
+        <div className="px-6 py-3 bg-gray-50/80 dark:bg-zinc-900/80 border-t border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0 backdrop-blur-sm">
           <button onClick={handleReset} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm flex items-center gap-1 transition-colors"><RotateCcw size={14}/> 恢复默认</button>
           <div className="flex gap-3">
              <Button variant="secondary" onClick={onClose} size="sm">关闭</Button>

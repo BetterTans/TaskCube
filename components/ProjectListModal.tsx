@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Project, ProjectStatus } from '../types';
+import { Project, ProjectStatus } from '../types.ts';
 import { X, Plus, ChevronRight, Folder } from 'lucide-react';
-import { Button } from './Button';
+import { Button } from './Button.tsx';
 
 interface ProjectListModalProps {
   isOpen: boolean;

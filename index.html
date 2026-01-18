@@ -87,12 +87,12 @@
   }
 }
 </script>
-<!-- Add Babel to transpile JSX/TSX in the browser -->
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- 使用 esm.sh/run 自动处理所有 TSX 文件的实时编译和导入 -->
+<script src="https://esm.sh/run" type="module"></script>
 </head>
   <body>
     <div id="root"></div>
-    <!-- Load the main application script, using Babel to transpile it -->
-    <script type="text/babel" data-type="module" src="./index.tsx"></script>
+    <!-- 通过 type="text/tsx" 告诉 esm.sh/run 这是一个需要编译的 TSX 模块 -->
+    <script type="text/tsx" src="./index.tsx"></script>
   </body>
 </html>

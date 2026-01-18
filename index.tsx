@@ -1,7 +1,6 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import App from './App.tsx';
 
 // 获取根 DOM 元素
 const rootElement = document.getElementById('root');
@@ -10,7 +9,6 @@ if (!rootElement) {
 }
 
 // 创建 React Root 并渲染主应用
-// 使用 StrictMode 以便在开发环境中捕获潜在问题
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>

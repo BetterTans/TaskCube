@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings } from './types';
-import { generateTasksFromRule, parseDate } from './services/recurringService';
-import { FullCalendar } from './components/FullCalendar';
-import { TableView } from './components/TableView';
-import { DayTimeView } from './components/DayTimeView';
-import { MatrixView } from './components/MatrixView';
-import { TaskDetailModal } from './components/TaskDetailModal';
-import { RecurringManager } from './components/RecurringManager';
-import { ProjectListModal } from './components/ProjectListModal';
-import { ProjectDetailModal } from './components/ProjectDetailModal';
-import { SettingsModal } from './components/SettingsModal';
-import { CommandPalette, Command } from './components/CommandPalette';
-import { EventPopover } from './components/EventPopover';
-import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons';
+import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings } from './types.ts';
+import { generateTasksFromRule, parseDate } from './services/recurringService.ts';
+import { FullCalendar } from './components/FullCalendar.tsx';
+import { TableView } from './components/TableView.tsx';
+import { DayTimeView } from './components/DayTimeView.tsx';
+import { MatrixView } from './components/MatrixView.tsx';
+import { TaskDetailModal } from './components/TaskDetailModal.tsx';
+import { RecurringManager } from './components/RecurringManager.tsx';
+import { ProjectListModal } from './components/ProjectListModal.tsx';
+import { ProjectDetailModal } from './components/ProjectDetailModal.tsx';
+import { SettingsModal } from './components/SettingsModal.tsx';
+import { CommandPalette, Command } from './components/CommandPalette.tsx';
+import { EventPopover } from './components/EventPopover.tsx';
+import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
 import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from './db';
-import { useHotkeys } from './hooks/useHotkeys';
+import { db } from './db.ts';
+import { useHotkeys } from './hooks/useHotkeys.ts';
 
 // 获取今天的 YYYY-MM-DD 字符串
 const getTodayString = (date = new Date()) => {
@@ -133,7 +133,7 @@ export default function App() {
     })();
   }, [recurringRules, tasks]);
 
-  // FIX: Calculate blocked tasks based on dependencies
+  // 计算依赖阻塞状态
   const tasksById = useMemo(() => {
     if (!tasks) return new Map<string, Task>();
     return new Map(tasks.map(t => [t.id, t]));
@@ -147,10 +147,9 @@ export default function App() {
       if (task.predecessorIds && task.predecessorIds.length > 0) {
         for (const predId of task.predecessorIds) {
           const predecessor = tasksById.get(predId);
-          // If a predecessor exists and is not completed, the task is blocked.
           if (predecessor && !predecessor.completed) {
             blocked.add(task.id);
-            break; // No need to check other predecessors for this task
+            break; 
           }
         }
       }
@@ -175,15 +174,13 @@ export default function App() {
     setIsModalOpen(true);
   }, []);
   
-  // --- Event Popover Handlers ---
   const handleTaskPopoverOpen = (task: Task, event: React.MouseEvent) => {
     setPopoverState({ task, anchorEl: event.currentTarget as HTMLElement });
   };
   const handlePopoverClose = () => setPopoverState({ task: null, anchorEl: null });
 
-  // --- Modal Handlers ---
   const openEditModal = (task: Task) => {
-    handlePopoverClose(); // Close popover before opening modal
+    handlePopoverClose(); 
     setSelectedDateStr(task.date);
     setEditingTask(task);
     setEditingRule(null);
@@ -286,7 +283,6 @@ export default function App() {
   
   const getActiveRecurringRule = () => recurringRules.find(r => r.id === (editingRule?.id || editingTask?.recurringRuleId));
   
-  // --- Keyboard Shortcuts & Command Palette ---
   const toggleView = useCallback(() => {
     const views: ViewMode[] = ['calendar', 'day', 'matrix', 'table'];
     const currentIndex = views.indexOf(viewMode);
@@ -295,12 +291,12 @@ export default function App() {
 
   const hotkeyActions = useMemo(() => ({
     [hotkeys.open_palette]: () => setIsCommandPaletteOpen(true),
-    'shift+?': () => setIsCommandPaletteOpen(true), // hardcoded alternative
+    'shift+?': () => setIsCommandPaletteOpen(true), 
     [hotkeys.new_task]: () => openNewTaskModal(getTodayString()),
     [hotkeys.go_to_today]: handleToday,
     [hotkeys.toggle_view]: toggleView,
     [hotkeys.open_projects]: () => setIsProjectListOpen(true),
-    'escape': () => { // Universal close
+    'escape': () => { 
         setIsModalOpen(false);
         setIsRecurManagerOpen(false);
         setIsProjectListOpen(false);
@@ -347,7 +343,6 @@ export default function App() {
     }
     
     switch(viewMode) {
-      // FIX: Pass blockedTaskIds to components
       case 'calendar': return <div className="h-full p-2 sm:p-4"><FullCalendar currentDate={currentDate} tasks={tasks} projects={projects} blockedTaskIds={blockedTaskIds} onDateChange={handleDateChange} onDateClick={handleDateClick} onTaskClick={handleTaskPopoverOpen} onUpdateTask={saveTask} /></div>;
       case 'day': return <DayTimeView currentDate={currentDate} tasks={tasks} blockedTaskIds={blockedTaskIds} onTaskClick={handleTaskPopoverOpen} onTimeSlotClick={(time) => openNewTaskModal(getTodayString(currentDate), time)} onToggleTask={toggleTask} onDateChange={handleDateChange} onUpdateTask={saveTask} />;
       case 'matrix': return <MatrixView tasks={tasks} projects={projects} dateRange={matrixDateRange} blockedTaskIds={blockedTaskIds} onUpdateTask={saveTask} onTaskClick={handleTaskPopoverOpen}/>;
@@ -410,13 +405,11 @@ export default function App() {
         {renderCurrentView()}
       </main>
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
-      {/* FIX: Pass allTasks prop to TaskDetailModal */}
       <TaskDetailModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingRule(null); setNewTaskInitialTime(undefined); }} task={editingTask} dateStr={selectedDateStr} allTasks={tasks ?? []} initialTime={newTaskInitialTime} recurringRule={getActiveRecurringRule()} projects={projects ?? []} initialProjectId={newTaskInitialProjectId} onSave={saveTask} onUpdateRule={updateRecurringRule} onDelete={deleteTask} />
       <RecurringManager isOpen={isRecurManagerOpen} onClose={() => setIsRecurManagerOpen(false)} rules={recurringRules} onDeleteRule={deleteRule} onEditRule={(rule) => { setEditingRule(rule); setEditingTask(null); setIsRecurManagerOpen(false); setIsModalOpen(true); }} />
       <ProjectListModal isOpen={isProjectListOpen} onClose={() => setIsProjectListOpen(false)} projects={projects ?? []} onCreateProject={handleCreateProject} onProjectClick={(p) => { setSelectedProjectId(p.id); setIsProjectListOpen(false); }} />
       {selectedProject && <ProjectDetailModal isOpen={!!selectedProject} onClose={() => { setSelectedProjectId(null); setIsProjectListOpen(true); }} project={selectedProject} tasks={tasks ?? []} onUpdateProject={updateProject} onDeleteProject={deleteProject} onAddProjectTask={saveTask} onCreateTaskClick={(projectId) => { setNewTaskInitialProjectId(projectId); setEditingTask(null); setEditingRule(null); setIsModalOpen(true); }} onTaskClick={(t) => { setSelectedProjectId(null); openEditModal(t); }} />}
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} settings={aiSettings} onSave={setAiSettings} currentTheme={theme} onThemeChange={setTheme} hotkeys={hotkeys} onHotkeysChange={setHotkeys} defaultHotkeys={DEFAULT_HOTKEYS} />
-      {/* FIX: Pass isBlocked prop to EventPopover */}
       <EventPopover
         isOpen={!!popoverState.task}
         onClose={handlePopoverClose}

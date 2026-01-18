@@ -1,30 +1,9 @@
+
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
-import { Task, Project, Priority, EisenhowerQuadrant } from '../types';
+import { Task, Project, Priority, EisenhowerQuadrant } from '../types.ts';
 import { Zap, Star, Bell, Coffee, Lock, ChevronDown } from 'lucide-react';
 
-interface FullCalendarProps {
-  currentDate: Date;
-  tasks: Task[];
-  projects: Project[];
-  blockedTaskIds: Set<string>;
-  onDateChange: (date: Date) => void;
-  onDateClick: (date: string) => void;
-  onTaskClick: (task: Task, event: React.MouseEvent) => void;
-  onUpdateTask: (task: Partial<Task>) => void;
-}
-
-// FIX: Add QuadrantIcon helper component
-const QuadrantIcon = ({ quadrant, size = 12 }: { quadrant?: EisenhowerQuadrant; size?: number }) => {
-  switch (quadrant) {
-    case EisenhowerQuadrant.Q1: return <Zap size={size} className="text-white/80" />;
-    case EisenhowerQuadrant.Q2: return <Star size={size} className="text-white/80" />;
-    case EisenhowerQuadrant.Q3: return <Bell size={size} className="text-white/80" />;
-    case EisenhowerQuadrant.Q4: return <Coffee size={size} className="text-white/80" />;
-    default: return <Star size={size} className="text-white/80" />;
-  }
-};
-
-// FIX: Add parseDate helper function
+// 补全 parseDate 工具函数
 const parseDate = (dateStr: string): Date => {
   if (!dateStr || typeof dateStr !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     const today = new Date();
@@ -43,14 +22,23 @@ const formatDate = (date: Date): string => {
 interface WeekEvent {
   task: Task;
   laneIndex: number;
-  startDayIndex: number; // 0-6
-  span: number; // 1-7
+  startDayIndex: number; 
+  span: number; 
   isStart: boolean;
   isEnd: boolean;
   color: string;
 }
 
-// FIX: Add layoutWeekEvents helper function
+const QuadrantIcon = ({ quadrant, size = 12 }: { quadrant?: EisenhowerQuadrant; size?: number }) => {
+  switch (quadrant) {
+    case EisenhowerQuadrant.Q1: return <Zap size={size} className="text-white/80" />;
+    case EisenhowerQuadrant.Q2: return <Star size={size} className="text-white/80" />;
+    case EisenhowerQuadrant.Q3: return <Bell size={size} className="text-white/80" />;
+    case EisenhowerQuadrant.Q4: return <Coffee size={size} className="text-white/80" />;
+    default: return <Star size={size} className="text-white/80" />;
+  }
+};
+
 const layoutWeekEvents = (week: (Date | null)[], tasks: Task[], projects: Project[]): WeekEvent[] => {
   const weekStart = week[0] ? formatDate(week[0]) : '';
   const weekEnd = week[6] ? formatDate(week[6]) : '';
@@ -92,7 +80,6 @@ const layoutWeekEvents = (week: (Date | null)[], tasks: Task[], projects: Projec
     });
   }
 
-  // Sort by start day, then by duration
   events.sort((a, b) => {
     if (a.startDayIndex !== b.startDayIndex) return a.startDayIndex - b.startDayIndex;
     return b.span - a.span;
@@ -117,7 +104,6 @@ const layoutWeekEvents = (week: (Date | null)[], tasks: Task[], projects: Projec
   return lanes.flat();
 };
 
-
 const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateClick, onTaskClick, onUpdateTask, onVisible }: {
   date: Date;
   tasks: Task[];
@@ -128,11 +114,9 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
   onUpdateTask: (task: Partial<Task>) => void;
   onVisible?: () => void;
 }) => {
-  // FIX: Define state and refs
   const containerRef = useRef<HTMLDivElement>(null);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
   
-  // FIX: Define calendarData
   const calendarData = useMemo(() => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -159,7 +143,6 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
     return weeks;
   }, [date]);
 
-  // FIX: Add useEffect for intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -180,7 +163,6 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
     [Priority.LOW]: 'border-l-blue-400',
   };
 
-  // --- Drag and Drop Handlers ---
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', task.id);
@@ -224,7 +206,6 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
 
           return (
             <div key={weekIndex} className="grid grid-cols-7 relative border-t border-gray-50 dark:border-zinc-800/50" style={{ minHeight: `${dayHeaderHeight + weekContentHeight}px` }}>
-              {/* Day numbers */}
               {week.map((day, dayIndex) => {
                 if (!day) return <div key={dayIndex} className="border-l border-gray-50 dark:border-zinc-800/50" />;
                 const dateStr = formatDate(day);
@@ -248,7 +229,6 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                 )
               })}
 
-              {/* Event bars */}
               <div className="absolute top-0 left-0 right-0" style={{ top: `${dayHeaderHeight}px` }}>
                 {weekEvents.map(({ task, laneIndex, startDayIndex, span, isStart, isEnd, color }) => {
                   const isBlocked = blockedTaskIds.has(task.id);
@@ -286,6 +266,18 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
   );
 });
 
+// FIX: Added missing FullCalendarProps interface to resolve the "Cannot find name 'FullCalendarProps'" error.
+interface FullCalendarProps {
+  currentDate: Date;
+  tasks: Task[];
+  projects: Project[];
+  blockedTaskIds: Set<string>;
+  onDateChange: (date: Date) => void;
+  onDateClick: (date: string) => void;
+  onTaskClick: (task: Task, event: React.MouseEvent) => void;
+  onUpdateTask: (task: Partial<Task>) => void;
+}
+
 export const FullCalendar: React.FC<FullCalendarProps> = ({
   currentDate,
   tasks,
@@ -296,7 +288,6 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
   onTaskClick,
   onUpdateTask
 }) => {
-  // FIX: Define state, refs, and effects
   const scrollRef = useRef<HTMLDivElement>(null);
   const isInitialLoad = useRef(true);
   const [months, setMonths] = useState<Date[]>([]);
@@ -321,7 +312,6 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
     }
   }, [months]);
 
-  // FIX: Define scroll handlers
   const handleScroll = () => {
     if (!scrollRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
@@ -331,10 +321,6 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
     if (scrollHeight - scrollTop - clientHeight < 100) {
       setMonths(prev => [...prev, new Date(prev[prev.length-1].getFullYear(), prev[prev.length-1].getMonth() + 1, 1)]);
     }
-  };
-
-  const handleMonthVisible = (monthDate: Date) => {
-    onDateChange(monthDate);
   };
 
   const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
@@ -361,7 +347,6 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
              onDateClick={onDateClick}
              onTaskClick={onTaskClick}
              onUpdateTask={onUpdateTask}
-             onVisible={() => { /* onDateChange is implicitly handled by App's state */ }}
            />
         ))}
       </div>

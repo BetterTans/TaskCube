@@ -38,8 +38,8 @@
 *   **效果**: 在全应用范围内统一了艾森豪威尔矩阵的红/绿/橙/蓝配色，增强了视觉识别度。
 
 ### 2. 优雅的微交互 (浮窗动画)
-*   **状态**: ✅ **已实现 (v3.1.1)**
-*   **效果**: 为 `EventPopover` 和 `TaskSelectorPopover` 增加了平滑的 `fade-in` 和 `zoom-in` 动画。
+*   **状态**: ✅ **已实现 (v3.1.2)**
+*   **效果**: 为 `EventPopover`, `TaskSelectorPopover` 和 `FilterPopover` 增加了平滑的 `fade-in` 和 `zoom-in` 动画，并修复了动画定位的闪烁问题。
 
 ---
 

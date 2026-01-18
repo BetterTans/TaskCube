@@ -1,6 +1,6 @@
 # TaskCube 桌面端打包指南 (Electron)
 
-本文档详细说明如何将 TaskCube 网页版应用打包为 Windows (.exe) 和 macOS (.dmg) 桌面应用程序。
+本文档详细说明如何将 TaskCube **零构建 (Zero-Build)** 网页版应用打包为 Windows (.exe) 和 macOS (.dmg) 桌面应用程序。
 
 通过 Electron 打包，应用将拥有独立的数据存储环境，不受浏览器缓存清理策略的影响，从而实现**数据持久化**。
 
@@ -13,17 +13,12 @@ Electron 应用独立运行，数据存储在操作系统的**用户数据目录
 
 ### 1. 准备工作
 
-确保你的电脑上已经安装了 Node.js 环境。
+确保你的电脑上已经安装了 Node.js 环境 (仅用于运行打包工具，非项目依赖)。
 
 在项目根目录下，运行以下命令安装 Electron 核心及其打包工具：
 
 ```bash
 npm install --save-dev electron electron-builder
-```
-
-*可选（为了更方便的开发体验）：*
-```bash
-npm install --save-dev concurrently wait-on cross-env
 ```
 
 ### 2. 创建主进程文件
@@ -33,8 +28,8 @@ npm install --save-dev concurrently wait-on cross-env
 ```javascript
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const isDev = !app.isPackaged; // 判断是否为生产环境
 
+// 不需要 isDev 判断，因为生产和开发环境都直接加载本地 HTML 文件
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
@@ -44,21 +39,21 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      // 零构建架构可能依赖 Service Workers (如 esm.sh/run)
+      // 在 file:// 协议下，需要显式启用
+      webSecurity: false, 
     },
     title: "TaskCube",
-    icon: path.join(__dirname, 'public', 'favicon.ico'), // 设置图标
+    // 注意: 图标文件需要被包含在打包配置中
+    icon: path.join(__dirname, 'favicon.ico'), 
     autoHideMenuBar: true, // Windows 下自动隐藏菜单栏
   });
 
-  if (isDev) {
-    // 开发模式：加载本地 React 服务
-    win.loadURL('http://localhost:3000');
-    // win.webContents.openDevTools(); // 可选：打开调试控制台
-  } else {
-    // 生产模式：加载打包后的静态文件
-    // 此时 electron-main.js 应该和 build 文件夹在一起
-    win.loadFile(path.join(__dirname, 'build', 'index.html'));
-  }
+  // 直接加载项目的 index.html
+  win.loadFile(path.join(__dirname, 'index.html'));
+  
+  // 如果需要调试，可以取消下面的注释
+  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
@@ -76,50 +71,53 @@ app.on('activate', () => {
 });
 ```
 
-### 3. 修改 package.json 配置
+### 3. 创建 package.json 文件
 
-你需要修改 `package.json` 文件来告诉构建工具如何打包。请添加或修改以下字段：
+如果你的项目还没有 `package.json`，请在根目录运行 `npm init -y` 创建一个。然后，修改该文件以添加 Electron 打包配置：
 
-1.  **设置入口和主页路径**：
+1.  **设置入口文件**:
     ```json
     {
+      "name": "taskcube",
+      "version": "3.1.2",
+      "description": "AI 驱动的智能待办应用。",
       "main": "electron-main.js",
-      "homepage": "./", 
       ...
     }
     ```
-    > **重要**：`"homepage": "./"` 是必须的，它确保 React 打包出来的 index.html 使用相对路径引用 JS/CSS，否则在 Electron 中会出现白屏。
 
-2.  **添加打包脚本 (`scripts`)**：
+2.  **添加打包脚本 (`scripts`)**:
     ```json
     "scripts": {
-      "start": "react-scripts start",
-      "build": "react-scripts build",
-      "electron:dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
-      "dist": "npm run build && electron-builder"
+      "electron:dev": "electron .",
+      "dist": "electron-builder"
     }
     ```
 
-3.  **添加构建配置 (`build`)**：
-    在 `package.json` 的顶层添加 `build` 字段：
+3.  **添加构建配置 (`build`)**:
+    在 `package.json` 的顶层添加 `build` 字段。这是最关键的一步，因为它告诉 `electron-builder` 需要将哪些源文件打包到最终的应用中。
     ```json
     "build": {
-      "appId": "com.yourname.taskcube",
+      "appId": "com.taskcube.app",
       "productName": "TaskCube",
       "files": [
-        "build/**/*",
-        "electron-main.js"
+        "**/*",
+        "!node_modules/**/*",
+        "!dist/**/*",
+        "!docs/**/*",
+        "!*.md",
+        "!*.log"
       ],
       "directories": {
         "output": "dist"
       },
       "win": {
         "target": "nsis",
-        "icon": "public/favicon.ico"
+        "icon": "favicon.ico"
       },
       "mac": {
         "target": "dmg",
-        "icon": "public/logo192.png"
+        "icon": "favicon.ico"
       },
       "nsis": {
         "oneClick": false,
@@ -127,19 +125,17 @@ app.on('activate', () => {
       }
     }
     ```
+    > **重要**: `files` 数组的配置 `["**/*", "!node_modules/**/*", ...]` 意味着打包所有文件，同时排除 `node_modules`、输出目录 `dist` 和其他不需要的文件。
 
 ### 4. 执行打包
 
 完成上述配置后，运行以下命令即可生成安装包：
 
-**Windows (.exe):**
 ```bash
 npm run dist
 ```
-打包成功后，你会在项目根目录下的 `dist` 文件夹中找到 `TaskCube Setup X.X.X.exe`。
 
-**macOS (.dmg):**
-如果在 Mac 电脑上运行 `npm run dist`，则会在 `dist` 文件夹中生成 `.dmg` 文件。
+打包成功后，你会在项目根目录下的 `dist` 文件夹中找到适用于你当前操作系统的安装程序（例如 `TaskCube Setup 3.1.2.exe` 或 `TaskCube-3.1.2.dmg`）。
 
 ---
 
@@ -147,10 +143,10 @@ npm run dist
 
 打包后的应用会自动将 IndexedDB 数据存储在系统的标准应用数据目录下，完全独立于浏览器。
 
-具体路径如下（假设应用名为 TaskCube）：
+具体路径如下：
 
 *   **Windows**: `C:\Users\<用户名>\AppData\Roaming\TaskCube\IndexedDB`
 *   **macOS**: `/Users/<用户名>/Library/Application Support/TaskCube/IndexedDB`
 *   **Linux**: `~/.config/TaskCube/IndexedDB`
 
-只要用户不重装操作系统或手动进入上述目录删除文件，**数据将永久存在**。即使你发布了新版本的 `.exe` 安装包，只要 `appId` 保持不变，新版软件安装后依然能自动读取到旧版的数据。
+只要用户不重装操作系统或手动进入上述目录删除文件，**数据将永久存在**。即使你发布了新版本的安装包，只要 `appId` 保持不变，新版软件安装后依然能自动读取到旧版的数据。

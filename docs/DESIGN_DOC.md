@@ -36,7 +36,7 @@
 1. 浏览器加载 `index.html`。
 2. 注册 `importmap`。
 3. 启动 `esm.sh/run` 脚本。
-4. `index.html` 加载 `<script type="text/tsx" src="./index.tsx">`。
+4. `index.html` 加载 `<script type="module" src="./index.tsx">`。
 5. `esm.sh/run` 拦截并编译 `index.tsx` 及其引用的所有 TSX 模块。
 
 ### 3.2 样式系统

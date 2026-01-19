@@ -2,7 +2,7 @@ import { AISettings, Task, Priority, EisenhowerQuadrant } from "../types";
 
 // Helper to get settings from localStorage
 const getSettings = (): AISettings => {
-    const saved = localStorage.getItem('taskcube-ai-settings');
+    const saved = localStorage.getItem('nextdo-ai-settings');
     if (saved) {
         try {
             return JSON.parse(saved);
@@ -162,33 +162,6 @@ ${projectDesc ? `Project Description: ${projectDesc}` : ''}`;
     } catch (error) {
         console.error("AI Service Error (generateProjectPlan):", error);
         alert("生成项目计划失败，请检查AI设置。");
-        return [];
-    }
-};
-
-/**
- * Analyzes a list of tasks and assigns priorities.
- */
-export const prioritizeTasksAI = async (tasks: Task[]): Promise<{ taskId: string; priority: Priority; reason: string }[]> => {
-    if (tasks.length === 0) return [];
-    
-    const taskSummaries = tasks.map(t => ({ id: t.id, title: t.title, currentPriority: t.priority }));
-    const prompt = `You are a time management master. Analyze the provided JSON list of tasks.
-Re-assign a priority (High, Medium, Low) to each task based on inferred urgency and importance.
-Your response must be a valid JSON object with a key 'orders', containing an array of objects.
-Each object must have 'taskId' (string), 'priority' (enum: High, Medium, Low), and a brief 'reason' (string).
-
-Tasks to prioritize: ${JSON.stringify(taskSummaries)}`;
-
-    try {
-        const settings = getSettings();
-        const result = await callAI(prompt, settings.model, true);
-        if (result && Array.isArray(result.orders)) {
-            return result.orders;
-        }
-        return [];
-    } catch (error) {
-        console.error("AI Service Error (prioritizeTasksAI):", error);
         return [];
     }
 };

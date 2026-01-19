@@ -115,7 +115,8 @@ export interface Task {
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 /**
- * AI 模型设置接口
+ * AI 设置接口
+ * 用于存储用户自定义的 AI 模型接入点、密钥和模型名称
  */
 export interface AISettings {
   baseUrl: string;

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AISettings, ThemeMode } from '../types';
+import { AISettings, ThemeMode } from '../types.ts';
 import { X, Server, Key, Box, Check, RotateCcw, Moon, Sun, Monitor, Download, Upload, Database, Keyboard, Palette } from 'lucide-react';
-import { Button } from './Button';
-import { db } from '../db';
+import { Button } from './Button.tsx';
+import { db } from '../db.ts';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -108,9 +108,97 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
-  const handleExport = async () => { /* ... (no changes) ... */ };
+  const handleExport = async () => {
+    try {
+      const tasks = await db.tasks.toArray();
+      const projects = await db.projects.toArray();
+      const recurringRules = await db.recurringRules.toArray();
+
+      const settingsData = {
+        aiSettings: localStorage.getItem('nextdo-ai-settings'),
+        theme: localStorage.getItem('nextdo-theme'),
+        hotkeys: localStorage.getItem('nextdo-hotkeys'),
+        sidebarCollapsed: localStorage.getItem('nextdo-sidebar-collapsed'),
+        tableFilters: localStorage.getItem('nextdo-table-filters'),
+      };
+
+      const backupData = {
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        database: { tasks, projects, recurringRules },
+        localStorage: settingsData,
+      };
+
+      const jsonString = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const today = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `nextdo-backup-${today}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      alert('数据已成功导出！');
+    } catch (error) {
+      console.error('Failed to export data:', error);
+      alert('数据导出失败，请检查控制台获取更多信息。');
+    }
+  };
+  
   const handleImportClick = () => fileInputRef.current?.click();
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => { /* ... (no changes) ... */ };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!window.confirm('您确定要导入数据吗？这将覆盖所有当前数据。此操作无法撤销。')) {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const jsonString = event.target?.result as string;
+        const backupData = JSON.parse(jsonString);
+
+        if (!backupData.database || !backupData.database.tasks || !backupData.localStorage) {
+          throw new Error('无效的备份文件格式。');
+        }
+        
+        await db.transaction('rw', db.tasks, db.projects, db.recurringRules, async () => {
+          await Promise.all([
+            db.tasks.clear(),
+            db.projects.clear(),
+            db.recurringRules.clear(),
+          ]);
+          await Promise.all([
+            db.tasks.bulkAdd(backupData.database.tasks || []),
+            db.projects.bulkAdd(backupData.database.projects || []),
+            db.recurringRules.bulkAdd(backupData.database.recurringRules || []),
+          ]);
+        });
+        
+        const ls = backupData.localStorage;
+        if (ls.aiSettings) localStorage.setItem('nextdo-ai-settings', ls.aiSettings);
+        if (ls.theme) localStorage.setItem('nextdo-theme', ls.theme);
+        if (ls.hotkeys) localStorage.setItem('nextdo-hotkeys', ls.hotkeys);
+        if (ls.sidebarCollapsed) localStorage.setItem('nextdo-sidebar-collapsed', ls.sidebarCollapsed);
+        if (ls.tableFilters) localStorage.setItem('nextdo-table-filters', ls.tableFilters);
+
+        alert('数据导入成功！应用将重新加载以应用更改。');
+        window.location.reload();
+      } catch (error) {
+        console.error('Failed to import data:', error);
+        alert(`数据导入失败：${error instanceof Error ? error.message : String(error)}`);
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
   
   if (!isOpen) return null;
 

@@ -14,15 +14,16 @@ export class NextDoDB extends Dexie {
   constructor() {
     super('NextDoDB'); // 'NextDoDB' 是数据库的名称
     
-    // FIX: Assign `this` to a variable typed as Dexie to help TypeScript resolve inherited methods.
-    const db: Dexie = this;
+    // FIX: Refactored to use `this` directly for defining versions and event handlers,
+    // which is the standard Dexie pattern and helps TypeScript correctly infer inherited methods
+    // on the NextDoDB class instance, resolving the 'transaction' method error.
 
     // 定义数据库的版本和表结构（主要是索引）。
     // Dexie 支持数据库版本升级。当应用代码需要新的索引时，可以增加一个版本。
     
     // 版本 1：初始的表结构定义。
     // 保留旧版本的定义是为了让 Dexie 能够处理从旧版本到新版本的平滑升级。
-    db.version(1).stores({
+    this.version(1).stores({
       tasks: 'id, date, projectId, priority, completed, recurringRuleId',
       projects: 'id, status',
       recurringRules: 'id'
@@ -30,7 +31,7 @@ export class NextDoDB extends Dexie {
     
     // 版本 2：为 tasks 表增加了 'tags' 字段的多入口索引 (*tags)。
     // 这允许我们高效地查询包含特定标签的任务。
-    db.version(2).stores({
+    this.version(2).stores({
       // 'id' 是主键。其他字段是索引，用于加速查询。
       tasks: 'id, date, projectId, priority, completed, recurringRuleId, *tags',
       projects: 'id, status',
@@ -38,7 +39,7 @@ export class NextDoDB extends Dexie {
     });
 
     // 版本 3: 增加任务依赖关系索引
-    db.version(3).stores({
+    this.version(3).stores({
       tasks: 'id, date, projectId, priority, completed, recurringRuleId, *tags, *predecessorIds, *successorIds',
       projects: 'id, status',
       recurringRules: 'id, *tags'
@@ -52,7 +53,7 @@ export class NextDoDB extends Dexie {
      * 1. 将旧的、存储在 localStorage 中的数据迁移到新的 IndexedDB 数据库中。
      * 2. 如果没有任何旧数据，则添加一些初始的演示数据，以引导新用户。
      */
-    db.on('populate', () => {
+    this.on('populate', () => {
       console.log("Populating database for the first time, checking for legacy LocalStorage data...");
       
       // 尝试从 localStorage 获取旧数据

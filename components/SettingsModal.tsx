@@ -164,10 +164,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         const jsonString = event.target?.result as string;
         const backupData = JSON.parse(jsonString);
 
-        if (!backupData.database || !backupData.database.tasks || !backupData.localStorage) {
+        if (!backupData.database || !backupData.localStorage) {
           throw new Error('无效的备份文件格式。');
         }
         
+        // Step 1: Restore Database
         await db.transaction('rw', db.tasks, db.projects, db.recurringRules, async () => {
           await Promise.all([
             db.tasks.clear(),
@@ -181,12 +182,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           ]);
         });
         
-        const ls = backupData.localStorage;
-        if (ls.aiSettings) localStorage.setItem('nextdo-ai-settings', ls.aiSettings);
-        if (ls.theme) localStorage.setItem('nextdo-theme', ls.theme);
-        if (ls.hotkeys) localStorage.setItem('nextdo-hotkeys', ls.hotkeys);
-        if (ls.sidebarCollapsed) localStorage.setItem('nextdo-sidebar-collapsed', ls.sidebarCollapsed);
-        if (ls.tableFilters) localStorage.setItem('nextdo-table-filters', ls.tableFilters);
+        // Step 2: Restore LocalStorage Settings
+        const lsData = backupData.localStorage;
+        
+        // A list of all keys managed by the backup system.
+        const managedKeys = [
+            'nextdo-ai-settings', 
+            'nextdo-theme', 
+            'nextdo-hotkeys', 
+            'nextdo-sidebar-collapsed', 
+            'nextdo-table-filters'
+        ];
+        
+        const backupValues = {
+            'nextdo-ai-settings': lsData.aiSettings,
+            'nextdo-theme': lsData.theme,
+            'nextdo-hotkeys': lsData.hotkeys,
+            'nextdo-sidebar-collapsed': lsData.sidebarCollapsed,
+            'nextdo-table-filters': lsData.tableFilters,
+        };
+
+        // This loop ensures a clean restore.
+        // It sets any value present in the backup, and crucially,
+        // removes any local setting if it's not in the backup (i.e., value is null/undefined).
+        for (const key of managedKeys) {
+            const value = backupValues[key as keyof typeof backupValues];
+            if (value !== null && value !== undefined) {
+                localStorage.setItem(key, value);
+            } else {
+                localStorage.removeItem(key);
+            }
+        }
 
         alert('数据导入成功！应用将重新加载以应用更改。');
         window.location.reload();

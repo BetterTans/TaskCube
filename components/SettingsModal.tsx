@@ -89,7 +89,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       setHotkeyData(hotkeys);
       setActiveView('appearance');
     }
-  }, [isOpen, settings, hotkeys]);
+  }, [isOpen]);
 
   const handleSave = () => {
     onSave({ ...formData, baseUrl: formData.baseUrl.replace(/\/+$/, '') });

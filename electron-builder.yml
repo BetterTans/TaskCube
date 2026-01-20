@@ -1,0 +1,41 @@
+appId: com.nextdo.app
+productName: NextDo
+
+directories:
+  output: dist-app
+  buildResources: build
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - node_modules/**/*
+
+asar: true
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Office
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
+publish:
+  provider: generic
+  url: https://your-update-server.com

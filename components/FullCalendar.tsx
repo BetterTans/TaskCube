@@ -1,8 +1,8 @@
 
 
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
-import { Task, Project, Priority, EisenhowerQuadrant } from '../types.ts';
-import { Zap, Star, Bell, Coffee, Lock, ChevronDown } from 'lucide-react';
+import { Task, Project, Priority, EisenhowerQuadrant, TaskProgress } from '../types.ts';
+import { Zap, Star, Bell, Coffee, Lock, ChevronDown, Activity } from 'lucide-react';
 
 // 补全 parseDate 工具函数
 const parseDate = (dateStr: string): Date => {
@@ -28,6 +28,22 @@ const getTaskColor = (task: Task, project?: Project) => {
       case Priority.LOW: return '#3B82F6'; // blue-500
       default: return '#6B7280'; // gray-500
     }
+};
+
+const getProgressDisplay = (progress?: TaskProgress) => {
+  const progressText = progress || TaskProgress.INITIAL;
+  const progressStyles: Record<TaskProgress, { color: string }> = {
+    [TaskProgress.INITIAL]: { color: 'text-gray-400' },
+    [TaskProgress.IN_PROGRESS]: { color: 'text-blue-400' },
+    [TaskProgress.ON_HOLD]: { color: 'text-yellow-400' },
+    [TaskProgress.BLOCKED]: { color: 'text-red-400' },
+    [TaskProgress.COMPLETED]: { color: 'text-green-400' },
+    [TaskProgress.DELAYED]: { color: 'text-orange-400' }
+  };
+  return {
+    text: progressText,
+    style: progressStyles[progressText]
+  };
 };
 
 interface WeekEvent {
@@ -189,7 +205,32 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
     if (!dateStr || !draggedTask) return;
     const droppedTaskId = e.dataTransfer.getData('text/plain');
     if (droppedTaskId === draggedTask.id) {
-        onUpdateTask({ id: droppedTaskId, date: dateStr });
+      // Calculate the duration offset if the task has an endDate
+      const updates: Partial<{ id: string; date: string; endDate: string }> = {
+        id: droppedTaskId,
+        date: dateStr
+      };
+
+      // If the task has an endDate, calculate and preserve the duration
+      // Fix: Always update endDate when it exists, even if it equals startDate
+      if (draggedTask.endDate) {
+        const startDate = parseDate(draggedTask.date);
+        const endDate = parseDate(draggedTask.endDate);
+        const durationDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        // Calculate new end date based on the duration
+        const newStartDate = parseDate(dateStr);
+        const newEndDate = new Date(newStartDate);
+        newEndDate.setDate(newEndDate.getDate() + durationDays);
+
+        // Format the new end date
+        const offset = newEndDate.getTimezoneOffset() * 60000;
+        const newEndDateStr = new Date(newEndDate.getTime() - offset).toISOString().split('T')[0];
+
+        updates.endDate = newEndDateStr;
+      }
+
+      onUpdateTask(updates);
     }
     setDraggedTask(null);
   };
@@ -258,6 +299,7 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                     }}
                   >
                     {isBlocked ? <Lock size={12} className="text-white/80" /> : <QuadrantIcon quadrant={task.quadrant} />}
+                    <Activity size={10} className={`${getProgressDisplay(task.progress).style.color}`} />
                     <span className="truncate">{task.title}</span>
                   </div>
                 )})}

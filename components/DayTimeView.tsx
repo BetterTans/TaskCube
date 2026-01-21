@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from 'react';
-import { Task, Priority, EisenhowerQuadrant } from '../types';
-import { Plus, Zap, Star, Bell, Coffee, Lock } from 'lucide-react';
+import { Task, Priority, EisenhowerQuadrant, TaskProgress } from '../types';
+import { Plus, Zap, Star, Bell, Coffee, Lock, Activity } from 'lucide-react';
 
 interface DayTimeViewProps {
   currentDate: Date;
@@ -14,6 +14,22 @@ interface DayTimeViewProps {
 }
 
 // FIX: Add helper components and functions
+const getProgressDisplay = (progress?: TaskProgress) => {
+  const progressText = progress || TaskProgress.INITIAL;
+  const progressStyles: Record<TaskProgress, { color: string }> = {
+    [TaskProgress.INITIAL]: { color: 'text-gray-400' },
+    [TaskProgress.IN_PROGRESS]: { color: 'text-blue-400' },
+    [TaskProgress.ON_HOLD]: { color: 'text-yellow-400' },
+    [TaskProgress.BLOCKED]: { color: 'text-red-400' },
+    [TaskProgress.COMPLETED]: { color: 'text-green-400' },
+    [TaskProgress.DELAYED]: { color: 'text-orange-400' }
+  };
+  return {
+    text: progressText,
+    style: progressStyles[progressText]
+  };
+};
+
 const QuadrantIcon = ({ quadrant, size = 12 }: { quadrant?: EisenhowerQuadrant, size?: number }) => {
   const props = { size, className: "text-current opacity-70 flex-shrink-0" };
   switch (quadrant) {
@@ -62,6 +78,57 @@ interface DragInfo {
   previewHeight: number;
 }
 
+// Helper: Check if two time ranges overlap
+const doRangesOverlap = (start1: number, end1: number, start2: number, end2: number): boolean => {
+  return start1 < end2 && start2 < end1;
+};
+
+// Helper: Group overlapping tasks together
+const groupOverlappingTasks = (tasks: Task[]) => {
+  if (tasks.length === 0) return [];
+
+  // Convert tasks to time ranges
+  const tasksWithRanges = tasks.map(task => {
+    if (!task.startTime) return null;
+    const [h, m] = task.startTime.split(':').map(Number);
+    const start = h * 60 + m;
+    const end = start + (task.duration || 60);
+    return { task, start, end };
+  }).filter(Boolean) as Array<{ task: Task; start: number; end: number }>;
+
+  if (tasksWithRanges.length === 0) return [];
+
+  // Sort by start time
+  tasksWithRanges.sort((a, b) => a.start - b.start);
+
+  const groups: Array<Array<{ task: Task; start: number; end: number }>> = [];
+  let currentGroup: Array<{ task: Task; start: number; end: number }> = [tasksWithRanges[0]];
+  let groupEnd = tasksWithRanges[0].end;
+
+  // Group overlapping tasks
+  for (let i = 1; i < tasksWithRanges.length; i++) {
+    const current = tasksWithRanges[i];
+    if (current.start < groupEnd) {
+      // Overlaps with current group
+      currentGroup.push(current);
+      groupEnd = Math.max(groupEnd, current.end);
+    } else {
+      // Start a new group
+      if (currentGroup.length > 0) {
+        groups.push(currentGroup);
+      }
+      currentGroup = [current];
+      groupEnd = current.end;
+    }
+  }
+
+  if (currentGroup.length > 0) {
+    groups.push(currentGroup);
+  }
+
+  return groups;
+};
+
 // 单日区块组件
 const DayBlock = React.memo(({ 
   date, 
@@ -90,52 +157,113 @@ const DayBlock = React.memo(({
 
   const allDayTasks = dayTasks.filter(t => !t.startTime);
   const timedTasks = dayTasks.filter(t => !!t.startTime && t.date === dateStr);
-  
+
+  // Process overlapping tasks for display
+  const tasksWithPositions = useMemo(() => {
+    const overlappingGroups = groupOverlappingTasks(timedTasks);
+    const groupsWithMultiTasks = overlappingGroups.filter(g => g.length > 1);
+
+    return timedTasks.map(task => {
+      let position: { index: number; total: number } | undefined;
+
+      // Find if this task is in a multi-task overlap group
+      for (const group of groupsWithMultiTasks) {
+        const index = group.findIndex(g => g.task.id === task.id);
+        if (index !== -1) {
+          position = { index, total: group.length };
+          break;
+        }
+      }
+
+      return { task, position };
+    });
+  }, [timedTasks]);
+
   // --- Drag & Drop Logic ---
   const handleDragStart = (e: React.MouseEvent, task: Task, type: 'move' | 'resize') => {
     if (task.completed || blockedTaskIds.has(task.id)) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Clear any existing drag info first to ensure clean start
+    setDragInfo(null);
+
     const [h, m] = (task.startTime || '00:00').split(':').map(Number);
     const initialTop = h * 60 + m;
-    setDragInfo({
-      task, type, startY: e.clientY,
-      initialTop, initialHeight: task.duration || 60,
-      previewTop: initialTop, previewHeight: task.duration || 60
-    });
+
+    // Add small delay to ensure state is cleared before setting new drag
+    setTimeout(() => {
+      setDragInfo({
+        task, type, startY: e.clientY,
+        initialTop, initialHeight: task.duration || 60,
+        previewTop: initialTop, previewHeight: task.duration || 60
+      });
+      console.log(`Started dragging task: ${task.title}, type: ${type}`);
+    }, 0);
   };
 
   // FIX: Add useEffect for drag/drop handling
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!dragInfo || !timelineRef.current) return;
-      
+
       const timelineRect = timelineRef.current.getBoundingClientRect();
       const deltaY = e.clientY - dragInfo.startY;
-      
+
+      // Double-check: Only proceed if dragging info is valid and current
+      if (!dragInfo?.task?.id) return;
+
+      // Critical: Use functional update and verify task ID to prevent interference
+      const currentTaskId = dragInfo.task.id;
+
       if (dragInfo.type === 'move') {
         const newTop = dragInfo.initialTop + deltaY;
-        const snappedTop = Math.round(newTop / 15) * 15; // Snap to 15-minute intervals
-        setDragInfo(prev => prev ? { ...prev, previewTop: Math.max(0, snappedTop) } : null);
+        const snappedTop = Math.round(newTop / 15) * 15;
+        setDragInfo(prev => {
+          // Verify we're still working with the same task
+          if (!prev || prev.task.id !== currentTaskId) return null;
+          return { ...prev, previewTop: Math.max(0, snappedTop) };
+        });
       } else { // resize
         const newHeight = dragInfo.initialHeight + deltaY;
         const snappedHeight = Math.round(newHeight / 15) * 15;
-        setDragInfo(prev => prev ? { ...prev, previewHeight: Math.max(15, snappedHeight) } : null);
+        setDragInfo(prev => {
+          // Verify we're still working with the same task
+          if (!prev || prev.task.id !== currentTaskId) return null;
+          return { ...prev, previewHeight: Math.max(15, snappedHeight) };
+        });
       }
     };
     
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
       if (!dragInfo) return;
-      
+
+      // Prevent event from affecting other elements
+      e.stopPropagation();
+
+      // Ensure we're still working with valid drag data
+      if (!dragInfo.task || dragInfo.previewTop < 0 || dragInfo.previewHeight <= 0) {
+        console.error('Invalid drag state detected on mouseUp:', dragInfo);
+        setDragInfo(null);
+        return;
+      }
+
       const newStartMinutes = dragInfo.previewTop;
       const newHours = Math.floor(newStartMinutes / 60).toString().padStart(2, '0');
       const newMinutes = (newStartMinutes % 60).toString().padStart(2, '0');
-      
+
       const updates: Partial<Task> = { id: dragInfo.task.id };
       if (dragInfo.type === 'move') {
         updates.startTime = `${newHours}:${newMinutes}`;
       } else {
         updates.duration = dragInfo.previewHeight;
       }
-      onUpdateTask(updates);
+
+      // Ensure values are valid before updating
+      if (dragInfo.previewTop >= 0 && dragInfo.previewHeight > 0) {
+        onUpdateTask(updates);
+      }
+
       setDragInfo(null);
     };
 
@@ -158,34 +286,174 @@ const DayBlock = React.memo(({
     return `${date.getMonth() + 1}月${date.getDate()}日`;
   }, [date, dateStr]);
 
-  const getTaskStyle = (task: Task) => {
-    if (!task.startTime) return {};
-    const isBlocked = blockedTaskIds.has(task.id);
-    const isDraggingThis = dragInfo?.task.id === task.id;
-    let startMinutes: number, duration: number;
+// Memoized individual task item component to prevent unnecessary re-renders
+interface TaskItemProps {
+  task: Task;
+  position?: { index: number; total: number };
+  blockedTaskIds: Set<string>;
+  onTaskClick: (task: Task, event: React.MouseEvent) => void;
+  onDragStart: (e: React.MouseEvent, task: Task, type: 'move' | 'resize') => void;
+  onUpdateTask: (task: Partial<Task>) => void;
+  dragInfo: DragInfo | null;
+}
 
-    if (isDraggingThis) {
-        startMinutes = dragInfo.previewTop;
-        duration = dragInfo.previewHeight;
-    } else {
-        const [h, m] = task.startTime.split(':').map(Number);
-        startMinutes = h * 60 + m;
-        duration = task.duration || 60;
-    }
-    
-    let bgColor = 'bg-blue-100 dark:bg-blue-900/50 border-blue-500 dark:border-blue-700 text-blue-800 dark:text-blue-100';
-    if (task.completed) bgColor = 'bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-600 text-gray-400 dark:text-gray-500';
-    else if (task.priority === Priority.HIGH) bgColor = 'bg-red-100 dark:bg-red-900/50 border-red-500 dark:border-red-700 text-red-800 dark:text-red-100';
-    else if (task.priority === Priority.MEDIUM) bgColor = 'bg-orange-100 dark:bg-orange-900/50 border-orange-500 dark:border-orange-700 text-orange-800 dark:text-orange-100';
+const TaskItem = React.memo(({
+  task,
+  position,
+  blockedTaskIds,
+  onTaskClick,
+  onDragStart,
+  dragInfo
+}: TaskItemProps) => {
+  const isBlocked = blockedTaskIds.has(task.id);
+  const isDraggingThis = dragInfo?.task.id === task.id;
 
-    const cursorClass = isBlocked ? 'cursor-not-allowed' : (isDraggingThis ? 'cursor-grabbing' : 'cursor-grab');
+  let startMinutes: number, duration: number;
 
-    return {
-      top: `${startMinutes}px`,
-      height: `${duration}px`,
-      className: `absolute left-16 right-2 rounded-md border-l-4 p-1 text-xs shadow-sm overflow-hidden transition-all duration-100 ${bgColor} ${isDraggingThis ? 'opacity-80 scale-105 z-20 shadow-lg' : ''} ${cursorClass}`
-    };
+  if (isDraggingThis) {
+      startMinutes = dragInfo.previewTop;
+      duration = dragInfo.previewHeight;
+  } else {
+      const [h, m] = (task.startTime || '00:00').split(':').map(Number);
+      startMinutes = h * 60 + m;
+      duration = task.duration || 60;
+  }
+
+  let bgColor = 'bg-blue-100 dark:bg-blue-900/50 border-blue-500 dark:border-blue-700 text-blue-800 dark:text-blue-100';
+  if (task.completed) bgColor = 'bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-600 text-gray-400 dark:text-gray-500';
+  else if (task.priority === Priority.HIGH) bgColor = 'bg-red-100 dark:bg-red-900/50 border-red-500 dark:border-red-700 text-red-800 dark:text-red-100';
+  else if (task.priority === Priority.MEDIUM) bgColor = 'bg-orange-100 dark:bg-orange-900/50 border-orange-500 dark:border-orange-700 text-orange-800 dark:text-orange-100';
+
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [dragTimer, setDragTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const cursorClass = isBlocked ? 'cursor-not-allowed' : (isDraggingThis || isMouseDown ? 'cursor-grabbing' : 'cursor-pointer');
+
+  let style: React.CSSProperties = {
+    left: '0rem'
   };
+
+  if (position && position.total > 1) {
+    const overlapFactor = 0.7;
+    const totalWidth = (position.total - 1) * overlapFactor + 1;
+
+    const taskWidthPercent = (1 / totalWidth) * 100;
+    const leftOffsetPercent = (position.index * (1 - overlapFactor) / totalWidth) * 100;
+
+    style = {
+      left: `${leftOffsetPercent}%`,
+      width: `${taskWidthPercent}%`
+    };
+  }
+
+  // Determine if task is on the right side of the screen for time preview positioning
+  const taskIsOnRightSide = () => {
+    const containerWidth = 800; // Approximate
+    const taskLeft = parseInt(style.left?.toString() || '0');
+    return taskLeft / containerWidth > 0.5;
+  };
+
+  let timePreview = null;
+  let timeBadge = null;
+
+  if (isDraggingThis && dragInfo) {
+    const newStartMinutes = dragInfo.previewTop;
+    const newEndMinutes = newStartMinutes + dragInfo.previewHeight;
+    const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
+    const isRightSide = taskIsOnRightSide();
+
+    timePreview = (
+      <div className={`absolute -top-6 text-xs bg-gray-900 text-white px-2 py-1 rounded-md font-medium whitespace-nowrap z-50 shadow-lg ${
+        isRightSide ? 'right-2' : 'left-2'
+      }`}>
+        {formatTime(newStartMinutes)} - {formatTime(newEndMinutes)}
+      </div>
+    );
+
+    timeBadge = (
+      <div className={`absolute top-1 text-xs px-1 py-0.5 rounded bg-gray-900/10 text-gray-600 ${
+        isRightSide ? 'left-1' : 'right-1'
+      }`}>
+        {formatTime(newStartMinutes)}
+      </div>
+    );
+  }
+
+  // 处理鼠标按下事件，区分点击和拖动
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (task.completed || isBlocked) return;
+
+    // 设置鼠标按下状态
+    setIsMouseDown(true);
+
+    // 使用定时器延迟触发拖动，以区分点击和拖动
+    const timer = setTimeout(() => {
+      onDragStart(e, task, 'move');
+    }, 150); // 150ms延迟
+
+    setDragTimer(timer);
+  };
+
+  // 处理鼠标释放事件
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+
+    // 清除拖动定时器
+    if (dragTimer) {
+      clearTimeout(dragTimer);
+      setDragTimer(null);
+    }
+  };
+
+  // 处理鼠标离开事件（防止鼠标在任务外释放导致状态卡住）
+  const handleMouseLeave = () => {
+    setIsMouseDown(false);
+
+    if (dragTimer) {
+      clearTimeout(dragTimer);
+      setDragTimer(null);
+    }
+  };
+
+  return (
+    <div
+      key={task.id}
+      className={`${bgColor} ${cursorClass} absolute left-0 right-0 rounded-md border-l-4 p-1 text-xs shadow-sm overflow-hidden transition-all duration-100 ${isDraggingThis ? 'opacity-80 z-30 shadow-lg' : 'z-10'}`}
+      style={{ top: `${startMinutes}px`, height: `${duration}px`, ...(Object.keys(style).length > 1 ? style : {}) }}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+    >
+      {timePreview}
+      {timeBadge}
+      <div
+        className="flex-1 h-full"
+        onClick={(e) => {
+          e.stopPropagation();
+
+          // 如果在拖动或准备拖动，不打开弹窗
+          if (isMouseDown || dragTimer || dragInfo?.task.id === task.id) {
+            return;
+          }
+
+          onTaskClick(task, e);
+        }}
+      >
+        <div className="flex items-center gap-1">
+          {isBlocked ? <Lock size={10} className="text-current opacity-70"/> : <QuadrantIcon quadrant={task.quadrant} size={10} />}
+          <Activity size={10} className={`${getProgressDisplay(task.progress).style.color}`} />
+        </div>
+        <div className="font-semibold leading-tight truncate">{task.title}</div>
+      </div>
+      {!task.completed && !isBlocked && (
+        <div
+          className="absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize"
+          onMouseDown={(e) => { e.stopPropagation(); onDragStart(e, task, 'resize'); }}
+        />
+      )}
+    </div>
+  );
+});
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   
@@ -221,7 +489,10 @@ const DayBlock = React.memo(({
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm border cursor-pointer ${task.completed ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 border-transparent' : 'bg-white dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 shadow-sm text-gray-800 dark:text-gray-200'}`}
               >
                 <div className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${task.completed ? 'border-gray-400 bg-gray-400' : (task.priority === Priority.HIGH ? 'border-red-500' : 'border-indigo-500')}`} />
-                {isBlocked ? <Lock size={14} className="text-gray-400"/> : <QuadrantIcon quadrant={task.quadrant} size={14} />}
+                <div className="flex items-center gap-2">
+                  {isBlocked ? <Lock size={14} className="text-gray-400"/> : <QuadrantIcon quadrant={task.quadrant} size={14} />}
+                  <Activity size={13} className={`${getProgressDisplay(task.progress).style.color}`} />
+                </div>
                 <span className={`truncate ${task.completed ? 'line-through' : ''}`}>{task.title}</span>
               </div>
             )})}
@@ -229,53 +500,29 @@ const DayBlock = React.memo(({
         </div>
       )}
 
-      <div ref={timelineRef} className="relative" style={{ height: '1440px' }}> 
+      <div ref={timelineRef} className="relative ml-14 pr-10" style={{ height: '1440px' }}>
          {hours.map(hour => (
-            <div key={hour} className="h-[60px] border-b border-gray-100 dark:border-zinc-800 flex items-start" onClick={() => onTimeSlotClick(`${hour.toString().padStart(2, '0')}:00`)}>
-              <div className="w-14 text-right pr-2 text-xs text-gray-400 -mt-2">{hour.toString().padStart(2, '0')}:00</div>
+            <div key={hour} className="h-[60px] border-b border-gray-100 dark:border-zinc-800 relative" onClick={() => onTimeSlotClick(`${hour.toString().padStart(2, '0')}:00`)}>
+              <div className="absolute left-0 top-0 w-14 h-full -ml-14 flex items-start">
+                <div className="w-14 text-right pr-2 text-xs text-gray-400 -mt-2">{hour.toString().padStart(2, '0')}:00</div>
+              </div>
             </div>
          ))}
 
          {getLabel().startsWith('今天') && <CurrentTimeIndicator />}
 
-         <div className="absolute top-0 left-0 right-0 bottom-0">
-            {timedTasks.map(task => {
-               const style = getTaskStyle(task);
-               const isDraggingThis = dragInfo?.task.id === task.id;
-               const isBlocked = blockedTaskIds.has(task.id);
-
-               let timePreview = null;
-               if (isDraggingThis) {
-                  const newStartMinutes = dragInfo.previewTop;
-                  const newEndMinutes = newStartMinutes + dragInfo.previewHeight;
-                  const formatTime = (m: number) => `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`;
-                  timePreview = <div className="absolute -top-5 text-xs bg-black text-white px-1.5 py-0.5 rounded-md">{formatTime(newStartMinutes)} - {formatTime(newEndMinutes)}</div>;
-               }
-
-               return (
-                 <div
-                   key={task.id}
-                   className={`${style.className} flex items-start gap-1.5 relative pb-3`}
-                   style={{ top: style.top, height: style.height }}
-                   onMouseDown={(e) => handleDragStart(e, task, 'move')}
-                 >
-                   {timePreview}
-                   <div 
-                     className="flex-1 h-full cursor-pointer"
-                     onClick={(e) => { e.stopPropagation(); onTaskClick(task, e); }}
-                   >
-                     {isBlocked ? <Lock size={10} className="text-current opacity-70"/> : <QuadrantIcon quadrant={task.quadrant} size={10} />}
-                     <div className="font-semibold leading-tight truncate">{task.title}</div>
-                   </div>
-                   {!task.completed && !isBlocked && (
-                      <div 
-                        className="absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize"
-                        onMouseDown={(e) => { e.stopPropagation(); handleDragStart(e, task, 'resize'); }}
-                      />
-                   )}
-                 </div>
-               );
-            })}
+         <div className="absolute top-0 left-0 right-10 bottom-0">
+            {tasksWithPositions.map(({ task, position }) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                position={position}
+                blockedTaskIds={blockedTaskIds}
+                onTaskClick={onTaskClick}
+                onDragStart={handleDragStart}
+                dragInfo={dragInfo}
+              />
+            ))}
          </div>
       </div>
     </div>

@@ -86,6 +86,18 @@ export interface Project {
 }
 
 /**
+ * 任务进展状态枚举
+ */
+export enum TaskProgress {
+  INITIAL = 'Initial',      // 初始
+  IN_PROGRESS = 'In Progress',  // 进行中
+  ON_HOLD = 'On Hold',      // 挂起
+  BLOCKED = 'Blocked',      // 阻塞
+  COMPLETED = 'Completed',  // 已完成
+  DELAYED = 'Delayed'       // 延迟
+}
+
+/**
  * 核心任务接口
  */
 export interface Task {
@@ -107,6 +119,7 @@ export interface Task {
   tags?: string[]; // 标签
   predecessorIds?: string[]; // 前置任务 ID 列表 (此任务依赖的任务)
   successorIds?: string[];   // 后置任务 ID 列表 (依赖此任务的任务)
+  progress?: TaskProgress; // 任务进展状态
 }
 
 /**

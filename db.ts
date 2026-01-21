@@ -45,6 +45,41 @@ export class NextDoDB extends Dexie {
       recurringRules: 'id, *tags'
     });
 
+    // 版本 4: 增加任务进展字段索引
+    this.version(4).stores({
+      tasks: 'id, date, projectId, priority, completed, recurringRuleId, *tags, *predecessorIds, *successorIds, progress',
+      projects: 'id, status',
+      recurringRules: 'id, *tags'
+    }).upgrade(async tx => {
+      console.log("Upgrading database to version 4: Adding progress field to tasks...");
+
+      // 获取今天的日期字符串
+      const today = new Date().toISOString().split('T')[0];
+
+      // 遍历所有任务，为没有 progress 字段的任务设置默认值
+      await tx.table('tasks').toCollection().modify(task => {
+        // 如果任务已经有 progress 字段，跳过
+        if (task.progress !== undefined) {
+          return;
+        }
+
+        // 1. 如果任务已完成，进展为 COMPLETED
+        if (task.completed) {
+          task.progress = 'Completed';
+        }
+        // 2. 如果任务有 endDate 且 endDate < 今天，且未完成，进展为 DELAYED
+        else if (task.endDate && task.endDate < today) {
+          task.progress = 'Delayed';
+        }
+        // 3. 其他情况，进展为 INITIAL
+        else {
+          task.progress = 'Initial';
+        }
+      });
+
+      console.log("Database upgrade to version 4 completed");
+    });
+
 
     /**
      * 'populate' 事件处理器。
@@ -55,7 +90,7 @@ export class NextDoDB extends Dexie {
      */
     this.on('populate', () => {
       console.log("Populating database for the first time, checking for legacy LocalStorage data...");
-      
+
       // 尝试从 localStorage 获取旧数据
       const savedTasks = localStorage.getItem('gemini-tasks-full');
       const savedRules = localStorage.getItem('gemini-recurring-rules');
@@ -63,8 +98,13 @@ export class NextDoDB extends Dexie {
 
       if (savedTasks) {
         try {
-          const tasks = JSON.parse(savedTasks);
-          this.tasks.bulkAdd(tasks); // 批量添加到新数据库
+          const tasks = JSON.parse(savedTasks) as any[];
+          // 为导入的任务添加 progress 字段
+          const tasksWithProgress = tasks.map(task => ({
+            ...task,
+            progress: task.progress || (task.completed ? 'Completed' : 'Initial')
+          }));
+          this.tasks.bulkAdd(tasksWithProgress); // 批量添加到新数据库
         } catch (e) { console.error("Failed to migrate tasks from LocalStorage:", e); }
       } else {
         // 如果没有旧数据，添加一条欢迎任务作为演示
@@ -83,7 +123,8 @@ export class NextDoDB extends Dexie {
             startTime: '09:00',
             duration: 60,
             isExpanded: false,
-            tags: ['演示', '入门']
+            tags: ['演示', '入门'],
+            progress: 'Initial' // 设置默认进展
           }
         ]);
       }

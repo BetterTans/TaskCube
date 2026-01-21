@@ -68,11 +68,11 @@ NextDo 是一款使用 React 构建的现代化、本地优先的待办事项应
 
 ## 📚 文档中心
 
-*   **[🏛️ 设计与架构](./docs/DESIGN_DOC.md)**: 深入了解应用的技术架构和运行机制。
-*   **[🗺️ 产品路线图 (Roadmap)](./docs/ROADMAP.md)**: 查看即将推出的新功能。
-*   **[✨ 优化与改进](./docs/OPTIMIZATIONS.md)**: 追踪性能和 UI/UX 的持续打磨。
-*   **[🐞 Bug 修复日志](./docs/BUG_FIX_LOG.md)**: 已解决的问题记录。
-*   **[📦 桌面端打包指南](./docs/ELECTRON_GUIDE.md)**: 如何将应用打包为桌面程序。
+*   **[🚀 快速入门](./docs/QUICK_START.md)**: Tauri 桌面应用快速入门指南
+*   **[📦 打包指南](./docs/PACKAGING.md)**: 桌面应用打包和分发详细指南
+*   **[✨ 任务进展功能](./docs/PROGRESS_FEATURE.md)**: 任务进展跟踪功能说明
+*   **[🗺️ 产品路线图 (Roadmap)](./docs/ROADMAP.md)**: 查看即将推出的新功能
+*   **[🐞 Bug 修复日志](./docs/BUG_FIX_LOG.md)**: 已解决的问题记录
 
 ## 📝 许可证
 MIT License

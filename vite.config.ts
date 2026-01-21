@@ -18,6 +18,13 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      // 使用 vite-tauri.html 作为构建入口
+      root: __dirname,
+      build: {
+        rollupOptions: {
+          input: mode === 'tauri' ? 'vite-tauri.html' : 'index.html'
+        }
       }
     };
 });

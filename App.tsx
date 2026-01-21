@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings } from './types.ts';
+import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings, TaskProgress } from './types.ts';
 import { generateTasksFromRule, parseDate } from './services/recurringService.ts';
 import { FullCalendar } from './components/FullCalendar.tsx';
 import { TableView } from './components/TableView.tsx';
@@ -204,7 +204,17 @@ export default function App() {
   const toggleTask = async (id: string) => {
     if (!tasks) return;
     const task = tasks.find(t => t.id === id);
-    if (task) await db.tasks.update(id, { completed: !task.completed });
+    if (task) {
+      const newCompleted = !task.completed;
+      const updateData: Partial<Task> = { completed: newCompleted };
+      // Sync progress with completed status
+      if (newCompleted) {
+        updateData.progress = TaskProgress.COMPLETED;
+      } else {
+        updateData.progress = TaskProgress.INITIAL;
+      }
+      await db.tasks.update(id, updateData);
+    }
   }
 
   const saveTask = async (taskData: Partial<Task>, ruleData?: Partial<RecurringRule>) => {
@@ -242,6 +252,7 @@ export default function App() {
         startTime: taskData.startTime,
         duration: taskData.duration,
         completed: false,
+        progress: TaskProgress.INITIAL, // Set default progress for new tasks
         subTasks: taskData.subTasks || [],
         createdAt: Date.now(),
         isExpanded: false,

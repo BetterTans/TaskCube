@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AISettings, ThemeMode } from '../types.ts';
+import { AISettings, ThemeMode, TaskProgress } from '../types.ts';
 import { X, Server, Key, Box, Check, RotateCcw, Moon, Sun, Monitor, Download, Upload, Database, Keyboard, Palette } from 'lucide-react';
 import { Button } from './Button.tsx';
 import { db } from '../db.ts';
@@ -123,7 +123,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       };
 
       const backupData = {
-        version: '1.0',
+        version: '1.1',
         exportedAt: new Date().toISOString(),
         database: { tasks, projects, recurringRules },
         localStorage: settingsData,
@@ -167,7 +167,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         if (!backupData.database || !backupData.localStorage) {
           throw new Error('无效的备份文件格式。');
         }
-        
+
+        // Compatibility check: handle progress field for backward compatibility
+        let tasksToImport = backupData.database.tasks || [];
+        const today = new Date().toISOString().split('T')[0];
+
+        // If no progress field exists, convert old data format
+        if (backupData.version === '1.0' || !tasksToImport.some((task: any) => task.progress !== undefined)) {
+          console.log('Detected old data format, adding progress field compatibility...');
+          tasksToImport = tasksToImport.map((task: any) => {
+            // Only add progress if it doesn't exist
+            if (!task.progress) {
+              // Backward compatibility: map completed/status to progress
+              if (task.completed) {
+                // 已完成任务
+                task.progress = TaskProgress.COMPLETED;
+              } else if (task.endDate && task.endDate < today) {
+                // 已过期但未完成的任务
+                task.progress = TaskProgress.DELAYED;
+              } else {
+                // 其他任务
+                task.progress = TaskProgress.INITIAL;
+              }
+            }
+            return task;
+          });
+        }
+
         // Step 1: Restore Database
         await db.transaction('rw', db.tasks, db.projects, db.recurringRules, async () => {
           await Promise.all([
@@ -176,24 +202,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             db.recurringRules.clear(),
           ]);
           await Promise.all([
-            db.tasks.bulkAdd(backupData.database.tasks || []),
+            db.tasks.bulkAdd(tasksToImport),
             db.projects.bulkAdd(backupData.database.projects || []),
             db.recurringRules.bulkAdd(backupData.database.recurringRules || []),
           ]);
         });
-        
+
         // Step 2: Restore LocalStorage Settings
         const lsData = backupData.localStorage;
-        
+
         // A list of all keys managed by the backup system.
         const managedKeys = [
-            'nextdo-ai-settings', 
-            'nextdo-theme', 
-            'nextdo-hotkeys', 
-            'nextdo-sidebar-collapsed', 
+            'nextdo-ai-settings',
+            'nextdo-theme',
+            'nextdo-hotkeys',
+            'nextdo-sidebar-collapsed',
             'nextdo-table-filters'
         ];
-        
+
         const backupValues = {
             'nextdo-ai-settings': lsData.aiSettings,
             'nextdo-theme': lsData.theme,

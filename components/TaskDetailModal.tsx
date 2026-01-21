@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Task, Priority, SubTask, RecurringFrequency, RecurringRule, EisenhowerQuadrant, Project } from '../types';
+import { Task, TaskProgress, Priority, SubTask, RecurringFrequency, RecurringRule, EisenhowerQuadrant, Project } from '../types';
 import { breakDownTask, parseTaskFromNaturalLanguage } from '../services/aiService';
 import { parseDate } from '../services/recurringService';
 import { Button } from './Button';
 import { RecurringOptions } from './RecurringOptions';
 import { TaskSelectorPopover } from './TaskSelectorPopover';
-import { 
-  X, 
-  Trash2, 
-  Sparkles, 
-  CheckCircle2, 
+import {
+  X,
+  Trash2,
+  Sparkles,
+  CheckCircle2,
   Circle,
   Calendar as CalendarIcon,
   AlignLeft,
@@ -25,7 +25,8 @@ import {
   Bell,
   Coffee,
   Wand2,
-  Link2
+  Link2,
+  Activity
 } from 'lucide-react';
 
 const generateUUID = () => {
@@ -77,7 +78,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSmartFilling, setIsSmartFilling] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
-  
+
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
@@ -90,8 +91,11 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   const [tags, setTags] = useState<string[]>([]);
   const [newTagInput, setNewTagInput] = useState('');
-  
+
   const [predecessorIds, setPredecessorIds] = useState<string[]>([]);
+
+  // 任务进展状态
+  const [progress, setProgress] = useState<TaskProgress>(TaskProgress.INITIAL);
 
   // 依赖选择器状态
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
@@ -111,7 +115,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setIsSmartFilling(false);
-      
+
       if (task) {
         setTitle(task.title);
         setDescription(task.description || '');
@@ -120,12 +124,13 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setStartDate(task.date || dateStr);
         setEndDate(task.endDate || '');
         setSelectedProjectId(task.projectId || '');
-        setSubtasks(task.subTasks || []); 
+        setSubtasks(task.subTasks || []);
         setTags(task.tags || []);
         setPredecessorIds(task.predecessorIds || []);
+        setProgress(task.progress || (task.completed ? TaskProgress.COMPLETED : TaskProgress.INITIAL)); // 加载任务进展
         setEditMode('single');
         setIsRecurring(!!recurringRule);
-        
+
         if (task.startTime) {
            setIsAllDay(false);
            setStartTime(task.startTime);
@@ -135,7 +140,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
            setStartTime('09:00');
            setDuration(60);
         }
-        
+
         if (recurringRule) {
            setRecurFreq(recurringRule.frequency);
            setRecurInterval(recurringRule.interval);
@@ -162,19 +167,20 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         setDescription('');
         setPriority(Priority.MEDIUM);
         setQuadrant(EisenhowerQuadrant.Q2);
-        setStartDate(dateStr); 
+        setStartDate(dateStr);
         setEndDate(dateStr);
         setSelectedProjectId(initialProjectId || '');
-        setSubtasks([]); 
+        setSubtasks([]);
         setTags([]);
         setPredecessorIds([]);
+        setProgress(TaskProgress.INITIAL); // 新任务默认进展为初始
         setEditMode('single');
         setIsRecurring(false);
         setRecurFreq('daily');
         setRecurInterval(1);
         setRecurStartDate(dateStr);
         setRecurEndDate('');
-        
+
         if (initialTime) {
            setIsAllDay(false);
            setStartTime(initialTime);
@@ -357,6 +363,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             subTasks: subtasks,
             tags: tags,
             predecessorIds: predecessorIds,
+            progress: progress, // 保存任务进展
             ...timeData,
         };
         // If task was recurring but is now single, detach it from the rule.
@@ -483,6 +490,28 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                               </button>
                            ))}
                         </div>
+                     </div>
+                </div>
+
+                {/* Progress */}
+                <div className="p-3 flex items-center">
+                     <div className="flex items-center gap-2 w-24 shrink-0 text-gray-700 dark:text-gray-300">
+                        <div className="bg-green-500 rounded-md p-1 text-white"><Activity size={14}/></div>
+                        <span className="text-sm font-medium">进展</span>
+                     </div>
+                     <div className="flex-1 flex justify-end">
+                        <select
+                          value={progress}
+                          onChange={(e) => setProgress(e.target.value as TaskProgress)}
+                          className="bg-gray-100 dark:bg-zinc-800 rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-indigo-500 text-sm border-none min-w-[120px]"
+                        >
+                          <option value={TaskProgress.INITIAL}>初始</option>
+                          <option value={TaskProgress.IN_PROGRESS}>进行中</option>
+                          <option value={TaskProgress.ON_HOLD}>挂起</option>
+                          <option value={TaskProgress.BLOCKED}>阻塞</option>
+                          <option value={TaskProgress.COMPLETED}>已完成</option>
+                          <option value={TaskProgress.DELAYED}>延迟</option>
+                        </select>
                      </div>
                 </div>
 

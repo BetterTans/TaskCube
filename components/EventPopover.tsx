@@ -46,39 +46,81 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
   // 状态：管理浮窗的位置 (top, left) 和透明度
   const [position, setPosition] = useState({ top: 0, left: 0, opacity: 0 });
 
+  // 当浮窗关闭时重置位置
+  useEffect(() => {
+    if (!isOpen) {
+      setPosition({ top: 0, left: 0, opacity: 0 });
+    }
+  }, [isOpen]);
+
   // 核心定位逻辑：当浮窗打开或锚点变化时，重新计算其位置
   useEffect(() => {
     const calculatePosition = () => {
-      if (!anchorEl || !popoverRef.current) return;
+      try {
+        if (!anchorEl || !popoverRef.current) {
+          console.warn('EventPopover: anchorEl or popoverRef not available');
+          return;
+        }
 
-      const anchorRect = anchorEl.getBoundingClientRect();
-      const popoverRect = popoverRef.current.getBoundingClientRect();
-      const viewWidth = window.innerWidth;
-      const viewHeight = window.innerHeight;
+        const anchorRect = anchorEl.getBoundingClientRect();
+        const popoverRect = popoverRef.current.getBoundingClientRect();
+        const viewWidth = window.innerWidth || document.documentElement.clientWidth;
+        const viewHeight = window.innerHeight || document.documentElement.clientHeight;
 
-      // 默认显示在锚点下方
-      let top = anchorRect.bottom + 8;
-      let left = anchorRect.left + anchorRect.width / 2 - popoverRect.width / 2;
+        // 检查getBoundingClientRect是否返回了有效数值
+        if (!anchorRect || typeof anchorRect.left !== 'number' || typeof anchorRect.top !== 'number') {
+          console.warn('EventPopover: anchorRect is invalid', anchorRect);
+          return;
+        }
 
-      // 如果下方空间不足，则显示在锚点上方
-      if (top + popoverRect.height > viewHeight - 20) {
-        top = anchorRect.top - popoverRect.height - 8;
+        // 检查是否是不正常的位置（比如所有值都是0）
+        // 这可能发生在元素尚未完全渲染或被隐藏的情况下
+        const isZeroPosition = anchorRect.left === 0 && anchorRect.top === 0 &&
+                              anchorRect.width === 0 && anchorRect.height === 0;
+
+        // 默认显示在锚点下方
+        let top = anchorRect.bottom + 8;
+        let left = anchorRect.left + anchorRect.width / 2 - popoverRect.width / 2;
+
+        // 如果是零位置或看起来不合理的位置，默认显示在屏幕中心
+        if (isZeroPosition || !top || !left || !isFinite(top) || !isFinite(left)) {
+          console.warn('EventPopover: Detected invalid position, using fallback', { anchorRect });
+          // 默认显示在屏幕中心附近
+          top = 100;
+          left = (viewWidth - popoverRect.width) / 2;
+        } else {
+          // 正常计算的位置需要调整以适应屏幕边界
+
+          // 如果下方空间不足，则显示在锚点上方
+          if (top + popoverRect.height > viewHeight - 20) {
+            top = anchorRect.top - popoverRect.height - 8;
+          }
+
+          // 避免超出屏幕左侧
+          if (left < 10) left = 10;
+          // 避免超出屏幕右侧
+          if (left + popoverRect.width > viewWidth - 10) {
+            left = viewWidth - popoverRect.width - 10;
+          }
+
+          // 确保top不会超出屏幕上方
+          if (top < 10) top = 10;
+        }
+
+        setPosition({ top, left, opacity: 1 });
+      } catch (error) {
+        console.error('EventPopover: Error calculating position', error);
+        // 发生错误时，使用安全位置
+        setPosition({ top: 100, left: (window.innerWidth - 288) / 2, opacity: 1 });
       }
-      
-      // 避免超出屏幕左侧
-      if (left < 10) left = 10;
-      // 避免超出屏幕右侧
-      if (left + popoverRect.width > viewWidth - 10) {
-        left = viewWidth - popoverRect.width - 10;
-      }
-
-      setPosition({ top, left, opacity: 1 });
     };
 
     if (isOpen) {
-      // 使用 requestAnimationFrame 确保在浏览器下一次绘制前计算位置，
-      // 此时 popover 已经渲染，可以获取到正确的尺寸。
-      requestAnimationFrame(calculatePosition);
+      // 使用 requestAnimationFrame + setTimeout 双重保障，
+      // 确保在浏览器下一次绘制前计算位置
+      requestAnimationFrame(() => {
+        setTimeout(calculatePosition, 0);
+      });
     }
   }, [isOpen, anchorEl, task]);
 

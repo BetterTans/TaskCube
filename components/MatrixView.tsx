@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Task, Project, EisenhowerQuadrant, Priority } from '../types';
-import { Zap, Star, Bell, Coffee, Clock, AlignLeft, ChevronDown, Lock } from 'lucide-react';
+import { Task, Project, EisenhowerQuadrant, Priority, TaskProgress } from '../types';
+import { Zap, Star, Bell, Coffee, Clock, AlignLeft, ChevronDown, Lock, Activity } from 'lucide-react';
 
 interface MatrixViewProps {
   tasks: Task[];
@@ -62,6 +62,22 @@ interface MatrixTaskCardProps {
   onClick: (task: Task, event: React.MouseEvent) => void;
 }
 
+const getProgressDisplay = (progress?: TaskProgress) => {
+  const progressText = progress || TaskProgress.INITIAL;
+  const progressStyles: Record<TaskProgress, { color: string }> = {
+    [TaskProgress.INITIAL]: { color: 'text-gray-400' },
+    [TaskProgress.IN_PROGRESS]: { color: 'text-blue-400' },
+    [TaskProgress.ON_HOLD]: { color: 'text-yellow-400' },
+    [TaskProgress.BLOCKED]: { color: 'text-red-400' },
+    [TaskProgress.COMPLETED]: { color: 'text-green-400' },
+    [TaskProgress.DELAYED]: { color: 'text-orange-400' }
+  };
+  return {
+    text: progressText,
+    style: progressStyles[progressText]
+  };
+};
+
 const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDragEnd, onClick }: MatrixTaskCardProps) => {
   const priorityColor = {
     [Priority.HIGH]: 'bg-red-500',
@@ -81,6 +97,7 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
         <div className="flex-1 flex items-start gap-2">
             {isBlocked && <Lock size={14} className="text-gray-400 mt-0.5 shrink-0" />}
             <p className={`font-semibold text-gray-800 dark:text-gray-100 leading-snug break-words ${task.completed ? 'line-through' : ''}`}>{task.title}</p>
+            <Activity size={12} className={`${getProgressDisplay(task.progress).style.color} mt-0.5`} />
         </div>
         <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5 ${priorityColor[task.priority]}`} title={`优先级: ${task.priority}`}></div>
       </div>

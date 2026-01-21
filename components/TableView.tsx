@@ -1,10 +1,10 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { Task, Priority, EisenhowerQuadrant, Project } from '../types';
+import { Task, TaskProgress, Priority, EisenhowerQuadrant, Project } from '../types';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { 
-  CheckCircle2, 
-  Circle, 
+import {
+  CheckCircle2,
+  Circle,
   Filter as FilterIcon,
   Search,
   AlignLeft,
@@ -14,7 +14,8 @@ import {
   Zap,
   Star,
   Bell,
-  Coffee
+  Coffee,
+  Activity
 } from 'lucide-react';
 
 interface TableViewProps {
@@ -32,6 +33,7 @@ interface TableFilters {
     priority: 'all' | Priority;
     project: 'all' | string;
     quadrant: 'all' | EisenhowerQuadrant;
+    progress: 'all' | TaskProgress; // 任务进展筛选
     date: string; // YYYY-MM-DD, empty for all
     tags: string; // a single tag, empty for all
 }
@@ -54,6 +56,7 @@ const getInitialFilters = (): TableFilters => {
                 priority: parsed.priority || 'all',
                 project: parsed.project || 'all',
                 quadrant: parsed.quadrant || 'all',
+                progress: parsed.progress || 'all', // 添加进展筛选
                 date: parsed.date || '',
                 tags: parsed.tags || '',
             };
@@ -65,6 +68,7 @@ const getInitialFilters = (): TableFilters => {
         priority: 'all',
         project: 'all',
         quadrant: 'all',
+        progress: 'all', // 默认显示所有进展
         date: '',
         tags: '',
     };
@@ -119,6 +123,7 @@ const FilterPopover: React.FC<{
             case 'priority': return (<div className="p-2 space-y-1">{(['all', ...Object.values(Priority)]).map(p => (<button key={p} onClick={() => { onFilterChange('priority', p); onClose(); }} className={`${baseBtnClass} ${filters.priority === p ? activeBtnClass : ''}`}>{p === 'all' ? '全部' : p}</button>))}</div>);
             case 'project': return (<div className="p-2 space-y-1"><button onClick={() => { onFilterChange('project', 'all'); onClose(); }} className={`${baseBtnClass} ${filters.project === 'all' ? activeBtnClass : ''}`}>全部项目</button>{projects.map(p => (<button key={p.id} onClick={() => { onFilterChange('project', p.id); onClose(); }} className={`${baseBtnClass} ${filters.project === p.id ? activeBtnClass : ''}`}>{p.title}</button>))}</div>);
             case 'quadrant': return (<div className="p-2 space-y-1"><button onClick={() => { onFilterChange('quadrant', 'all'); onClose(); }} className={`${baseBtnClass} ${filters.quadrant === 'all' ? activeBtnClass : ''}`}>全部</button>{Object.values(EisenhowerQuadrant).map(q => { const info = quadrantInfo[q]; return (<button key={q} onClick={() => { onFilterChange('quadrant', q); onClose(); }} className={`${baseBtnClass} ${filters.quadrant === q ? activeBtnClass : ''} flex items-center gap-2`}>{info.icon} {info.title}</button>); })}</div>);
+            case 'progress': return (<div className="p-2 space-y-1"><button onClick={() => { onFilterChange('progress', 'all'); onClose(); }} className={`${baseBtnClass} ${filters.progress === 'all' ? activeBtnClass : ''}`}>全部</button>{Object.values(TaskProgress).map(p => (<button key={p} onClick={() => { onFilterChange('progress', p); onClose(); }} className={`${baseBtnClass} ${filters.progress === p ? activeBtnClass : ''}`}>{p}</button>))}</div>);
             case 'date': return (<div className="p-2"><input type="date" value={filters.date} onChange={e => { onFilterChange('date', e.target.value); onClose(); }} className="w-full bg-gray-50 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg px-2 py-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark"/></div>);
             case 'tags': return (<div className="p-2 space-y-1 max-h-48 overflow-y-auto custom-scrollbar"><button onClick={() => { onFilterChange('tags', ''); onClose(); }} className={`${baseBtnClass} ${!filters.tags ? activeBtnClass : ''}`}>全部标签</button>{allTags.map(tag => (<button key={tag} onClick={() => { onFilterChange('tags', tag); onClose(); }} className={`${baseBtnClass} ${filters.tags === tag ? activeBtnClass : ''}`}>{tag}</button>))}</div>);
             default: return null;
@@ -150,7 +155,7 @@ const FilterPopover: React.FC<{
 
 
 export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTaskIds, onTaskClick, onToggleTask, onUpdateTask }) => {
-  const [colWidths, setColWidths] = useState<Record<string, number>>({ status: 80, title: 300, project: 140, priority: 100, quadrant: 160, date: 120, tags: 160, subtasks: 100 });
+  const [colWidths, setColWidths] = useState<Record<string, number>>({ status: 80, title: 300, project: 140, priority: 100, quadrant: 160, progress: 140, date: 120, tags: 160, subtasks: 100 });
   const [filters, setFilters] = useState<TableFilters>(getInitialFilters);
   
   interface PopoverState {
@@ -209,6 +214,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
         if (filters.project !== 'all' && task.projectId !== filters.project) return false;
         if (filters.search && !(task.title || '').toLowerCase().includes(filters.search.toLowerCase())) return false;
         if (filters.quadrant !== 'all' && (task.quadrant || 'Q2') !== filters.quadrant) return false;
+        if (filters.progress !== 'all' && (task.progress || TaskProgress.INITIAL) !== filters.progress) return false; // 筛选进展
         if (filters.date && task.date !== filters.date) return false;
         if (filters.tags && (!task.tags || !task.tags.includes(filters.tags))) return false;
         return true;
@@ -221,7 +227,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
 
   // FIX: Cast Object.values result to number[] to ensure correct type inference in reduce.
   const totalWidth = (Object.values(colWidths) as number[]).reduce((acc, w) => acc + w, 0);
-  const headers: Record<string, string> = { status: '状态', title: '任务标题', project: '项目', priority: '优先级', quadrant: '四象限', date: '日期', tags: '标签', subtasks: '子任务'};
+  const headers: Record<string, string> = { status: '状态', title: '任务标题', project: '项目', priority: '优先级', quadrant: '四象限', progress: '进展', date: '日期', tags: '标签', subtasks: '子任务'};
 
   const getProjectTitle = (projectId?: string) => projects.find(p => p.id === projectId)?.title || null;
 
@@ -232,7 +238,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
           <div className="bg-gray-50 dark:bg-zinc-900 sticky top-0 z-20 border-b border-gray-200 dark:border-zinc-800 shadow-sm flex">
             {Object.keys(colWidths).map(key => {
                  const filterKey = key === 'title' ? 'search' : key;
-                 const hasFilter = ['search', 'status', 'priority', 'project', 'quadrant', 'date', 'tags'].includes(filterKey);
+                 const hasFilter = ['search', 'status', 'priority', 'project', 'quadrant', 'progress', 'date', 'tags'].includes(filterKey);
                  const isFilterActive = (filters as any)[filterKey] && (filters as any)[filterKey] !== 'all';
                  
                  return (
@@ -260,6 +266,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
                         {key === 'project' && <div className="text-sm text-gray-600 dark:text-gray-300 truncate">{getProjectTitle(task.projectId)}</div>}
                         {key === 'priority' && <div className="text-sm text-gray-600 dark:text-gray-300">{task.priority}</div>}
                         {key === 'quadrant' && (() => { const info = task.quadrant && quadrantInfo[task.quadrant]; return info ? (<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">{info.icon}<span>{info.title}</span></div>) : null; })()}
+                        {key === 'progress' && <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"><Activity size={14} className="text-gray-400"/><span>{task.progress || 'Initial'}</span></div>}
                         {key === 'date' && <div className="text-sm text-gray-600 dark:text-gray-300">{task.date}</div>}
                         {key === 'tags' && <div className="flex flex-wrap gap-1">{task.tags?.map(tag => <span key={tag} className="text-xs bg-gray-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded">{tag}</span>)}</div>}
                         {key === 'subtasks' && <div className="text-center w-full text-sm text-gray-500 dark:text-gray-400">{task.subTasks?.length > 0 && (<span className="flex items-center justify-center gap-1.5"><AlignLeft size={12} /><span>{task.subTasks.filter(s => s.completed).length}/{task.subTasks.length}</span></span>)}</div>}

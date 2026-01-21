@@ -3,35 +3,36 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:tauri": "vite build --mode tauri",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:build": "vite build && electron-builder",
-    "dist": "vite build && electron-builder",
-    "dist:win": "vite build && electron-builder --win --x64",
-    "dist:mac": "vite build && electron-builder --mac",
-    "dist:linux": "vite build && electron-builder --linux"
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "npm run build:tauri && tauri build",
+    "tauri:build:win": "npm run build:tauri && tauri build --target x86_64-pc-windows-msvc",
+    "tauri:build:mac": "npm run build:tauri && tauri build --target aarch64-apple-darwin",
+    "tauri:build:linux": "npm run build:tauri && tauri build --target x86_64-unknown-linux-gnu"
   },
   "dependencies": {
     "@google/genai": "^1.37.0",
+    "@tailwindcss/postcss": "^4.1.18",
     "@tanstack/react-virtual": "^3.7.0",
+    "autoprefixer": "^10.4.23",
     "dexie": "4.0.1",
     "dexie-react-hooks": "1.1.6",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.9.6",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "concurrently": "^9.2.1",
-    "electron": "^40.0.0",
-    "electron-builder": "^26.4.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.0",
-    "wait-on": "^9.0.3"
+    "vite": "^6.2.0"
   }
 }

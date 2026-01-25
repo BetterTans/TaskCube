@@ -1,0 +1,30 @@
+App.tsx:71 - default
+db.ts:8 - NextDoDB (used in module)
+db.ts:150 - db
+postcss.config.js:1 - default
+tailwind.config.js:2 - default
+types.ts:128 - ThemeMode
+vite.config.ts:5 - default
+components/Calendar.tsx:24 - Calendar
+components/CommandPalette.tsx:13 - Command (used in module)
+components/CommandPalette.tsx:38 - CommandPalette
+components/DayTaskListModal.tsx:31 - DayTaskListModal
+components/DayTimeView.tsx:532 - DayTimeView
+components/EventPopover.tsx:34 - EventPopover
+components/FullCalendar.tsx:327 - FullCalendar
+components/MatrixView.tsx:130 - MatrixView
+components/MonthYearPicker.tsx:20 - MonthYearPicker
+components/ProjectDetailModal.tsx:30 - ProjectDetailModal
+components/ProjectListModal.tsx:19 - ProjectListModal
+components/RecurringManager.tsx:27 - RecurringManager
+components/SettingsModal.tsx:75 - SettingsModal
+components/Skeletons.tsx:17 - CalendarSkeleton
+components/Skeletons.tsx:34 - DayViewSkeleton
+components/Skeletons.tsx:58 - MatrixSkeleton
+components/Skeletons.tsx:73 - TableSkeleton
+components/TableView.tsx:157 - TableView
+components/TaskDetailModal.tsx:59 - TaskDetailModal
+components/TaskInput.tsx:17 - TaskInput
+components/TaskItem.tsx:49 - TaskItem
+hooks/useHotkeys.ts:24 - useHotkeys
+services/recurringService.ts:70 - generateTasksFromRule

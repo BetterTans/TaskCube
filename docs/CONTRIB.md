@@ -7,8 +7,8 @@
 - Rust 工具链 （用于 Tauri 桌面应用构建）
 
 ### 安装依赖
-default
-cd /Users/tan/Development/TaskCube
+
+```bash
 npm install
 ```
 
@@ -56,13 +56,10 @@ npm run preview  # 预览构建结果
 
 **桌面应用:**
 ```bash
-# 构建当前平台版本
-npm run tauri:build
-
-# 跨平台构建
-npm run tauri:build:win    # Windows
-npm run tauri:build:mac    # macOS
-npm run tauri:build:linux  # Linux
+npm run tauri:build          # 当前平台
+npm run tauri:build:mac      # macOS
+npm run tauri:build:win      # Windows
+npm run tauri:build:linux    # Linux
 ```
 
 ## 代码结构
@@ -70,29 +67,50 @@ npm run tauri:build:linux  # Linux
 ### 主要目录
 
 ```
-TaskCube/
+NextDo/
 ├── index.html              # Web 入口文件
-├── src-tauri/              # Tauri 桌面应用源码（Rust）
-│   ├── src/
-│   │   └── main.rs        # 主应用入口
-│   └── ta.json    # Tauri 配置
+├── vite-tauri.html         # Tauri 构建入口
+├── index.tsx               # React 入口
+├── App.tsx                 # 应用根组件
+├── types.ts                # TypeScript 类型定义
+├── db.ts                   # IndexedDB 封装（Dexie.js）
 ├── components/             # React 组件
-│   ├── *.tsx              # 各种视图组件
-│   └── modals/            # 模态框组件
-├── services/              # 业务逻辑服务
-│   ├── aiService.ts       # AI 集成功能
+│   ├── Button.tsx
+│   ├── CommandPalette.tsx
+│   ├── DayTimeView.tsx
+│   ├── EventPopover.tsx
+│   ├── FullCalendar.tsx
+│   ├── MatrixView.tsx
+│   ├── ProjectDetailModal.tsx
+│   ├── ProjectListModal.tsx
+│   ├── RecurringManager.tsx
+│   ├── RecurringOptions.tsx
+│   ├── SettingsModal.tsx
+│   ├── Skeletons.tsx
+│   ├── TableView.tsx
+│   ├── TaskDetailModal.tsx
+│   └── TaskSelectorPopover.tsx
+├── hooks/                  # React 钩子
+│   └── useHotkeys.ts
+├── services/               # 业务逻辑服务
+│   ├── aiService.ts        # AI 集成功能
 │   └── recurringService.ts # 重复任务逻辑
-├── db.ts                  # IndexedDB 封装
-├── types.ts               # TypeScript 类型定义
-└── CLAUDE.md             # Claude Code 配置文档
+├── src/                    # 静态资源
+│   └── index.css           # Tailwind CSS 入口
+├── src-tauri/              # Tauri 桌面应用源码（Rust）
+│   ├── src/main.rs         # 主应用入口
+│   └── tauri.conf.json     # Tauri 配置
+└── docs/                   # 项目文档
 ```
 
 ### 关键组件
 
-- **App.tsx** - 应用根组件，路由分发
+- **App.tsx** - 应用根组件，路由分发与视图管理
 - **components/** - 各种视图组件（日历、表格、矩阵视图等）
-- **services/** - 核心业务逻辑服务
-- **db.ts** - 本地数据库存储（IndexedDB）
+- **services/aiService.ts** - AI 集成（自然语言解析、任务拆解）
+- **services/recurringService.ts** - 周期性任务生成逻辑
+- **db.ts** - 本地数据库存储（IndexedDB/Dexie.js）
+- **hooks/useHotkeys.ts** - 全局快捷键管理
 
 ## 数据架构
 
@@ -103,9 +121,9 @@ TaskCube/
 **主要表:**
 - `tasks` - 任务数据
 - `projects` - 项目信息
-- `settings` - 应用设置
+- `recurringRules` - 周期性任务规则
 
-**当前版本:** v4（包含任务进度功能）
+**当前数据库版本:** v4（包含任务进度功能）
 
 ## AI 集成
 
@@ -139,10 +157,6 @@ AI 功能通过 `aiService.ts` 实现，支持任何 OpenAI 兼容的 API。
 - 持久存储，独立于浏览器
 - 跨平台支持（Windows、macOS、Linux）
 
-## 环境变量
-
-项目没有 `.env.example` 文件，说明不需要特殊的运行时环境变量配置。
-
 ## 测试
 
 当前项目未配置自动化测试框架，需要手动测试。
@@ -156,7 +170,6 @@ AI 功能通过 `aiService.ts` 实现，支持任何 OpenAI 兼容的 API。
 - [ ] 导入数据
 - [ ] AI 功能集成
 - [ ] 离线模式工作正常
-- [ ] 桌面应用打包和运行
 
 ## 代码风格指南
 
@@ -164,7 +177,6 @@ AI 功能通过 `aiService.ts` 实现，支持任何 OpenAI 兼容的 API。
 - 使用 ES modules (package.json: `"type": "module"`)
 - 组件使用 TypeScript 和 React 函数组件
 - 使用 Tailwind CSS 进行样式设计
-- 代码注释使用中文（历史模式）
 
 ### Git 工作流程
 
@@ -182,30 +194,6 @@ refactor: 代码重构
 test: 测试更新
 ```
 
-## 构建和部署
-
-### Web 应用部署
-
-**快速启动方式:**
-- 使用 VS Code Live Server 扩展
-- WebStorm 内置服务器
-- 任何支持静态文件的 Web 服务器
-
-参见 `docs/QUICK_START.md` 了解更多选项。
-
-### 桌面应用打包
-
-**Windows 特别说明:**
-- 构建包含 WebView2 运行时（261MB）
-- 生成便携 ZIP 包（~268MB 总大小）
-- 无需安装，解压即可运行
-
-**构建输出位置:**
-- `src-tauri/target/release/bundle/` - 各平台安装包
-- Windows 便携包在 `src-tauri/target/release/` 目录
-
-参考 `docs/PACKAGING.md` 获取详细打包指南。
-
 ## 故障排除
 
 ### 常见问题
@@ -216,27 +204,8 @@ test: 测试更新
 
 2. **Tauri 构建失败**
    - 检查 Rust 工具链是否正确安装
-   - 确保必要的系统依赖（特别是 Linux）
+   - Linux 需要安装 `libgtk-3-dev`、`libwebkit2gtk-4.0-dev`
 
 3. **IndexedDB 问题**
    - 清除浏览器数据会删除任务数据
    - 桌面应用数据存储在系统用户目录，不受影响
-
-### 更多信息
-
-- **快速开始:** `docs/QUICK_START.md`
-- **功能路线:** `docs/ROADMAP.md`
-- **打包指南:** `docs/PACKAGING.md`
-- **Bug 修复记录:** `docs/BUG_FIX_LOG.md`
-
-## 获取帮助
-
-如需帮助或发现 bug：
-1. 查看现有文档
-2. 检查 `docs/BUG_FIX_LOG.md` 是否已有解决方案
-3. 使用分析工具运行死代码检测：`npx depcheck`, `npx knip`
-4. 确保代码符合 `CLAUDE.md` 中的项目规范
-
----
-
-*本文档由 everything-claude-code:update-docs 技能自动生成*

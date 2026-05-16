@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Task, Project, EisenhowerQuadrant, Priority, TaskProgress } from '../types';
-import { Zap, Star, Bell, Coffee, Clock, AlignLeft, ChevronDown, Lock, Activity } from 'lucide-react';
+import { Zap, Star, Bell, Coffee, Clock, AlignLeft, ChevronDown, Lock } from 'lucide-react';
+import { getProgressDisplay } from '../utils/taskDisplay';
+import { priorityDotColors, priorityBadgeStyles, quadrantStyles, getQuadrantTint, getProgressBadge } from '../config/taskColors';
 
 interface MatrixViewProps {
   tasks: Task[];
@@ -53,37 +55,19 @@ const QuadrantHeader = ({
   </div>
 );
 
-interface MatrixTaskCardProps {
+interface MatrixTaskCardPropsInternal {
   task: Task;
-  project?: Project;
+  project: Project | undefined;
   isBlocked: boolean;
   onDragStart: (e: React.DragEvent, taskId: string) => void;
   onDragEnd: () => void;
   onClick: (task: Task, event: React.MouseEvent) => void;
 }
 
-const getProgressDisplay = (progress?: TaskProgress) => {
-  const progressText = progress || TaskProgress.INITIAL;
-  const progressStyles: Record<TaskProgress, { color: string }> = {
-    [TaskProgress.INITIAL]: { color: 'text-gray-400' },
-    [TaskProgress.IN_PROGRESS]: { color: 'text-blue-400' },
-    [TaskProgress.ON_HOLD]: { color: 'text-yellow-400' },
-    [TaskProgress.BLOCKED]: { color: 'text-red-400' },
-    [TaskProgress.COMPLETED]: { color: 'text-green-400' },
-    [TaskProgress.DELAYED]: { color: 'text-orange-400' }
-  };
-  return {
-    text: progressText,
-    style: progressStyles[progressText]
-  };
-};
-
-const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDragEnd, onClick }: MatrixTaskCardProps) => {
-  const priorityColor = {
-    [Priority.HIGH]: 'bg-red-500',
-    [Priority.MEDIUM]: 'bg-orange-400',
-    [Priority.LOW]: 'bg-blue-400',
-  };
+const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDragEnd, onClick }: MatrixTaskCardPropsInternal) => {
+  const dot = priorityDotColors[task.priority];
+  const badge = priorityBadgeStyles[task.priority];
+  const progressDisplay = getProgressDisplay(task.progress);
 
   return (
     <div
@@ -97,21 +81,21 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
         <div className="flex-1 flex items-start gap-2">
             {isBlocked && <Lock size={14} className="text-gray-400 mt-0.5 shrink-0" />}
             <p className={`font-semibold text-gray-800 dark:text-gray-100 leading-snug break-words ${task.completed ? 'line-through' : ''}`}>{task.title}</p>
-            <Activity size={12} className={`${getProgressDisplay(task.progress).style.color} mt-0.5`} />
         </div>
-        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5 ${priorityColor[task.priority]}`} title={`优先级: ${task.priority}`}></div>
+        <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1.5 ${dot.light} ${dot.dark}`} title={`优先级: ${badge.label}`}></div>
       </div>
-      
-      <div className="flex items-center justify-between mt-4 text-xs text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-3">
+
+      <div className="flex items-center justify-between mt-3 text-xs">
+        <div className="flex items-center gap-2">
+          <span className={`px-1.5 py-0.5 rounded-md font-medium ${progressDisplay.style.badge}`}>{progressDisplay.label}</span>
           {task.startTime && (
-            <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
+            <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
               <Clock size={12} />
               <span>{task.startTime}</span>
             </div>
           )}
           {task.subTasks.length > 0 && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
               <AlignLeft size={12} />
               <span>{task.subTasks.filter(s => s.completed).length}/{task.subTasks.length}</span>
             </div>
@@ -144,12 +128,11 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
       [EisenhowerQuadrant.Q4]: [],
     };
     filteredTasks.forEach(task => {
-        const quadrant = task.quadrant || EisenhowerQuadrant.Q2; // Default to Q2
+        const quadrant = task.quadrant || EisenhowerQuadrant.Q2;
         if (q[quadrant]) {
             q[quadrant].push(task);
         }
     });
-    // Sort tasks within each quadrant
     for (const key in q) {
         q[key as EisenhowerQuadrant].sort((a, b) => {
             if (a.completed !== b.completed) return a.completed ? 1 : -1;
@@ -174,17 +157,17 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
     e.dataTransfer.effectAllowed = 'move';
     setDraggedTaskId(taskId);
   }, []);
-  
+
   const handleDragEnd = useCallback(() => {
     setDraggedTaskId(null);
     setDragOverQuadrant(null);
   }, []);
-  
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
-  
+
   const handleDrop = (e: React.DragEvent, targetQuadrant: EisenhowerQuadrant) => {
     e.preventDefault();
     const taskId = e.dataTransfer.getData('text/plain');
@@ -195,46 +178,53 @@ export const MatrixView: React.FC<MatrixViewProps> = ({ tasks, projects, blocked
     setDraggedTaskId(null);
     setDragOverQuadrant(null);
   };
-  
+
   const handleDragEnter = (e: React.DragEvent, quadrant: EisenhowerQuadrant) => {
      e.preventDefault();
      if(draggedTaskId) {
          setDragOverQuadrant(quadrant);
      }
   }
-  
+
   const handleDragLeave = (e: React.DragEvent) => {
       e.preventDefault();
       setDragOverQuadrant(null);
   }
 
   const quadrantOrder: EisenhowerQuadrant[] = [EisenhowerQuadrant.Q1, EisenhowerQuadrant.Q2, EisenhowerQuadrant.Q3, EisenhowerQuadrant.Q4];
-  const quadrantInfo = {
-    [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', subtitle: '立即处理', icon: <Zap size={24} className="text-red-500"/> },
-    [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', subtitle: '计划执行', icon: <Star size={24} className="text-green-600"/> },
-    [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', subtitle: '审慎处理', icon: <Bell size={24} className="text-orange-500"/> },
-    [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', subtitle: '暂缓排除', icon: <Coffee size={24} className="text-blue-500"/> },
+  const quadrantIcons = {
+    [EisenhowerQuadrant.Q1]: <Zap size={24} className={quadrantStyles[EisenhowerQuadrant.Q1].iconColor}/>,
+    [EisenhowerQuadrant.Q2]: <Star size={24} className={quadrantStyles[EisenhowerQuadrant.Q2].iconColor}/>,
+    [EisenhowerQuadrant.Q3]: <Bell size={24} className={quadrantStyles[EisenhowerQuadrant.Q3].iconColor}/>,
+    [EisenhowerQuadrant.Q4]: <Coffee size={24} className={quadrantStyles[EisenhowerQuadrant.Q4].iconColor}/>,
+  };
+  const quadrantLabels = {
+    [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', subtitle: '立即处理' },
+    [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', subtitle: '计划执行' },
+    [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', subtitle: '审慎处理' },
+    [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', subtitle: '暂缓排除' },
   };
 
   return (
     <div className="h-full overflow-y-auto custom-scrollbar p-2 sm:p-6">
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {quadrantOrder.map(qId => {
           const isCollapsed = collapsedQuadrants.has(qId);
-          const { title, subtitle, icon } = quadrantInfo[qId];
+          const qs = quadrantStyles[qId];
+          const { title, subtitle } = quadrantLabels[qId];
           return (
-            <div key={qId} className="flex flex-col">
+            <div key={qId} className={`flex flex-col rounded-2xl ${qs.tint} transition-colors`}>
               <QuadrantHeader
                 id={qId}
                 title={title}
                 subtitle={subtitle}
-                icon={icon}
+                icon={quadrantIcons[qId]}
                 taskCount={quadrants[qId].length}
                 isCollapsed={isCollapsed}
                 onToggleCollapse={toggleQuadrantCollapse}
               />
               <div className={`transition-[grid-template-rows] duration-300 ease-in-out grid ${isCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'} flex-1`}>
-                <div 
+                <div
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, qId)}
                   onDragEnter={(e) => handleDragEnter(e, qId)}

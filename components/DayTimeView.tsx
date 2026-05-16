@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect, useMemo } from 'react';
 import { Task, Priority, EisenhowerQuadrant, TaskProgress } from '../types';
 import { Plus, Zap, Star, Bell, Coffee, Lock, Activity } from 'lucide-react';
+import { getProgressDisplay } from '../utils/taskDisplay';
+import { progressIconColors } from '../config/taskColors';
+import { formatDate as formatDateUtil, getTodayString } from '../utils/dateUtils';
 
 interface DayTimeViewProps {
   currentDate: Date;
@@ -12,23 +15,6 @@ interface DayTimeViewProps {
   onDateChange: (date: Date) => void;
   onUpdateTask: (task: Partial<Task>) => void;
 }
-
-// FIX: Add helper components and functions
-const getProgressDisplay = (progress?: TaskProgress) => {
-  const progressText = progress || TaskProgress.INITIAL;
-  const progressStyles: Record<TaskProgress, { color: string }> = {
-    [TaskProgress.INITIAL]: { color: 'text-gray-400' },
-    [TaskProgress.IN_PROGRESS]: { color: 'text-blue-400' },
-    [TaskProgress.ON_HOLD]: { color: 'text-yellow-400' },
-    [TaskProgress.BLOCKED]: { color: 'text-red-400' },
-    [TaskProgress.COMPLETED]: { color: 'text-green-400' },
-    [TaskProgress.DELAYED]: { color: 'text-orange-400' }
-  };
-  return {
-    text: progressText,
-    style: progressStyles[progressText]
-  };
-};
 
 const QuadrantIcon = ({ quadrant, size = 12 }: { quadrant?: EisenhowerQuadrant, size?: number }) => {
   const props = { size, className: "text-current opacity-70 flex-shrink-0" };
@@ -61,11 +47,6 @@ const CurrentTimeIndicator = () => {
       </div>
     </div>
   );
-};
-
-const formatDate = (date: Date): string => {
-  const offset = date.getTimezoneOffset() * 60000;
-  return new Date(date.getTime() - offset).toISOString().split('T')[0];
 };
 
 interface DragInfo {
@@ -151,7 +132,7 @@ const DayBlock = React.memo(({
   const containerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
-  const dateStr = useMemo(() => formatDate(date), [date]);
+  const dateStr = useMemo(() => formatDateUtil(date), [date]);
   
   const dayTasks = useMemo(() => tasks.filter(t => t.date === dateStr || (t.endDate && t.date <= dateStr && t.endDate >= dateStr)), [tasks, dateStr]);
 
@@ -279,8 +260,8 @@ const DayBlock = React.memo(({
 
   // FIX: Define getLabel function
   const getLabel = useCallback(() => {
-    const today = formatDate(new Date());
-    const tomorrow = formatDate(new Date(Date.now() + 86400000));
+    const today = formatDateUtil(new Date());
+    const tomorrow = formatDateUtil(new Date(Date.now() + 86400000));
     if (dateStr === today) return `今天, ${date.getMonth() + 1}月${date.getDate()}日`;
     if (dateStr === tomorrow) return `明天, ${date.getMonth() + 1}月${date.getDate()}日`;
     return `${date.getMonth() + 1}月${date.getDate()}日`;
@@ -319,10 +300,10 @@ const TaskItem = React.memo(({
       duration = task.duration || 60;
   }
 
-  let bgColor = 'bg-blue-100 dark:bg-blue-900/50 border-blue-500 dark:border-blue-700 text-blue-800 dark:text-blue-100';
+  let bgColor = 'bg-sky-100 dark:bg-sky-900/30 border-sky-500 dark:border-sky-600 text-sky-800 dark:text-sky-100';
   if (task.completed) bgColor = 'bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-600 text-gray-400 dark:text-gray-500';
-  else if (task.priority === Priority.HIGH) bgColor = 'bg-red-100 dark:bg-red-900/50 border-red-500 dark:border-red-700 text-red-800 dark:text-red-100';
-  else if (task.priority === Priority.MEDIUM) bgColor = 'bg-orange-100 dark:bg-orange-900/50 border-orange-500 dark:border-orange-700 text-orange-800 dark:text-orange-100';
+  else if (task.priority === Priority.HIGH) bgColor = 'bg-red-100 dark:bg-red-900/30 border-red-500 dark:border-red-600 text-red-800 dark:text-red-100';
+  else if (task.priority === Priority.MEDIUM) bgColor = 'bg-amber-100 dark:bg-amber-900/30 border-amber-500 dark:border-amber-600 text-amber-800 dark:text-amber-100';
 
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [dragTimer, setDragTimer] = useState<NodeJS.Timeout | null>(null);
@@ -441,7 +422,7 @@ const TaskItem = React.memo(({
       >
         <div className="flex items-center gap-1">
           {isBlocked ? <Lock size={10} className="text-current opacity-70"/> : <QuadrantIcon quadrant={task.quadrant} size={10} />}
-          <Activity size={10} className={`${getProgressDisplay(task.progress).style.color}`} />
+          <Activity size={10} className={`${progressIconColors[task.progress || TaskProgress.INITIAL]}`} />
         </div>
         <div className="font-semibold leading-tight truncate">{task.title}</div>
       </div>
@@ -488,10 +469,10 @@ const TaskItem = React.memo(({
                 onClick={(e) => onTaskClick(task, e)}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm border cursor-pointer ${task.completed ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 border-transparent' : 'bg-white dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 shadow-sm text-gray-800 dark:text-gray-200'}`}
               >
-                <div className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${task.completed ? 'border-gray-400 bg-gray-400' : (task.priority === Priority.HIGH ? 'border-red-500' : 'border-indigo-500')}`} />
+                <div className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${task.completed ? 'border-gray-400 bg-gray-400' : (task.priority === Priority.HIGH ? 'border-red-500 bg-red-500' : (task.priority === Priority.MEDIUM ? 'border-amber-500 bg-amber-500' : 'border-sky-500 bg-sky-500'))}`} />
                 <div className="flex items-center gap-2">
                   {isBlocked ? <Lock size={14} className="text-gray-400"/> : <QuadrantIcon quadrant={task.quadrant} size={14} />}
-                  <Activity size={13} className={`${getProgressDisplay(task.progress).style.color}`} />
+                  <Activity size={13} className={`${progressIconColors[task.progress || TaskProgress.INITIAL]}`} />
                 </div>
                 <span className={`truncate ${task.completed ? 'line-through' : ''}`}>{task.title}</span>
               </div>

@@ -16,10 +16,7 @@
     "tauri:build:linux": "npm run build:tauri && tauri build --target x86_64-unknown-linux-gnu"
   },
   "dependencies": {
-    "@google/genai": "^1.37.0",
-    "@tailwindcss/postcss": "^4.1.18",
     "@tanstack/react-virtual": "^3.7.0",
-    "autoprefixer": "^10.4.23",
     "dexie": "4.0.1",
     "dexie-react-hooks": "1.1.6",
     "lucide-react": "^0.562.0",

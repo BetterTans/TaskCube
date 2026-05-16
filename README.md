@@ -7,7 +7,6 @@ NextDo 是一款使用 React 构建的现代化、本地优先的待办事项应
 ## 💡 为什么选择 NextDo?
 
 *   **🔒 本地优先 & 隐私安全**: 你的任务、项目和笔记都直接存储在你的设备上（使用 IndexedDB）。没有云端，无需注册，不收集任何数据。
-*   **🚀 零构建架构 (Zero-Build)**: 采用原生浏览器 ES Modules 和 `esm.sh/run` 运行时。**无需安装 Node.js、无需 npm install**，直接打开 HTML 即可运行，极致轻量。
 *   **🤖 自定义 AI 模型**: 你拥有完全的控制权。你可以连接到任何兼容 OpenAI 接口的 API——无论是 OpenAI 官方、Google Gemini、自托管的本地模型，还是任何其他供应商。
 *   **⚡️ 为效率而生**: 设计灵感源于专业开发者工具。通过全局指令面板 (`Cmd/Ctrl+K`) 和可自定义的热键，你将能行云流水般地处理任务。
 *   **✨ 直观的可视化**: 通过四个强大的、相互关联的视图（日历、时间轴、四象限看板、列表）来管理你的工作。
@@ -17,12 +16,12 @@ NextDo 是一款使用 React 构建的现代化、本地优先的待办事项应
 ## ✨ 核心功能
 
 ### 🧠 灵活的 AI 助手
-*   **自然语言输入**: 输入“明天上午10点安排一个团队会议”，AI 将自动解析出标题、日期和时间。
+*   **自然语言输入**: 输入"明天上午10点安排一个团队会议"，AI 将自动解析出标题、日期和时间。
 *   **智能任务拆解**: 一键将复杂任务拆解为可执行的子任务。
 *   **AI 项目规划**: 自动生成关键任务和里程碑。
 
 ### 🗂️ 强大的组织能力
-*   **任务依赖关系**: 设置任务的前后置关系，被阻塞的任务将自动显示 🔒 锁定图标，并无法被完成或拖拽。
+*   **任务依赖关系**: 设置任务的前后置关系，被阻塞的任务将自动显示锁定图标，并无法被完成或拖拽。
 *   **无限滚动视图**: 包含无限滚动的月历和每日 24h 时间轴，支持拖拽任务以快速排期。
 *   **四象限看板**: 基于艾森豪威尔矩阵（重要/紧急）自动分类，支持拖拽调整。
 *   **高性能列表**: 使用虚拟化技术，即使处理上千个任务也能保持极致流畅。
@@ -31,48 +30,47 @@ NextDo 是一款使用 React 构建的现代化、本地优先的待办事项应
 
 ## 🚀 快速启动
 
-本应用采用“零构建”架构，**无需安装任何依赖**。但由于浏览器安全限制，你不能直接双击 `index.html` 文件打开它。你必须通过一个本地 Web 服务器来运行。
+### Web 开发
 
-以下是几种最简单的方法：
+```bash
+npm install          # 安装依赖
+npm run dev          # 启动 Vite 开发服务器（端口 3000）
+npm run build        # 构建生产版本
+npm run preview      # 预览构建结果
+```
 
-### 方式 A: VS Code + Live Server 扩展 (推荐)
-1.  在 VS Code 中打开项目文件夹。
-2.  前往“扩展”面板，搜索并安装 **Live Server** 扩展。
-3.  安装后，在文件浏览器中右键点击 `index.html` 文件。
-4.  选择 **"Open with Live Server"**。
+### Tauri 桌面应用
 
-### 方式 B: WebStorm (或其他 JetBrains IDE)
-1.  在 WebStorm 中打开项目文件夹。
-2.  右键点击 `index.html` 文件。
-3.  选择 **Open in Browser** -> **Chrome** (或你喜欢的浏览器)。
-
-### 方式 C: 使用 Python (如果已安装)
-1.  在项目根目录下打开你的终端或命令行工具。
-2.  运行以下命令启动一个简单的服务器：
-    ```bash
-    # Python 3
-    python -m http.server 8000
-    ```
-3.  然后在浏览器中打开 `http://localhost:8000`。
+```bash
+npm run tauri:dev           # 启动开发环境
+npm run tauri:build         # 构建当前平台安装包
+npm run tauri:build:mac     # 构建 macOS .dmg
+npm run tauri:build:win     # 构建 Windows 安装包
+npm run tauri:build:linux   # 构建 Linux AppImage
+```
 
 ---
 
-## 🛠️ 技术细节
+## 🛠️ 技术栈
 
-*   **运行时**: `esm.sh/run` (处理 `.tsx` 文件的实时浏览器编译)
-*   **存储**: `Dexie.js` (IndexedDB 封装)
-*   **UI**: `Tailwind CSS` (JIT CDN 模式)
-*   **性能**: `TanStack Virtual` (列表虚拟化)
+*   **前端**: React 19 + TypeScript
+*   **构建**: Vite
+*   **样式**: Tailwind CSS v4
+*   **存储**: Dexie.js (IndexedDB)
+*   **桌面**: Tauri (Rust)
+*   **性能**: TanStack Virtual (列表虚拟化)
+*   **图标**: lucide-react
 
 ---
 
 ## 📚 文档中心
 
-*   **[🚀 快速入门](./docs/QUICK_START.md)**: Tauri 桌面应用快速入门指南
-*   **[📦 打包指南](./docs/PACKAGING.md)**: 桌面应用打包和分发详细指南
-*   **[✨ 任务进展功能](./docs/PROGRESS_FEATURE.md)**: 任务进展跟踪功能说明
-*   **[🗺️ 产品路线图 (Roadmap)](./docs/ROADMAP.md)**: 查看即将推出的新功能
-*   **[🐞 Bug 修复日志](./docs/BUG_FIX_LOG.md)**: 已解决的问题记录
+*   **[快速入门](./docs/QUICK_START.md)**: 开发和部署指南
+*   **[打包指南](./docs/PACKAGING.md)**: 桌面应用打包和分发
+*   **[贡献指南](./docs/CONTRIB.md)**: 开发环境和工作流
+*   **[任务进展功能](./docs/PROGRESS_FEATURE.md)**: 任务进展跟踪功能说明
+*   **[产品路线图](./docs/ROADMAP.md)**: 开发计划和里程碑
+*   **[Bug 修复日志](./docs/BUG_FIX_LOG.md)**: 已解决的问题记录
 
 ## 📝 许可证
 MIT License

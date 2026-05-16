@@ -5,6 +5,9 @@ import { parseDate } from '../services/recurringService';
 import { Button } from './Button';
 import { RecurringOptions } from './RecurringOptions';
 import { TaskSelectorPopover } from './TaskSelectorPopover';
+import { generateUUID } from '../utils/generateUUID';
+import { ToastType } from '../hooks/useToast';
+import { priorityBadgeStyles, getTagColor } from '../config/taskColors';
 import {
   X,
   Trash2,
@@ -29,23 +32,13 @@ import {
   Activity
 } from 'lucide-react';
 
-const generateUUID = () => {
-  if (crypto && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
-
 interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  task: Task | null; // 现有任务（如果为 null 则为新建）
-  dateStr: string; // 默认日期
-  allTasks: Task[]; // 所有任务，用于依赖选择
-  recurringRule?: RecurringRule; // 关联的周期规则
+  task: Task | null;
+  dateStr: string;
+  allTasks: Task[];
+  recurringRule?: RecurringRule;
   projects?: Project[];
   initialProjectId?: string | null;
   onSave: (task: Partial<Task>, rule?: Partial<RecurringRule>) => void;
@@ -53,8 +46,14 @@ interface TaskDetailModalProps {
   onDelete: (id: string) => void;
   onToggleSubtask?: (taskId: string, subtaskId: string) => void;
   onUpdateSubtasks?: (taskId: string, subtasks: SubTask[]) => void;
-  initialTime?: string; // 初始时间（例如从日视图点击时间格）
+  initialTime?: string;
+  addToast?: (message: string, type: ToastType, duration?: number) => string;
 }
+
+const getPriorityBtnClass = (p: Priority): string => {
+  const s = priorityBadgeStyles[p];
+  return `${s.light} ${s.dark} shadow-sm font-semibold`;
+};
 
 export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   isOpen,
@@ -68,7 +67,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onSave,
   onUpdateRule,
   onDelete,
-  initialTime
+  initialTime,
+  addToast
 }) => {
   // --- 表单状态 ---
   const [title, setTitle] = useState('');
@@ -230,7 +230,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   const handleAddPredecessor = (predId: string) => {
     if (task && checkCircularDependency(task.id, predId)) {
-       alert("无法添加，这会造成循环依赖！");
+       addToast?.("无法添加，这会造成循环依赖！", "warning");
        return;
     }
     if (!predecessorIds.includes(predId)) {
@@ -249,17 +249,22 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const handleSmartFill = async () => {
     if (!title.trim()) return;
     setIsSmartFilling(true);
-    const parsed = await parseTaskFromNaturalLanguage(title, startDate);
-    setIsSmartFilling(false);
-    if (parsed.title) setTitle(parsed.title);
-    if (parsed.date) setStartDate(parsed.date);
-    if (parsed.priority) setPriority(parsed.priority);
-    if (parsed.quadrant) setQuadrant(parsed.quadrant);
-    if (parsed.startTime) {
-      setIsAllDay(false);
-      setStartTime(parsed.startTime);
-      if (parsed.duration) setDuration(parsed.duration);
+    try {
+      const parsed = await parseTaskFromNaturalLanguage(title, startDate);
+      if (parsed.title) setTitle(parsed.title);
+      if (parsed.date) setStartDate(parsed.date);
+      if (parsed.priority) setPriority(parsed.priority);
+      if (parsed.quadrant) setQuadrant(parsed.quadrant);
+      if (parsed.startTime) {
+        setIsAllDay(false);
+        setStartTime(parsed.startTime);
+        if (parsed.duration) setDuration(parsed.duration);
+      }
+    } catch (e) {
+      addToast?.(e instanceof Error ? e.message : "智能识别失败", "warning");
+      // Fallback: just use the input as title
     }
+    setIsSmartFilling(false);
   };
 
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -295,10 +300,14 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   const handleGenerateSubtasks = async () => {
     if (!title.trim()) return;
     setIsGenerating(true);
-    const subtaskTitles = await breakDownTask(title);
-    if (subtaskTitles.length > 0) {
-      const newSubtasks: SubTask[] = subtaskTitles.map(t => ({ id: generateUUID(), title: t, completed: false }));
-      setSubtasks(s => [...s, ...newSubtasks]);
+    try {
+      const subtaskTitles = await breakDownTask(title);
+      if (subtaskTitles.length > 0) {
+        const newSubtasks: SubTask[] = subtaskTitles.map(t => ({ id: generateUUID(), title: t, completed: false }));
+        setSubtasks(s => [...s, ...newSubtasks]);
+      }
+    } catch (e) {
+      addToast?.(e instanceof Error ? e.message : "智能拆解失败", "warning");
     }
     setIsGenerating(false);
   };
@@ -485,7 +494,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                      <div className="flex-1 flex justify-end">
                         <div className="flex bg-gray-100 dark:bg-zinc-800 p-0.5 rounded-lg">
                            {Object.values(Priority).map(p => (
-                              <button key={p} onClick={() => setPriority(p)} className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${priority === p ? 'bg-white dark:bg-zinc-600 shadow-sm text-gray-800 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
+                              <button key={p} onClick={() => setPriority(p)} className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${priority === p ? getPriorityBtnClass(p) : 'text-gray-500 dark:text-gray-400'}`}>
                                  {p === Priority.HIGH ? '高' : p === Priority.MEDIUM ? '中' : '低'}
                               </button>
                            ))}
@@ -524,12 +533,15 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        {tags.map(tag => (
-                            <div key={tag} className="flex items-center bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 text-xs pl-2 pr-1 py-1 rounded-full border border-gray-200 dark:border-zinc-700">
+                        {tags.map(tag => {
+                              const tc = getTagColor(tag);
+                              return (
+                            <div key={tag} className={`flex items-center ${tc.light} ${tc.dark} text-xs pl-2 pr-1 py-1 rounded-full font-medium`}>
                                 {tag}
                                 <button onClick={() => handleRemoveTag(tag)} className="ml-1 text-gray-400 hover:text-red-500"><X size={12}/></button>
                             </div>
-                        ))}
+                              );
+                            })}
                         <input
                             type="text"
                             value={newTagInput}

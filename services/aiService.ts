@@ -1,8 +1,9 @@
 import { AISettings, Task, Priority, EisenhowerQuadrant } from "../types";
+import { STORAGE_KEYS } from '../config/storageKeys';
 
 // Helper to get settings from localStorage
 const getSettings = (): AISettings => {
-    const saved = localStorage.getItem('nextdo-ai-settings');
+    const saved = localStorage.getItem(STORAGE_KEYS.AI_SETTINGS);
     if (saved) {
         try {
             return JSON.parse(saved);
@@ -95,8 +96,7 @@ Task to break down: "${taskTitle}"`;
         return [];
     } catch (error) {
         console.error("AI Service Error (breakDownTask):", error);
-        alert("智能拆解失败，请检查AI设置或网络连接。");
-        return [];
+        throw new Error("智能拆解失败，请检查AI设置或网络连接。");
     }
 };
 
@@ -135,8 +135,7 @@ Parse this: "${input}"`;
         return task;
     } catch (error) {
         console.error("AI Service Error (parseTaskFromNaturalLanguage):", error);
-        alert("智能识别失败，请检查AI设置。将仅使用输入内容作为标题。");
-        return { title: input }; // Fallback
+        throw new Error("智能识别失败，请检查AI设置。将仅使用输入内容作为标题。");
     }
 };
 
@@ -161,7 +160,6 @@ ${projectDesc ? `Project Description: ${projectDesc}` : ''}`;
         return [];
     } catch (error) {
         console.error("AI Service Error (generateProjectPlan):", error);
-        alert("生成项目计划失败，请检查AI设置。");
-        return [];
+        throw new Error("生成项目计划失败，请检查AI设置。");
     }
 };

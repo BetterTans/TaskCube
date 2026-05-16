@@ -1,15 +1,17 @@
 import Dexie, { Table } from 'dexie';
 import { Task, Project, RecurringRule, Priority, EisenhowerQuadrant } from './types';
+import { STORAGE_KEYS } from './config/storageKeys';
 
 /**
  * 定义应用的 IndexedDB 数据库类。
  * NextDoDB 继承自 Dexie，用于方便地操作底层的 IndexedDB。
  */
-export class NextDoDB extends Dexie {
+class NextDoDB extends Dexie {
   // 定义数据库中的表。'Table' 是 Dexie 提供的类型，用于强类型化表操作。
   tasks!: Table<Task>;
   projects!: Table<Project>;
   recurringRules!: Table<RecurringRule>;
+  _meta!: Table<{ id: string; handle?: FileSystemDirectoryHandle; [key: string]: any }>;
 
   constructor() {
     super('NextDoDB'); // 'NextDoDB' 是数据库的名称
@@ -53,31 +55,33 @@ export class NextDoDB extends Dexie {
     }).upgrade(async tx => {
       console.log("Upgrading database to version 4: Adding progress field to tasks...");
 
-      // 获取今天的日期字符串
       const today = new Date().toISOString().split('T')[0];
 
-      // 遍历所有任务，为没有 progress 字段的任务设置默认值
       await tx.table('tasks').toCollection().modify(task => {
-        // 如果任务已经有 progress 字段，跳过
         if (task.progress !== undefined) {
           return;
         }
 
-        // 1. 如果任务已完成，进展为 COMPLETED
         if (task.completed) {
           task.progress = 'Completed';
         }
-        // 2. 如果任务有 endDate 且 endDate < 今天，且未完成，进展为 DELAYED
         else if (task.endDate && task.endDate < today) {
           task.progress = 'Delayed';
         }
-        // 3. 其他情况，进展为 INITIAL
         else {
           task.progress = 'Initial';
         }
       });
 
       console.log("Database upgrade to version 4 completed");
+    });
+
+    // 版本 5: 增加 _meta 表用于存储自动备份目录句柄等元数据
+    this.version(5).stores({
+      tasks: 'id, date, projectId, priority, completed, recurringRuleId, *tags, *predecessorIds, *successorIds, progress',
+      projects: 'id, status',
+      recurringRules: 'id, *tags',
+      _meta: 'id'
     });
 
 
@@ -92,9 +96,9 @@ export class NextDoDB extends Dexie {
       console.log("Populating database for the first time, checking for legacy LocalStorage data...");
 
       // 尝试从 localStorage 获取旧数据
-      const savedTasks = localStorage.getItem('gemini-tasks-full');
-      const savedRules = localStorage.getItem('gemini-recurring-rules');
-      const savedProjects = localStorage.getItem('gemini-projects');
+      const savedTasks = localStorage.getItem(STORAGE_KEYS.LEGACY_TASKS_FULL);
+      const savedRules = localStorage.getItem(STORAGE_KEYS.LEGACY_RECURRING_RULES);
+      const savedProjects = localStorage.getItem(STORAGE_KEYS.LEGACY_PROJECTS);
 
       if (savedTasks) {
         try {

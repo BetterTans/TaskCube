@@ -1,6 +1,8 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Task, TaskProgress, Priority, EisenhowerQuadrant, Project } from '../types';
+import { STORAGE_KEYS } from '../config/storageKeys';
+import { getPriorityBadge, getProgressBadge, getTagColor, quadrantStyles, priorityBadgeStyles } from '../config/taskColors';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
   CheckCircle2,
@@ -39,14 +41,14 @@ interface TableFilters {
 }
 
 const quadrantInfo: Record<EisenhowerQuadrant, { title: string; icon: React.ReactNode }> = {
-  [EisenhowerQuadrant.Q1]: { title: '重要 & 緊急', icon: <Zap size={14} className="text-red-500"/> },
-  [EisenhowerQuadrant.Q2]: { title: '重要 & 不緊急', icon: <Star size={14} className="text-green-600"/> },
-  [EisenhowerQuadrant.Q3]: { title: '緊急 & 不重要', icon: <Bell size={14} className="text-orange-500"/> },
-  [EisenhowerQuadrant.Q4]: { title: '不重要 & 不緊急', icon: <Coffee size={14} className="text-blue-500"/> },
+  [EisenhowerQuadrant.Q1]: { title: '重要 & 紧急', icon: <Zap size={14} className={quadrantStyles[EisenhowerQuadrant.Q1].iconColor}/> },
+  [EisenhowerQuadrant.Q2]: { title: '重要 & 不紧急', icon: <Star size={14} className={quadrantStyles[EisenhowerQuadrant.Q2].iconColor}/> },
+  [EisenhowerQuadrant.Q3]: { title: '紧急 & 不重要', icon: <Bell size={14} className={quadrantStyles[EisenhowerQuadrant.Q3].iconColor}/> },
+  [EisenhowerQuadrant.Q4]: { title: '不重要 & 不紧急', icon: <Coffee size={14} className={quadrantStyles[EisenhowerQuadrant.Q4].iconColor}/> },
 };
 
 const getInitialFilters = (): TableFilters => {
-    const saved = localStorage.getItem('nextdo-table-filters');
+    const saved = localStorage.getItem(STORAGE_KEYS.TABLE_FILTERS);
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
@@ -167,7 +169,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
   const resizingRef = useRef<{ col: string; startX: number; startWidth: number } | null>(null);
   const parentRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { localStorage.setItem('nextdo-table-filters', JSON.stringify(filters)); }, [filters]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.TABLE_FILTERS, JSON.stringify(filters)); }, [filters]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => { if (resizingRef.current) { const { col, startX, startWidth } = resizingRef.current; const newWidth = startWidth + (e.clientX - startX); setColWidths(prev => ({ ...prev, [col]: Math.max(newWidth, 60) })); } };
@@ -252,7 +254,15 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
             )})}
           </div>
 
-          {sortedTasks.length === 0 ? ( <div className="py-20 text-center text-gray-400"><p>没有匹配的任务</p></div> ) : (
+          {sortedTasks.length === 0 ? (
+            <div className="py-20 text-center">
+              <div className="text-gray-300 dark:text-zinc-600 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="m9 9 0 12"/><path d="m3 15 18 0"/></svg>
+              </div>
+              <p className="text-gray-400 dark:text-zinc-500 font-medium">没有匹配的任务</p>
+              <p className="text-gray-300 dark:text-zinc-600 text-sm mt-1">试试调整筛选条件或创建新任务</p>
+            </div>
+          ) : (
             <div className="relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
               {rowVirtualizer.getVirtualItems().map(virtualRow => {
                 const task = sortedTasks[virtualRow.index];
@@ -264,11 +274,11 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
                         {key === 'status' && <div className="w-full text-center"><button disabled={isBlocked} onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }} className={`transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600 hover:text-indigo-500'}`}>{task.completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}</button></div>}
                         {key === 'title' && <div onClick={() => onTaskClick(task)} className={`flex items-center font-medium text-sm truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-200'}`}>{isBlocked && <span title="被前置任务阻塞"><Lock size={12} className="mr-1.5 text-gray-400 shrink-0" /></span>}<span className="truncate">{task.title}</span></div>}
                         {key === 'project' && <div className="text-sm text-gray-600 dark:text-gray-300 truncate">{getProjectTitle(task.projectId)}</div>}
-                        {key === 'priority' && <div className="text-sm text-gray-600 dark:text-gray-300">{task.priority}</div>}
+                        {key === 'priority' && <span className={`px-1.5 py-0.5 rounded-md text-xs font-semibold ${getPriorityBadge(task.priority)}`}>{priorityBadgeStyles[task.priority].label}</span>}
                         {key === 'quadrant' && (() => { const info = task.quadrant && quadrantInfo[task.quadrant]; return info ? (<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">{info.icon}<span>{info.title}</span></div>) : null; })()}
-                        {key === 'progress' && <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"><Activity size={14} className="text-gray-400"/><span>{task.progress || 'Initial'}</span></div>}
+                        {key === 'progress' && <span className={`px-1.5 py-0.5 rounded-md text-xs font-medium ${getProgressBadge(task.progress)}`}>{task.progress || '初始'}</span>}
                         {key === 'date' && <div className="text-sm text-gray-600 dark:text-gray-300">{task.date}</div>}
-                        {key === 'tags' && <div className="flex flex-wrap gap-1">{task.tags?.map(tag => <span key={tag} className="text-xs bg-gray-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded">{tag}</span>)}</div>}
+                        {key === 'tags' && <div className="flex flex-wrap gap-1">{task.tags?.map(tag => { const tc = getTagColor(tag); return <span key={tag} className={`text-xs px-1.5 py-0.5 rounded-md font-medium ${tc.light} ${tc.dark}`}>{tag}</span>; })}</div>}
                         {key === 'subtasks' && <div className="text-center w-full text-sm text-gray-500 dark:text-gray-400">{task.subTasks?.length > 0 && (<span className="flex items-center justify-center gap-1.5"><AlignLeft size={12} /><span>{task.subTasks.filter(s => s.completed).length}/{task.subTasks.length}</span></span>)}</div>}
                       </div>
                     ))}

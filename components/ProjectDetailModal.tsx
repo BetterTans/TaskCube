@@ -1,9 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Project, Task, ProjectLog, ProjectStatus, Priority, EisenhowerQuadrant } from '../types';
 import { X, Calendar, Plus, Send, CheckCircle2, PlayCircle, PauseCircle, Trash2, Sparkles, LayoutList, History, Circle, ArrowLeft, MoreHorizontal } from 'lucide-react';
 import { Button } from './Button';
+import { ConfirmDialog } from './ConfirmDialog';
 import { generateProjectPlan } from '../services/aiService';
+import { generateUUID } from '../utils/generateUUID';
+import { ToastType } from '../hooks/useToast';
+import { getPriorityBadge, priorityBadgeStyles, getProgressBadge, progressBadgeStyles } from '../config/taskColors';
 
 interface ProjectDetailModalProps {
   isOpen: boolean;
@@ -15,17 +19,8 @@ interface ProjectDetailModalProps {
   onAddProjectTask: (task: Partial<Task>) => void;
   onCreateTaskClick: (projectId: string) => void;
   onTaskClick: (task: Task) => void;
+  addToast?: (message: string, type: ToastType, duration?: number) => string;
 }
-
-const generateUUID = () => {
-  if (crypto && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
 
 export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   isOpen,
@@ -36,11 +31,34 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   onDeleteProject,
   onAddProjectTask,
   onCreateTaskClick,
-  onTaskClick
+  onTaskClick,
+  addToast
 }) => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'timeline'>('tasks');
   const [logInput, setLogInput] = useState('');
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [localTitle, setLocalTitle] = useState('');
+  const [localDescription, setLocalDescription] = useState('');
+  const [confirmState, setConfirmState] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+
+  useEffect(() => {
+    if (project) {
+      setLocalTitle(project.title);
+      setLocalDescription(project.description || '');
+    }
+  }, [project?.id]);
+
+  const handleTitleBlur = () => {
+    if (project && localTitle !== project.title) {
+      onUpdateProject(project.id, { title: localTitle });
+    }
+  };
+
+  const handleDescriptionBlur = () => {
+    if (project && localDescription !== (project.description || '')) {
+      onUpdateProject(project.id, { description: localDescription });
+    }
+  };
 
   if (!isOpen || !project) return null;
 
@@ -70,8 +88,9 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
 
   const handleGeneratePlan = async () => {
     setIsGeneratingPlan(true);
-    const plan = await generateProjectPlan(project.title, project.description);
-    plan.forEach(item => {
+    try {
+      const plan = await generateProjectPlan(project.title, project.description);
+      plan.forEach(item => {
       onAddProjectTask({
         title: item.title,
         description: item.reason, 
@@ -88,6 +107,9 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
       type: 'milestone'
     };
     onUpdateProject(project.id, { logs: [newLog, ...project.logs] });
+    } catch (e) {
+      addToast?.(e instanceof Error ? e.message : "生成项目计划失败", "warning");
+    }
     setIsGeneratingPlan(false);
   };
 
@@ -104,7 +126,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
              {project.title}
           </div>
           <button 
-             onClick={() => { if(window.confirm('确定要删除这个项目吗？')) { onDeleteProject(project.id); onClose(); } }}
+             onClick={() => { setConfirmState({ isOpen: true, title: '删除项目', message: '确定要删除这个项目吗？', onConfirm: () => { onDeleteProject(project.id); onClose(); } }); }}
              className="text-red-500 p-1"
           >
              <Trash2 size={20} />
@@ -114,15 +136,17 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
             <div className="space-y-4">
                 <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800 divide-y divide-gray-100 dark:divide-zinc-800">
-                    <input 
+                    <input
                         type="text"
-                        value={project.title}
-                        onChange={(e) => onUpdateProject(project.id, { title: e.target.value })}
+                        value={localTitle}
+                        onChange={(e) => setLocalTitle(e.target.value)}
+                        onBlur={handleTitleBlur}
                         className="text-xl font-bold text-gray-900 dark:text-white bg-transparent border-none outline-none p-4 w-full placeholder:text-gray-300 dark:placeholder:text-zinc-600"
                     />
                     <textarea
-                        value={project.description || ''}
-                        onChange={(e) => onUpdateProject(project.id, { description: e.target.value })}
+                        value={localDescription}
+                        onChange={(e) => setLocalDescription(e.target.value)}
+                        onBlur={handleDescriptionBlur}
                         placeholder="添加项目描述..."
                         className="text-sm text-gray-500 dark:text-gray-400 bg-transparent border-none outline-none p-4 w-full h-20 resize-none"
                     />
@@ -175,13 +199,13 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                      <button onClick={handleGeneratePlan} disabled={isGeneratingPlan} className="text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1"><Sparkles size={12} className={isGeneratingPlan ? 'animate-spin' : ''} /> AI 生成计划</button>
                   </div>
                   <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800 divide-y divide-gray-100 dark:divide-zinc-800">
-                     {projectTasks.length === 0 ? (<div className="p-8 text-center text-gray-400"><p className="text-sm">暂无任务</p></div>) : (
+                     {projectTasks.length === 0 ? (<div className="p-8 text-center"><p className="text-sm text-gray-400 dark:text-zinc-500 font-medium">暂无任务</p><p className="text-xs text-gray-300 dark:text-zinc-600 mt-1">点击下方按钮添加第一个任务</p></div>) : (
                         projectTasks.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)).map(task => (
                            <div key={task.id} onClick={() => onTaskClick(task)} className="flex items-center gap-3 p-3.5 hover:bg-gray-50 dark:hover:bg-zinc-800 cursor-pointer active:bg-gray-100 dark:active:bg-zinc-700 transition-colors">
                               <div className={task.completed ? 'text-gray-300 dark:text-zinc-600' : 'text-gray-300 dark:text-zinc-600'}>{task.completed ? <CheckCircle2 size={20} className="text-green-500" /> : <Circle size={20} />}</div>
                               <div className="flex-1 min-w-0">
                                  <div className={`text-sm font-medium truncate ${task.completed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</div>
-                                 <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5"><span>{task.date}</span>{task.priority === Priority.HIGH && <span className="text-red-500 font-medium bg-red-50 dark:bg-red-900/20 px-1 rounded">High</span>}</div>
+                                 <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5"><span>{task.date}</span><span className={`px-1 rounded font-medium ${getPriorityBadge(task.priority)}`}>{priorityBadgeStyles[task.priority].label}</span></div>
                               </div>
                               <MoreHorizontal size={16} className="text-gray-300 dark:text-gray-600" />
                            </div>)))}
@@ -208,6 +232,13 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             </div>
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={() => { confirmState.onConfirm(); setConfirmState(prev => ({ ...prev, isOpen: false })); }}
+        onCancel={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

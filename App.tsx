@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings, TaskProgress } from './types.ts';
 import { generateTasksFromRule, parseDate } from './services/recurringService.ts';
 import { FullCalendar } from './components/FullCalendar.tsx';
@@ -13,29 +13,20 @@ import { SettingsModal } from './components/SettingsModal.tsx';
 import { CommandPalette, Command } from './components/CommandPalette.tsx';
 import { EventPopover } from './components/EventPopover.tsx';
 import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
+import { ToastContainer } from './components/ToastContainer.tsx';
+import { ConfirmDialog } from './components/ConfirmDialog.tsx';
+import { useToast } from './hooks/useToast.ts';
 import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid, PanelLeftClose, PanelRightClose } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db.ts';
 import { useHotkeys } from './hooks/useHotkeys.ts';
+import { generateUUID } from './utils/generateUUID.ts';
+import { getTodayString } from './utils/dateUtils.ts';
+import { DEFAULT_AI_SETTINGS } from './config/defaultValues.ts';
+import { STORAGE_KEYS } from './config/storageKeys.ts';
+import { initAutoBackup, triggerBackup, checkAndRestoreBackup, isFileSystemAccessSupported, selectBackupDirectory, clearBackupDirectory, isBackupConfigured } from './services/autoBackup.ts';
 
-// Helper function to generate a UUID, with a fallback for insecure contexts.
-const generateUUID = () => {
-  if (crypto && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
-
-// 获取今天的 YYYY-MM-DD 字符串
-const getTodayString = (date = new Date()) => {
-  const d = new Date(date);
-  const offset = d.getTimezoneOffset() * 60000;
-  return new Date(d.getTime() - offset).toISOString().split('T')[0];
-};
-
+// Helper function to get the week range
 const getWeekRange = (date = new Date()) => {
     const d = new Date(date);
     const day = d.getDay();
@@ -51,12 +42,6 @@ const getWeekRange = (date = new Date()) => {
 
 const TODAY = getTodayString();
 
-const DEFAULT_AI_SETTINGS: AISettings = {
-  baseUrl: 'https://api.openai.com/v1',
-  apiKey: '',
-  model: 'gpt-3.5-turbo'
-};
-
 const DEFAULT_HOTKEYS = {
   'new_task': 'n',
   'go_to_today': 't',
@@ -69,6 +54,8 @@ const DEFAULT_HOTKEYS = {
 type ViewMode = 'calendar' | 'day' | 'matrix' | 'table';
 
 export default function App() {
+  const { toasts, addToast, removeToast } = useToast();
+
   // --- 核心状态管理 (使用 IndexedDB + useLiveQuery) ---
   const tasks = useLiveQuery(() => db.tasks.toArray());
   const recurringRules = useLiveQuery(() => db.recurringRules.toArray()) ?? [];
@@ -83,7 +70,7 @@ export default function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('matrix');
   const [matrixDateRange, setMatrixDateRange] = useState(getWeekRange());
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem('nextdo-sidebar-collapsed') === 'true');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => localStorage.getItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === 'true');
   
   // --- 模态框可见性状态 ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,6 +85,13 @@ export default function App() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [editingRule, setEditingRule] = useState<RecurringRule | null>(null); 
   const [selectedDateStr, setSelectedDateStr] = useState<string>(TODAY);
+
+  // 确认对话框状态
+  const [confirmState, setConfirmState] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmState({ isOpen: true, title, message, onConfirm });
+  };
   
   // 新建任务时的初始预设
   const [newTaskInitialTime, setNewTaskInitialTime] = useState<string | undefined>(undefined);
@@ -108,9 +102,19 @@ export default function App() {
 
   // --- 初始化与设置持久化 ---
   useEffect(() => {
-    const savedSettings = localStorage.getItem('nextdo-ai-settings');
-    const savedTheme = localStorage.getItem('nextdo-theme');
-    const savedHotkeys = localStorage.getItem('nextdo-hotkeys');
+    const init = async () => {
+      // Auto-backup initialization
+      const restored = await checkAndRestoreBackup();
+      if (restored) {
+        addToast('数据已从本地备份自动恢复', 'success');
+      }
+      await initAutoBackup();
+    };
+    init();
+
+    const savedSettings = localStorage.getItem(STORAGE_KEYS.AI_SETTINGS);
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
+    const savedHotkeys = localStorage.getItem(STORAGE_KEYS.HOTKEYS);
     
     if (savedSettings) try { setAiSettings(JSON.parse(savedSettings)); } catch (e) {}
     if (savedHotkeys) try { setHotkeys(JSON.parse(savedHotkeys)); } catch (e) {}
@@ -121,13 +125,13 @@ export default function App() {
     }
   }, []);
   
-  useEffect(() => { localStorage.setItem('nextdo-ai-settings', JSON.stringify(aiSettings)); }, [aiSettings]);
-  useEffect(() => { localStorage.setItem('nextdo-hotkeys', JSON.stringify(hotkeys)); }, [hotkeys]);
-  useEffect(() => { localStorage.setItem('nextdo-sidebar-collapsed', String(isSidebarCollapsed)); }, [isSidebarCollapsed]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.AI_SETTINGS, JSON.stringify(aiSettings)); }, [aiSettings]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.HOTKEYS, JSON.stringify(hotkeys)); }, [hotkeys]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.SIDEBAR_COLLAPSED, String(isSidebarCollapsed)); }, [isSidebarCollapsed]);
 
   // 主题切换副作用
   useEffect(() => {
-    localStorage.setItem('nextdo-theme', theme);
+    localStorage.setItem(STORAGE_KEYS.THEME, theme);
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     if (theme === 'system') {
@@ -145,6 +149,11 @@ export default function App() {
        if (newTasks.length > 0) await db.tasks.bulkAdd(newTasks);
     })();
   }, [recurringRules, tasks]);
+
+  // --- 自动备份触发 ---
+  useEffect(() => {
+    triggerBackup();
+  }, [tasks, projects, recurringRules]);
 
   // 计算依赖阻塞状态
   const tasksById = useMemo(() => {
@@ -282,11 +291,16 @@ export default function App() {
 
   const deleteTask = (id: string) => db.tasks.delete(id);
   const deleteRule = async (ruleId: string) => {
-    if (window.confirm("确定要删除这个周期规则吗？将同时删除所有未来生成的任务。")) {
-      await db.recurringRules.delete(ruleId);
-      const toDeleteIds = (await db.tasks.where('recurringRuleId').equals(ruleId).toArray()).map(t => t.id);
-      await db.tasks.bulkDelete(toDeleteIds);
-    }
+    showConfirm(
+      '删除周期规则',
+      '确定要删除这个周期规则吗？将同时删除所有未来生成的任务。',
+      async () => {
+        await db.recurringRules.delete(ruleId);
+        const toDeleteIds = (await db.tasks.where('recurringRuleId').equals(ruleId).toArray()).map(t => t.id);
+        await db.tasks.bulkDelete(toDeleteIds);
+        addToast('周期规则已删除', 'success');
+      }
+    );
   };
 
   const handleCreateProject = async (projectData: Partial<Project>) => {
@@ -409,6 +423,9 @@ export default function App() {
           <button onClick={() => setIsProjectListOpen(true)} title="项目" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
             <Briefcase size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">项目</span>}
           </button>
+          <button onClick={() => setIsRecurManagerOpen(true)} title="周期规则" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
+            <Repeat size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">周期规则</span>}
+          </button>
            <button onClick={() => setIsSettingsOpen(true)} title="设置" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
             <Settings size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">设置</span>}
           </button>
@@ -451,11 +468,11 @@ export default function App() {
       </div>
 
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
-      <TaskDetailModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingRule(null); setNewTaskInitialTime(undefined); }} task={editingTask} dateStr={selectedDateStr} allTasks={tasks ?? []} initialTime={newTaskInitialTime} recurringRule={getActiveRecurringRule()} projects={projects ?? []} initialProjectId={newTaskInitialProjectId} onSave={saveTask} onUpdateRule={updateRecurringRule} onDelete={deleteTask} />
+      <TaskDetailModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingRule(null); setNewTaskInitialTime(undefined); }} task={editingTask} dateStr={selectedDateStr} allTasks={tasks ?? []} initialTime={newTaskInitialTime} recurringRule={getActiveRecurringRule()} projects={projects ?? []} initialProjectId={newTaskInitialProjectId} onSave={saveTask} onUpdateRule={updateRecurringRule} onDelete={deleteTask} addToast={addToast} />
       <RecurringManager isOpen={isRecurManagerOpen} onClose={() => setIsRecurManagerOpen(false)} rules={recurringRules} onDeleteRule={deleteRule} onEditRule={(rule) => { setEditingRule(rule); setEditingTask(null); setIsRecurManagerOpen(false); setIsModalOpen(true); }} />
       <ProjectListModal isOpen={isProjectListOpen} onClose={() => setIsProjectListOpen(false)} projects={projects ?? []} onCreateProject={handleCreateProject} onProjectClick={(p) => { setSelectedProjectId(p.id); setIsProjectListOpen(false); }} />
-      {selectedProject && <ProjectDetailModal isOpen={!!selectedProject} onClose={() => { setSelectedProjectId(null); setIsProjectListOpen(true); }} project={selectedProject} tasks={tasks ?? []} onUpdateProject={updateProject} onDeleteProject={deleteProject} onAddProjectTask={saveTask} onCreateTaskClick={(projectId) => { setNewTaskInitialProjectId(projectId); setEditingTask(null); setEditingRule(null); setIsModalOpen(true); }} onTaskClick={(t) => { setSelectedProjectId(null); openEditModal(t); }} />}
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} settings={aiSettings} onSave={setAiSettings} currentTheme={theme} onThemeChange={setTheme} hotkeys={hotkeys} onHotkeysChange={setHotkeys} defaultHotkeys={DEFAULT_HOTKEYS} />
+      {selectedProject && <ProjectDetailModal isOpen={!!selectedProject} onClose={() => { setSelectedProjectId(null); setIsProjectListOpen(true); }} project={selectedProject} tasks={tasks ?? []} onUpdateProject={updateProject} onDeleteProject={deleteProject} onAddProjectTask={saveTask} onCreateTaskClick={(projectId) => { setNewTaskInitialProjectId(projectId); setEditingTask(null); setEditingRule(null); setIsModalOpen(true); }} onTaskClick={(t) => { setSelectedProjectId(null); openEditModal(t); }} addToast={addToast} />}
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} settings={aiSettings} onSave={setAiSettings} currentTheme={theme} onThemeChange={setTheme} hotkeys={hotkeys} onHotkeysChange={setHotkeys} defaultHotkeys={DEFAULT_HOTKEYS} addToast={addToast} />
       <EventPopover
         isOpen={!!popoverState.task}
         onClose={handlePopoverClose}
@@ -466,6 +483,14 @@ export default function App() {
         onEdit={openEditModal}
         onDelete={(id) => { deleteTask(id); handlePopoverClose(); }}
         isBlocked={!!popoverState.task && blockedTaskIds.has(popoverState.task.id)}
+      />
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={() => { confirmState.onConfirm(); setConfirmState(prev => ({ ...prev, isOpen: false })); }}
+        onCancel={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
       />
     </div>
   );

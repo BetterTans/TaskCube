@@ -1,14 +1,6 @@
 import { RecurringRule, Task } from "../types";
-
-const generateUUID = () => {
-  if (crypto && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
+import { generateUUID } from '../utils/generateUUID';
+import { formatDate } from '../utils/dateUtils';
 
 /**
  * 辅助函数：为一个 Date 对象增加指定的天数。
@@ -39,17 +31,6 @@ export const parseDate = (dateStr: string): Date => {
   const parts = dateStr.split('-');
   // 月份索引是从 0 开始的
   return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-};
-
-/**
- * 辅助函数：将 Date 对象格式化为 'YYYY-MM-DD' 字符串，并处理时区问题。
- * @param {Date} date - 要格式化的 Date 对象。
- * @returns {string} - 'YYYY-MM-DD' 格式的字符串。
- */
-const formatDate = (date: Date): string => {
-  // toISOString() 会转换为 UTC 时间，这里通过减去时区偏移来获取本地日期的正确字符串表示
-  const offset = date.getTimezoneOffset() * 60000;
-  return new Date(date.getTime() - offset).toISOString().split('T')[0];
 };
 
 /**

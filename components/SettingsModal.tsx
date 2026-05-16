@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AISettings, ThemeMode, TaskProgress } from '../types.ts';
-import { X, Server, Key, Box, Check, RotateCcw, Moon, Sun, Monitor, Download, Upload, Database, Keyboard, Palette } from 'lucide-react';
+import { X, Server, Key, Box, Check, RotateCcw, Moon, Sun, Monitor, Download, Upload, Database, Keyboard, Palette, FolderOpen } from 'lucide-react';
 import { Button } from './Button.tsx';
+import { ConfirmDialog } from './ConfirmDialog.tsx';
 import { db } from '../db.ts';
+import { DEFAULT_AI_SETTINGS } from '../config/defaultValues.ts';
+import { STORAGE_KEYS } from '../config/storageKeys.ts';
+import { ToastType } from '../hooks/useToast.ts';
+import { isFileSystemAccessSupported, selectBackupDirectoryNative, clearBackupDirectory, isBackupConfigured, getBackupState, triggerBackup, generateBackupData } from '../services/autoBackup.ts';
+import { Save } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -14,13 +20,9 @@ interface SettingsModalProps {
   hotkeys: Record<string, string>;
   onHotkeysChange: (hotkeys: Record<string, string>) => void;
   defaultHotkeys: Record<string, string>;
+  addToast: (message: string, type: ToastType, duration?: number) => string;
+  onRequestBackupDir?: () => void;
 }
-
-const DEFAULT_AI_SETTINGS: AISettings = {
-  baseUrl: 'https://api.openai.com/v1',
-  apiKey: '',
-  model: 'gpt-3.5-turbo'
-};
 
 const HOTKEY_LABELS: Record<string, string> = {
   'new_task': '新建任务',
@@ -75,13 +77,22 @@ const KeyInput: React.FC<{ value: string; onChange: (value: string) => void }> =
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen, onClose, settings, onSave,
   currentTheme = 'light', onThemeChange,
-  hotkeys, onHotkeysChange, defaultHotkeys
+  hotkeys, onHotkeysChange, defaultHotkeys, addToast,
+  onRequestBackupDir
 }) => {
   const [formData, setFormData] = useState<AISettings>(settings);
   const [hotkeyData, setHotkeyData] = useState(hotkeys);
   const [showSuccess, setShowSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeView, setActiveView] = useState<SettingsView>('appearance');
+  const [confirmState, setConfirmState] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+  const [backupConfigured, setBackupConfigured] = useState(isBackupConfigured());
+  const [backupDirName, setBackupDirName] = useState(getBackupState().dirName);
+  const [backupNativeFailed, setBackupNativeFailed] = useState(false);
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmState({ isOpen: true, title, message, onConfirm });
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -102,10 +113,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   const handleReset = () => {
-    if(window.confirm('确定要恢复所有默认设置吗？')) {
+    showConfirm('恢复默认设置', '确定要恢复所有默认设置吗？', () => {
         setFormData(DEFAULT_AI_SETTINGS);
         setHotkeyData(defaultHotkeys);
-    }
+    });
   };
 
   const handleExport = async () => {
@@ -115,11 +126,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const recurringRules = await db.recurringRules.toArray();
 
       const settingsData = {
-        aiSettings: localStorage.getItem('nextdo-ai-settings'),
-        theme: localStorage.getItem('nextdo-theme'),
-        hotkeys: localStorage.getItem('nextdo-hotkeys'),
-        sidebarCollapsed: localStorage.getItem('nextdo-sidebar-collapsed'),
-        tableFilters: localStorage.getItem('nextdo-table-filters'),
+        aiSettings: localStorage.getItem(STORAGE_KEYS.AI_SETTINGS),
+        theme: localStorage.getItem(STORAGE_KEYS.THEME),
+        hotkeys: localStorage.getItem(STORAGE_KEYS.HOTKEYS),
+        sidebarCollapsed: localStorage.getItem(STORAGE_KEYS.SIDEBAR_COLLAPSED),
+        tableFilters: localStorage.getItem(STORAGE_KEYS.TABLE_FILTERS),
       };
 
       const backupData = {
@@ -140,10 +151,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      alert('数据已成功导出！');
+      addToast('数据已成功导出！', 'success');
     } catch (error) {
       console.error('Failed to export data:', error);
-      alert('数据导出失败，请检查控制台获取更多信息。');
+      addToast('数据导出失败，请检查控制台获取更多信息。', 'error');
     }
   };
   
@@ -153,15 +164,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!window.confirm('您确定要导入数据吗？这将覆盖所有当前数据。此操作无法撤销。')) {
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      return;
-    }
+    showConfirm('导入数据', '您确定要导入数据吗？这将覆盖所有当前数据。此操作无法撤销。', () => doImport(file));
+  };
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
+  const doImport = async (file: File) => {
       try {
-        const jsonString = event.target?.result as string;
+        const jsonString = await file.text();
         const backupData = JSON.parse(jsonString);
 
         if (!backupData.database || !backupData.localStorage) {
@@ -212,20 +220,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         const lsData = backupData.localStorage;
 
         // A list of all keys managed by the backup system.
-        const managedKeys = [
-            'nextdo-ai-settings',
-            'nextdo-theme',
-            'nextdo-hotkeys',
-            'nextdo-sidebar-collapsed',
-            'nextdo-table-filters'
-        ];
+        const managedKeys = Object.values(STORAGE_KEYS);
 
-        const backupValues = {
-            'nextdo-ai-settings': lsData.aiSettings,
-            'nextdo-theme': lsData.theme,
-            'nextdo-hotkeys': lsData.hotkeys,
-            'nextdo-sidebar-collapsed': lsData.sidebarCollapsed,
-            'nextdo-table-filters': lsData.tableFilters,
+        const backupValues: Record<string, string | null | undefined> = {
+          [STORAGE_KEYS.AI_SETTINGS]: lsData.aiSettings,
+          [STORAGE_KEYS.THEME]: lsData.theme,
+          [STORAGE_KEYS.HOTKEYS]: lsData.hotkeys,
+          [STORAGE_KEYS.SIDEBAR_COLLAPSED]: lsData.sidebarCollapsed,
+          [STORAGE_KEYS.TABLE_FILTERS]: lsData.tableFilters,
         };
 
         // This loop ensures a clean restore.
@@ -240,16 +242,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }
         }
 
-        alert('数据导入成功！应用将重新加载以应用更改。');
+        addToast('数据导入成功！应用将重新加载以应用更改。', 'success');
         window.location.reload();
       } catch (error) {
         console.error('Failed to import data:', error);
-        alert(`数据导入失败：${error instanceof Error ? error.message : String(error)}`);
+        addToast(`数据导入失败：${error instanceof Error ? error.message : String(error)}`, 'error');
       } finally {
         if (fileInputRef.current) fileInputRef.current.value = '';
       }
-    };
-    reader.readAsText(file);
   };
   
   if (!isOpen) return null;
@@ -355,6 +355,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                  </div>
               </div>
+              {isFileSystemAccessSupported() && !backupNativeFailed && (
+                <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-100 dark:border-zinc-700 space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">自动备份</h3>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {backupConfigured
+                      ? `已设置自动备份文件夹「${backupDirName}」。每次数据变更后自动保存备份文件，浏览器清缓存也不会丢失数据。`
+                      : '选择一个本地文件夹后，应用会自动将数据备份到该文件夹。即使浏览器缓存被清理，数据文件仍保留在电脑上。'}
+                  </div>
+                  <div className="flex gap-3">
+                    {backupConfigured ? (
+                      <>
+                        <button onClick={async () => { await clearBackupDirectory(); setBackupConfigured(false); setBackupDirName(''); addToast('已取消自动备份', 'info'); }} className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"><X size={16}/> 取消自动备份</button>
+                        <button onClick={() => { triggerBackup(); addToast('手动备份已触发，5秒后写入', 'success'); }} className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-600 transition-colors"><Save size={16}/> 立即备份</button>
+                      </>
+                    ) : (
+                      <button onClick={async () => { const result = await selectBackupDirectoryNative(); if (result.success) { setBackupConfigured(true); setBackupDirName(result.dirName || ''); addToast('自动备份已设置，文件夹: ' + (result.dirName || ''), 'success'); } else { addToast(result.error || '选择文件夹失败', 'error'); setBackupNativeFailed(true); } }} className="flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"><FolderOpen size={16}/> 选择备份文件夹</button>
+                    )}
+                  </div>
+                </div>
+              )}
+              {(!isFileSystemAccessSupported() || backupNativeFailed) && !backupConfigured && (
+                <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-100 dark:border-zinc-700 space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">快速备份</h3>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    当前浏览器不支持自动备份到文件夹（macOS Chrome 限制）。点击下方按钮可一键下载备份文件到本地，建议定期操作以防数据丢失。
+                  </div>
+                  <button onClick={async () => { try { const jsonString = await generateBackupData(); const blob = new Blob([jsonString], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `nextdo-backup-${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); addToast('备份文件已下载', 'success'); } catch { addToast('备份下载失败', 'error'); } }} className="flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"><Download size={16}/> 一键下载备份</button>
+                </div>
+              )}
           </div>
         );
     }
@@ -404,6 +433,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={() => { confirmState.onConfirm(); setConfirmState(prev => ({ ...prev, isOpen: false })); }}
+        onCancel={() => { setConfirmState(prev => ({ ...prev, isOpen: false })); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+      />
     </div>
   );
 };

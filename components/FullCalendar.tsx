@@ -2,48 +2,16 @@
 
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 import { Task, Project, Priority, EisenhowerQuadrant, TaskProgress } from '../types.ts';
-import { Zap, Star, Bell, Coffee, Lock, ChevronDown, Activity } from 'lucide-react';
-
-// 补全 parseDate 工具函数
-const parseDate = (dateStr: string): Date => {
-  if (!dateStr || typeof dateStr !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
-  }
-  const parts = dateStr.split('-');
-  return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-};
-
-const formatDate = (date: Date): string => {
-  const offset = date.getTimezoneOffset() * 60000;
-  return new Date(date.getTime() - offset).toISOString().split('T')[0];
-};
+import { Zap, Star, Bell, Coffee, Lock, ChevronDown } from 'lucide-react';
+import { parseDate } from '../services/recurringService.ts';
+import { formatDate } from '../utils/dateUtils.ts';
+import { getProgressDisplay } from '../utils/taskDisplay';
+import { priorityHexColors, quadrantStyles } from '../config/taskColors';
 
 const getTaskColor = (task: Task, project?: Project) => {
     if (project) return project.color;
-    switch (task.priority) {
-      case Priority.HIGH: return '#EF4444'; // red-500
-      case Priority.MEDIUM: return '#F97316'; // orange-500
-      case Priority.LOW: return '#3B82F6'; // blue-500
-      default: return '#6B7280'; // gray-500
-    }
-};
-
-const getProgressDisplay = (progress?: TaskProgress) => {
-  const progressText = progress || TaskProgress.INITIAL;
-  const progressStyles: Record<TaskProgress, { color: string }> = {
-    [TaskProgress.INITIAL]: { color: 'text-gray-400' },
-    [TaskProgress.IN_PROGRESS]: { color: 'text-blue-400' },
-    [TaskProgress.ON_HOLD]: { color: 'text-yellow-400' },
-    [TaskProgress.BLOCKED]: { color: 'text-red-400' },
-    [TaskProgress.COMPLETED]: { color: 'text-green-400' },
-    [TaskProgress.DELAYED]: { color: 'text-orange-400' }
-  };
-  return {
-    text: progressText,
-    style: progressStyles[progressText]
-  };
+    const hex = priorityHexColors[task.priority];
+    return hex || '#6B7280';
 };
 
 interface WeekEvent {
@@ -299,7 +267,6 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                     }}
                   >
                     {isBlocked ? <Lock size={12} className="text-white/80" /> : <QuadrantIcon quadrant={task.quadrant} />}
-                    <Activity size={10} className={`${getProgressDisplay(task.progress).style.color}`} />
                     <span className="truncate">{task.title}</span>
                   </div>
                 )})}

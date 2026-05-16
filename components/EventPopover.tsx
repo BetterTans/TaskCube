@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Task, Project, Priority } from '../types';
+import { Task, Project, Priority, TaskProgress } from '../types';
 import { X, Edit, Trash2, CheckCircle2, Circle, Clock, Briefcase, Lock } from 'lucide-react';
+import { getPriorityBadge, priorityBadgeStyles, getProgressBadge, progressBadgeStyles } from '../config/taskColors';
 
 /**
  * EventPopoverProps 接口定义了事件浮窗组件的属性。
@@ -140,12 +141,6 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
   // 从项目列表中查找当前任务所属的项目
   const project = projects.find(p => p.id === task.projectId);
 
-  // 优先级样式和标签
-  const priorityStyles = {
-    [Priority.HIGH]: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30",
-    [Priority.MEDIUM]: "text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30",
-    [Priority.LOW]: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30",
-  };
   const priorityLabels = { [Priority.HIGH]: '高', [Priority.MEDIUM]: '中', [Priority.LOW]: '低' };
 
   return (
@@ -188,8 +183,11 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
               <span>{project.title}</span>
             </div>
           )}
-          <div className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${priorityStyles[task.priority]}`}>
+          <div className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${getPriorityBadge(task.priority)}`}>
              {priorityLabels[task.priority]} 优先级
+          </div>
+          <div className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${getProgressBadge(task.progress)}`}>
+             {progressBadgeStyles[task.progress || TaskProgress.INITIAL].label}
           </div>
         </div>
       </div>

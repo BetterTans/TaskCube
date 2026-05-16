@@ -15,7 +15,6 @@ NextDo is a React-based task management application with AI integration. It offe
 - Tailwind CSS for styling
 - lucide-react for icons
 - No cloud services - 100% local storage
-- Zero-build architecture using native ES modules and `esm.sh/run`
 
 **Current Version:** v3.1.2
 
@@ -47,6 +46,17 @@ npm run tauri:build:win       # Build Windows portable package (.zip)
 npm run tauri:build:linux     # Build Linux packages
 ```
 
+### Code Quality
+```bash
+# Dead code analysis (devDependencies)
+npx depcheck                  # Check unused dependencies
+npx knip                      # Find unused files, exports, and dependencies
+npx ts-prune                  # Identify unused TypeScript exports
+
+# TypeScript check
+npx tsc --noEmit              # Type check without emitting files
+```
+
 ## Architecture
 
 ### Modular Design Pattern
@@ -61,13 +71,19 @@ The codebase follows a modular architecture with clear separation:
 - **Data Layer:**
   - `db.ts` - Database abstraction using Dexie.js over IndexedDB
   - `types.ts` - Shared TypeScript interfaces for all data models
-  - Supports database migrations via Dexie version system (current: v4)
+  - Supports database migrations via Dexie version system (current: v5, includes `_meta` table for backup handles)
 
 - **Service Layer:**
   - `services/aiService.ts` - AI integration and task processing
   - `services/recurringService.ts` - Recurring task logic
+  - `services/autoBackup.ts` - Auto-backup with File System Access API + download fallback
 
-- **Component Structure:"
+- **Config Layer:**
+  - `config/taskColors.ts` - Unified color mapping (priority, progress, quadrant, tag colors with light/dark variants)
+  - `config/storageKeys.ts` - localStorage key constants
+  - `config/defaultValues.ts` - Default settings values
+
+- **Component Structure:**
   - `components/*.tsx` - 20+ React components organized by feature
   - Each view (Calendar, Timeline, Matrix, Table) is a separate component
   - Modal-based UI for detailed editing (TaskDetailModal, ProjectDetailModal)
@@ -76,16 +92,33 @@ The codebase follows a modular architecture with clear separation:
 - **Task Progress Feature:**
   - Added in database v4 with automatic migration
   - Six progress states: Initial, In Progress, On Hold, Blocked, Completed, Delayed
-  - Editable in TaskDetailModal with dropdown selector
-  - Displayed in all views (Table, Calendar, Matrix, DayTimeView)
+  - Displayed as colored badge pills in all views
   - Filterable in TableView
   - Compatible with import/export and backward compatible with v1.0 data
+
+- **Unified Color System:**
+  - Single source of truth in `config/taskColors.ts`
+  - Priority: HIGH=red, MEDIUM=amber, LOW=sky
+  - Progress: badge pills with light/dark variants
+  - Quadrant: background tint (ISO style, no left border)
+  - Tags: hash-based 10-color palette
+
+- **Auto-Backup System:**
+  - Two-tier strategy based on browser capability
+  - Tier 1 (Windows Chrome/Edge): `showDirectoryPicker` auto-backup to local folder
+  - Tier 2 (macOS Chrome/others): one-click download backup
+  - 5s debounce on data changes + beforeunload final backup
+  - Auto-restore from backup when IndexedDB empty on startup
+  - `navigator.storage.persist()` requested on startup
+  - Directory handle stored in IndexedDB `_meta` table (v5)
+  - Toast notifications (z-[90]) + ConfirmDialog replace all alert/confirm
 
 ### Data Storage Strategy
 The app implements a local-first approach with two deployment modes:
 
-1. **Web Mode (Zero-Build):**
+1. **Web Mode:**
    - Uses browser's IndexedDB
+   - Vite dev server for development (`npm run dev`)
    - Requires local web server due to browser security
    - Data stored in browser profile (may be cleared)
 
@@ -100,6 +133,8 @@ The app implements a local-first approach with two deployment modes:
 - **Package.json:** Set to ES modules (`"type": "module"`)
 - **Tauri:** Rust backend with ES module frontend integration
 - **Vite:** Configured for React with environment variable support
+  - Path alias: `@` maps to project root (use `@/types.ts` for imports)
+  - Build modes: default (web) vs `tauri` (uses `vite-tauri.html` entry)
 - **tauri-bundler:** Generates installers for all platforms (`src-tauri/target/release/bundle/`)
 
 ### Windows Build Special Requirements
@@ -122,7 +157,7 @@ The app implements a local-first approach with two deployment modes:
 
 ### Module System Handling
 The project uses ES modules (package.json: `"type": "module"`), and Tauri has a Rust backend with frontend in ES modules:
-- Frontend remains pure ES modules with zero-build architecture
+- Frontend uses Vite for bundling and development
 - Rust backend handles platform-specific features and security
 - IPC communication via Tauri's invoke API for desktop features
 
@@ -149,8 +184,12 @@ No automated test framework is currently configured. Manual testing is required 
 - **Other editors**: Any IDE with TypeScript support works well
 
 ## Testing Distribution Builds
-The repository includes test scripts for verifying installer builds:
-- `test-installer.sh` - Validates Windows installer functionality
-- `pack.sh` - Handles build packaging and validation
 
 When creating desktop builds, always test the installer before distribution to catch module loading errors early.
+
+## Troubleshooting
+
+**Quick fixes:**
+- Module errors: `rm -rf node_modules && npm install`
+- Tauri build fails: Check Rust toolchain and system dependencies (Linux needs libgtk-3-dev, libwebkit2gtk-4.0-dev)
+- IndexedDB issues: Clear browser data or check desktop app's user data directory permissions

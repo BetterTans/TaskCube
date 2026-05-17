@@ -16,7 +16,15 @@ NextDo is a React-based task management application with AI integration. It offe
 - lucide-react for icons
 - No cloud services - 100% local storage
 
-**Current Version:** v3.2.0
+**Current Version:** v3.4.0
+
+## Version History
+
+| Version | Highlights |
+|---------|-----------|
+| v3.4.0 | Design token unification, undo/redo, browser reminders, view transitions, dark mode polish |
+| v3.3.0 | Panel/Modal merge (TaskEditorCore), global search, tag management, unified logger |
+| v3.2.0 | Initial SDD spec system, calendar hub, filter fix |
 
 ## Prerequisites
 
@@ -187,6 +195,56 @@ No automated test framework is currently configured. Manual testing is required 
 - **VS Code**: Install Live Server extension for easy web development
 - **WebStorm**: Built-in support for opening index.html in browser
 - **Other editors**: Any IDE with TypeScript support works well
+
+## Design Token System
+
+All components follow a unified Tailwind-native token system defined in `.kiro/specs/design-tokens/design.md`:
+
+| Category | Light | Dark |
+|----------|-------|------|
+| Page bg | `#F7F7F7` | `#121217` (zinc-925) |
+| Card/Surface | `bg-white` | `dark:bg-zinc-900` |
+| Card border | `border-gray-200` | `dark:border-zinc-800` |
+| Primary text | `text-gray-900` | `dark:text-white` |
+| Body text | `text-gray-500` | `dark:text-zinc-400` |
+| Muted/secondary | `text-gray-400` | `dark:text-zinc-500` |
+| Primary button | `bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl` | same |
+| Danger/Delete | `text-red-500 hover:bg-red-50` | `dark:hover:bg-red-900/20` |
+| Input bg | `bg-gray-50` | `dark:bg-zinc-800/50` |
+| Input focus | `focus:border-indigo-300` | `dark:focus:border-indigo-600` |
+
+**Rules:** No `shadow-md`/`shadow-lg` on buttons, no decorative `backdrop-blur`, `dark:` text always zinc (never gray), `font-semibold` for section labels (never `font-bold`), `rounded-xl` for buttons/cards.
+
+## Feature Inventory (v3.4)
+
+| Feature | Component/File |
+|---------|---------------|
+| Four-quadrant view | `MatrixView.tsx` |
+| Calendar month view | `FullCalendar.tsx` |
+| Day/time view with drag | `DayTimeView.tsx` |
+| Table view with filters | `TableView.tsx` |
+| Task editor (Panel + Modal) | `TaskDetailPanel.tsx`, `TaskDetailModal.tsx` → shared `TaskEditorCore.tsx` |
+| Global search (⌘K) | `CommandPalette.tsx` + `hooks/useSearchIndex.ts` |
+| Tag management | `TagsManager.tsx` (in Settings) |
+| Recurring tasks | `RecurringManager.tsx`, `RecurringOptions.tsx` |
+| Undo/Redo (Ctrl+Z) | `hooks/useUndoStack.ts` |
+| Browser notifications | `services/reminderService.ts` |
+| AI task breakdown | `services/aiService.ts` |
+| Auto-backup | `services/autoBackup.ts` |
+| Project management | `ProjectDetailModal.tsx`, `ProjectListModal.tsx` |
+| Event popover | `EventPopover.tsx` |
+| Unified logger | `utils/logger.ts` |
+
+## Spec-Driven Development
+
+All features follow Kiro-style SDD with specs in `.kiro/specs/<feature>/`:
+
+```
+requirements.md → design.md → tasks.md → implementation → verification
+```
+
+Active specs: `design-tokens` (implemented), `calendar-hub` (done), `filter-fix-and-polish` (done).
+Level 1-2 complete (9 specs implemented). Level 3 deferred (see `evolution-roadmap`).
 
 ## Testing Distribution Builds
 

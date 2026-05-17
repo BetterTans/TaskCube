@@ -16,7 +16,7 @@ NextDo is a React-based task management application with AI integration. It offe
 - lucide-react for icons
 - No cloud services - 100% local storage
 
-**Current Version:** v3.1.2
+**Current Version:** v3.2.0
 
 ## Prerequisites
 
@@ -67,6 +67,11 @@ The codebase follows a modular architecture with clear separation:
   - `src-tauri/src/main.rs` - Desktop entry point (Rust)
   - `src-tauri/tauri.conf.json` - Tauri configuration
   - `App.tsx` - Main React application root
+
+- **Navigation & Layout:**
+  - `components/ViewTabs.tsx` - Header tab bar for view switching (四象限/月视图/日视图/列表)
+  - `components/Sidebar.tsx` - Filter sidebar (project/quadrant filters) + management entries
+  - `components/FilterIndicator.tsx` - Active filter status banner for non-calendar views
 
 - **Data Layer:**
   - `db.ts` - Database abstraction using Dexie.js over IndexedDB

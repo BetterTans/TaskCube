@@ -4,6 +4,60 @@
 
 ---
 
+## v3.2.0
+
+*   **核心目标**: 修复筛选器缺陷，重构视图切换体验，增强数据兼容性。
+
+### ✅ 已修复: 侧边栏筛选器仅在月视图生效
+
+*   **故障现象 (Symptom)**: 
+    侧边栏的项目和象限筛选仅对月视图生效。切换到日视图、四象限视图或列表视图后，筛选条件被忽略，显示全部任务。
+
+*   **根本原因 (Root Cause)**:
+    `App.tsx` 的 `renderCurrentView()` 中，只有 `case 'calendar'` 接收了 `useTaskFilters` 处理后的 `filteredTasks`，其余三个视图（day/matrix/table）直接传入未筛选的 `tasks`。
+
+*   **解决方案 (Resolution)**:
+    将 `tasks={filteredTasks}` 传递给全部四个视图，使侧边栏筛选在所有视图中保持一致。
+
+### ✅ 已修复: 侧边栏项目列表无限增长导致溢出
+
+*   **故障现象 (Symptom)**: 
+    项目数量多时，列表撑破侧边栏，底部按钮（周期规则/设置）被遮挡无法点击。
+
+*   **根本原因 (Root Cause)**:
+    项目列表和象限列表无高度限制，无 `overflow-y-auto` 滚动容器。
+
+*   **解决方案 (Resolution)**:
+    在项目列表添加 `max-h-[35vh] overflow-y-auto`，象限列表添加 `max-h-[25vh] overflow-y-auto`，整个筛选区域设为 `overflow-y-auto min-h-0 flex-1`。
+
+### ✅ 已修复: 列表视图空状态图标不居中
+
+*   **故障现象 (Symptom)**: 
+    列表视图无数据时，空状态 SVG 图标靠左显示。
+
+*   **解决方案 (Resolution)**:
+    添加 `w-full` 和 `inline-flex justify-center` 确保空状态内容居中。
+
+### ✨ 新功能: 顶部 Tab 栏视图切换
+
+*   **目标**: 将视图切换从侧边栏移至 Header 顶部 Tab 栏，语义分离导航与筛选。
+*   **详情**: 新建 `ViewTabs` 组件（Notion/Linear 风格），侧边栏移除 ViewSwitcher，专职筛选 + 管理入口。
+
+### ✨ 新功能: 非月视图筛选指示条
+
+*   **目标**: 在非月视图中提供筛选激活的视觉反馈。
+*   **详情**: 新建 `FilterIndicator` 组件，当筛选激活且非月视图时，在 Header 下方显示筛选条件标签，点击 × 可直接清除。
+
+### 🔧 重构: Hook 重命名
+
+*   `useCalendarFilters` → `useTaskFilters`：更准确反映跨视图用途。
+
+### 🔧 数据兼容性增强
+
+*   在 `checkAndRestoreBackup` 中添加 v1.0 向后兼容逻辑，自动为旧格式任务补充 `progress` 字段。
+
+---
+
 ## v3.1.2
 
 *   **核心目标**: 彻底根除 UI 渲染瑕疵，提升交互的丝滑感。

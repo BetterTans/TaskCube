@@ -426,18 +426,15 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
           </button>
 
           {/* Collapsible: Recurring */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
-            <button
-              onClick={() => setShowRecurring(!showRecurring)}
-              className="w-full p-3 flex items-center justify-between"
-            >
+          <div className="space-y-2">
+            <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowRecurring(!showRecurring)}>
               <div className="flex items-center gap-2">
                 <Repeat size={14} className="text-gray-400 dark:text-zinc-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">重复</span>
+                <span className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">重复</span>
                 {isRecurring && <span className="text-[10px] text-indigo-500 font-medium bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded-full">已启用</span>}
               </div>
-              {showRecurring ? <ChevronDown size={16} className="text-gray-400"/> : <ChevronRight size={16} className="text-gray-400"/>}
-            </button>
+              {showRecurring ? <ChevronDown size={14} className="text-gray-400"/> : <ChevronRight size={14} className="text-gray-400"/>}
+            </div>
             {showRecurring && (
               <div className="px-3 pb-3 space-y-3 border-t border-gray-100 dark:border-zinc-800 pt-3">
                 <label htmlFor="panel-recurring-toggle" className="relative inline-flex items-center cursor-pointer">
@@ -466,15 +463,15 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                       <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
                         <p className="mb-1 font-semibold">此为周期任务，你要编辑？</p>
                         <div className="flex gap-2">
-                          <button onClick={() => setEditMode('single')} className={`px-2 py-1 rounded ${editMode === 'single' ? 'bg-white dark:bg-indigo-800' : ''}`}>仅此事项</button>
-                          <button onClick={() => setEditMode('series')} className={`px-2 py-1 rounded ${editMode === 'series' ? 'bg-white dark:bg-indigo-800' : ''}`}>后续所有</button>
+                            <button onClick={() => setEditMode('single')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${editMode === 'single' ? 'bg-white dark:bg-indigo-700 shadow-sm' : 'hover:bg-white/60 dark:hover:bg-indigo-800/50'}`}>仅此事项</button>
+                            <button onClick={() => setEditMode('series')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${editMode === 'series' ? 'bg-white dark:bg-indigo-700 shadow-sm' : 'hover:bg-white/60 dark:hover:bg-indigo-800/50'}`}>后续所有</button>
                         </div>
                       </div>
                     )}
                     {isRecurring && !task.recurringRuleId && onSaveRule && (
                       <button
                         onClick={handleSaveRecurring}
-                        className="w-full py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
+                        className="w-full py-2 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
                       >
                         创建周期规则
                       </button>
@@ -486,37 +483,31 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
           </div>
 
           {/* Collapsible: Dependencies */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
-            <button
-              onClick={() => setShowDependencies(!showDependencies)}
-              className="w-full p-3 flex items-center justify-between"
-            >
+          <div className="space-y-2">
+            <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowDependencies(!showDependencies)}>
               <div className="flex items-center gap-2">
                 <Link2 size={14} className="text-gray-400 dark:text-zinc-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">关联任务</span>
+                <span className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">关联任务</span>
                 {predecessorIds.length > 0 && (
                   <span className="text-[10px] text-gray-500 bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{predecessorIds.length}</span>
                 )}
               </div>
-              {showDependencies ? <ChevronDown size={16} className="text-gray-400"/> : <ChevronRight size={16} className="text-gray-400"/>}
-            </button>
+              {showDependencies ? <ChevronDown size={14} className="text-gray-400"/> : <ChevronRight size={14} className="text-gray-400"/>}
+            </div>
             {showDependencies && (
-              <div className="px-3 pb-3 space-y-3 border-t border-gray-100 dark:border-zinc-800 pt-3">
+              <div className="space-y-2">
                 <div>
-                  <label className="text-xs font-semibold text-gray-400 dark:text-gray-500">前置任务 (需先完成)</label>
-                  <div className="flex flex-wrap gap-2 mt-1">
+                  <label className="text-[11px] text-gray-400 dark:text-zinc-500">前置任务 (需先完成)</label>
+                  <div className="flex flex-wrap gap-1.5 mt-1">
                     {predecessors.map(p => (
-                      <div key={p.id} className="flex items-center bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 text-xs pl-2 pr-1 py-1 rounded-full border border-gray-200 dark:border-zinc-700">
+                      <span key={p.id} className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 text-xs pl-2.5 pr-1 py-1 rounded-full">
                         {p.title}
-                        <button onClick={() => handleRemovePredecessor(p.id)} className="ml-1 text-gray-400 hover:text-red-500"><X size={12}/></button>
-                      </div>
+                        <button onClick={() => handleRemovePredecessor(p.id)} className="hover:text-red-500 transition-colors"><X size={11}/></button>
+                      </span>
                     ))}
-                    <button
-                      ref={selectorAnchorRef}
-                      onClick={() => setIsSelectorOpen(true)}
-                      className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2 py-1 rounded-full"
-                    >
-                      <Plus size={12} /> 添加
+                    <button ref={selectorAnchorRef} onClick={() => setIsSelectorOpen(true)}
+                      className="inline-flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2.5 py-1 rounded-full transition-colors font-medium">
+                      <Plus size={11} /> 添加
                     </button>
                   </div>
                 </div>

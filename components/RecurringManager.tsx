@@ -59,8 +59,8 @@ export const RecurringManager: React.FC<RecurringManagerProps> = ({
         {/* 模态框头部 */}
         <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900">
           <div className="flex items-center gap-2">
-            <Repeat className="text-indigo-600 dark:text-indigo-400" size={20} />
-            <h3 className="text-lg font-bold text-gray-800 dark:text-white">周期任务管理</h3>
+            <Repeat className="text-gray-400 dark:text-zinc-500" size={18} />
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">周期任务管理</h3>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
             <X size={20} />
@@ -77,7 +77,7 @@ export const RecurringManager: React.FC<RecurringManagerProps> = ({
             rules.map(rule => (
               <div
                 key={rule.id}
-                className="p-4 rounded-lg border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-all group"
+                className="p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all group"
               >
                 {/* 规则标题和操作按钮 */}
                 <div className="flex justify-between items-start mb-2">

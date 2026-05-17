@@ -11,7 +11,6 @@ import { isFileSystemAccessSupported, selectBackupDirectoryNative, clearBackupDi
 import { Save } from 'lucide-react';
 import { logger } from '../utils/logger.ts';
 import { TagsManager } from './TagsManager.tsx';
-import { logger } from '../utils/logger';
 
 
 interface SettingsModalProps {

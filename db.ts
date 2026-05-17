@@ -2,7 +2,6 @@ import Dexie, { Table } from 'dexie';
 import { Task, Project, RecurringRule, Priority, EisenhowerQuadrant } from './types';
 import { STORAGE_KEYS } from './config/storageKeys';
 import { logger } from './utils/logger';
-import { logger } from 'utils/logger';
 
 
 /**

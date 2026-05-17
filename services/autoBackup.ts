@@ -2,7 +2,6 @@ import { logger } from '../utils/logger';
 import { db } from '../db';
 import { STORAGE_KEYS } from '../config/storageKeys';
 import { TaskProgress } from '../types';
-import { logger } from '../utils/logger';
 
 
 const BACKUP_FILENAME = 'nextdo-auto-backup.json';

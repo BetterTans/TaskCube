@@ -147,14 +147,14 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
     <div
       ref={popoverRef}
       style={{ top: position.top, left: position.left, opacity: position.opacity }}
-      className="fixed z-[90] w-72 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 dark:border-zinc-800 transition-opacity duration-150 animate-in fade-in zoom-in-95"
+      className="fixed z-[90] w-72 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-800 transition-opacity duration-150 animate-in fade-in zoom-in-95"
     >
       <div className="p-4 space-y-3">
         {/* 头部：标题和完成按钮 */}
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             {isBlocked && <Lock size={16} className="text-gray-400 shrink-0" />}
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white leading-tight truncate">
               {task.title}
             </h3>
           </div>
@@ -162,16 +162,16 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
             onClick={() => onToggle(task.id)}
             disabled={isBlocked}
             title={isBlocked ? "被前置任务阻塞" : "标记为完成"}
-            className={`flex-shrink-0 ml-2 mt-0.5 transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600 hover:text-indigo-500'}`}
+            className={`flex-shrink-0 ml-2 mt-0.5 transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-400 dark:text-zinc-500 hover:text-indigo-500'}`}
           >
-            {task.completed ? <CheckCircle2 size={22} /> : <Circle size={22} />}
+            {task.completed ? <CheckCircle2 size={20} /> : <Circle size={20} />}
           </button>
         </div>
 
         {/* 详情区域 */}
-        <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+        <div className="space-y-1.5 text-sm text-gray-500 dark:text-zinc-400">
           <div className="flex items-center gap-2">
-            <Clock size={14} />
+            <Clock size={13} className="text-gray-400 dark:text-zinc-500 shrink-0" />
             <span>
               {task.date}
               {task.startTime ? `, ${task.startTime}` : ' (全天)'}
@@ -179,26 +179,28 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
           </div>
           {project && (
             <div className="flex items-center gap-2">
-              <Briefcase size={14} style={{ color: project.color }} />
+              <Briefcase size={13} className="text-gray-400 dark:text-zinc-500 shrink-0" />
               <span>{project.title}</span>
             </div>
           )}
-          <div className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${getPriorityBadge(task.priority)}`}>
-             {priorityLabels[task.priority]} 优先级
-          </div>
-          <div className={`text-xs px-2 py-0.5 rounded-full font-medium w-fit ${getProgressBadge(task.progress)}`}>
-             {progressBadgeStyles[task.progress || TaskProgress.INITIAL].label}
+          <div className="flex items-center gap-2 pt-1">
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getPriorityBadge(task.priority)}`}>
+               {priorityLabels[task.priority]} 优先级
+            </span>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getProgressBadge(task.progress)}`}>
+               {progressBadgeStyles[task.progress || TaskProgress.INITIAL].label}
+            </span>
           </div>
         </div>
       </div>
       
       {/* 底部操作按钮 */}
-      <div className="bg-gray-50/50 dark:bg-zinc-800/50 border-t border-gray-100 dark:border-zinc-800 flex divide-x divide-gray-100 dark:divide-zinc-800">
-        <button onClick={() => onEdit(task)} className="flex-1 py-3 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5">
+      <div className="border-t border-gray-100 dark:border-zinc-800 flex">
+        <button onClick={() => onEdit(task)} className="flex-1 py-2.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors flex items-center justify-center gap-1.5 rounded-bl-2xl">
           <Edit size={14} />
           编辑
         </button>
-        <button onClick={() => onDelete(task.id)} className="flex-1 py-3 text-sm font-medium text-red-500 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors flex items-center justify-center gap-1.5">
+        <button onClick={() => onDelete(task.id)} className="flex-1 py-2.5 text-sm font-medium text-red-500 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors flex items-center justify-center gap-1.5 rounded-br-2xl border-l border-gray-100 dark:border-zinc-800">
           <Trash2 size={14} />
           删除
         </button>

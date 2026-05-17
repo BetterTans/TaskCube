@@ -459,7 +459,7 @@ export default function App() {
         </main>
       </div>
 
-      <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} />
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} commands={commands} tasks={tasks ?? []} projects={projects ?? []} onTaskSelect={(task) => openEditModal(task)} />
       <TaskDetailModal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingRule(null); setNewTaskInitialTime(undefined); }} task={editingTask} dateStr={selectedDateStr} allTasks={tasks ?? []} initialTime={newTaskInitialTime} recurringRule={getActiveRecurringRule()} projects={projects ?? []} initialProjectId={newTaskInitialProjectId} onSave={saveTask} onUpdateRule={updateRecurringRule} onDelete={deleteTask} addToast={addToast} />
       <RecurringManager isOpen={isRecurManagerOpen} onClose={() => setIsRecurManagerOpen(false)} rules={recurringRules} onDeleteRule={deleteRule} onEditRule={(rule) => { setEditingRule(rule); setEditingTask(null); setIsRecurManagerOpen(false); setIsModalOpen(true); }} />
       <ProjectListModal isOpen={isProjectListOpen} onClose={() => setIsProjectListOpen(false)} projects={projects ?? []} onCreateProject={handleCreateProject} onProjectClick={(p) => { setSelectedProjectId(p.id); setIsProjectListOpen(false); }} />

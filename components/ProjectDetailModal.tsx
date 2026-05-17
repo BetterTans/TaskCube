@@ -114,7 +114,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-sm transition-all">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-sm transition-all">
       <div className="bg-[#F2F2F7] dark:bg-black w-full max-w-3xl overflow-hidden flex flex-col h-[95vh] sm:h-[85vh] sm:rounded-2xl rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
         
         <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0 sticky top-0 z-10">

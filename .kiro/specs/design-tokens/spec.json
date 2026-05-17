@@ -1,0 +1,13 @@
+{
+  "feature_name": "design-tokens",
+  "created_at": "2026-05-17T18:00:00+08:00",
+  "language": "zh",
+  "phase": "tasks-generated",
+  "description": "统一 Tailwind 原生 token 标准，修复审计发现的不一致项",
+  "approvals": {
+    "requirements": { "generated": true, "approved": false },
+    "design": { "generated": true, "approved": false },
+    "tasks": { "generated": true, "approved": false }
+  },
+  "ready_for_implementation": false
+}

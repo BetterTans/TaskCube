@@ -141,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onMouseDown={() => onToggleCollapse()}
         onClick={(e) => e.preventDefault()}
         title={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
-        className="absolute bottom-5 left-full -translate-x-1/2 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm shadow-md border border-gray-200/80 dark:border-zinc-700/50 text-gray-500 dark:text-gray-400 hover:shadow-lg hover:border-gray-300 dark:hover:border-zinc-600 hover:text-gray-900 dark:hover:text-white transition-all"
+        className="absolute bottom-5 left-full -translate-x-1/2 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700/50 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-zinc-600 hover:text-gray-900 dark:hover:text-white transition-all"
       >
         {isCollapsed ? <PanelRightClose size={16} /> : <PanelLeftClose size={16} />}
       </button>

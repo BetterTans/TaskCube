@@ -502,7 +502,7 @@ export default function App() {
           <ViewTabs viewMode={viewMode} onChange={setViewMode} />
           {/* Right: Actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
-              <button onClick={() => openNewTaskModal(getTodayString())} className="px-3 sm:px-4 py-2 flex items-center justify-center gap-1.5 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md shadow-indigo-200 dark:shadow-none transition-all active:scale-95 text-sm font-medium" title="添加新任务 (N)"><Plus size={16} /> <span className="hidden sm:inline">新建任务</span></button>
+              <button onClick={() => openNewTaskModal(getTodayString())} className="px-3 sm:px-4 py-2 flex items-center justify-center gap-1.5 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg dark:shadow-none transition-all active:scale-95 text-sm font-medium" title="添加新任务 (N)"><Plus size={16} /> <span className="hidden sm:inline">新建任务</span></button>
            </div>
         </header>
         {viewMode !== 'calendar' && (

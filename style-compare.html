@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskCube Design Token — 5 种风格对比</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f5f5f5; color: #171717; padding: 20px; -webkit-font-smoothing: antialiased; }
+
+.page-header { text-align: center; margin-bottom: 32px; }
+.page-header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+.page-header p { font-size: 14px; color: #666; margin-top: 4px; }
+
+/* === LAYOUT: 5-column grid === */
+.showcase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; max-width: 1800px; margin: 0 auto; }
+
+.panel { border-radius: 16px; overflow: hidden; }
+.panel-header { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+.panel-header h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.panel-header .tag { font-size: 10px; padding: 2px 8px; border-radius: 9999px; font-weight: 500; }
+.panel-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+
+/* ======== STYLE 1: CURRENT TASKCUBE ======== */
+.style-taskcube { background: #fff; border: 1px solid #e5e7eb; }
+.style-taskcube .panel-header { background: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #6b7280; }
+.style-taskcube .panel-header .tag { background: #eef2ff; color: #4f46e5; }
+
+.style-taskcube .card { background: #fff; border: 1px solid #f3f4f6; border-radius: 12px; padding: 14px; }
+.style-taskcube .card:hover { border-color: #e0e7ff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.style-taskcube .card-title { font-size: 15px; font-weight: 600; color: #111827; }
+.style-taskcube .card-meta { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+.style-taskcube .card-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.style-taskcube .badge-high { font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: #fef2f2; color: #ef4444; font-weight: 500; }
+.style-taskcube .badge-progress { font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: #eff6ff; color: #3b82f6; font-weight: 500; }
+.style-taskcube .pill-tag { font-size: 10px; padding: 1px 6px; border-radius: 9999px; background: #f3f4f6; color: #6b7280; }
+
+.style-taskcube .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; background: #4f46e5; color: #fff; border: none; cursor: pointer; }
+.style-taskcube .btn-primary:hover { background: #4338ca; }
+.style-taskcube .btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; background: #fff; color: #374151; border: 1px solid #d1d5db; cursor: pointer; }
+.style-taskcube .btn-secondary:hover { background: #f9fafb; }
+.style-taskcube .btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; background: transparent; color: #ef4444; border: none; cursor: pointer; }
+.style-taskcube .btn-danger:hover { background: #fef2f2; }
+
+.style-taskcube .input { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid #e5e7eb; font-size: 13px; background: #f9fafb; outline: none; font-family: inherit; }
+.style-taskcube .input:focus { border-color: #a5b4fc; background: #fff; }
+
+.style-taskcube .section-label { font-size: 10px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
+.style-taskcube .section-icon { color: #9ca3af; }
+
+.style-taskcube .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+.style-taskcube .quad-cell { padding: 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+.style-taskcube .q1 { background: #fef2f2; color: #dc2626; }
+.style-taskcube .q2 { background: #f0fdf4; color: #16a34a; }
+.style-taskcube .q3 { background: #fff7ed; color: #ea580c; }
+.style-taskcube .q4 { background: #eff6ff; color: #2563eb; }
+
+.style-taskcube .toggle { width: 36px; height: 20px; background: #d1d5db; border-radius: 9999px; position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+.style-taskcube .toggle.on { background: #4f46e5; }
+.style-taskcube .toggle::after { content: ''; width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; left: 2px; transition: transform 0.2s; }
+.style-taskcube .toggle.on::after { transform: translateX(16px); }
+
+/* ======== STYLE 2: SHADCN/UI SEMANTIC ======== */
+:root {
+  --sh-bg: #ffffff; --sh-fg: #0a0a0a;
+  --sh-card: #ffffff; --sh-card-fg: #0a0a0a;
+  --sh-primary: #171717; --sh-primary-fg: #fafafa;
+  --sh-secondary: #f5f5f5; --sh-secondary-fg: #171717;
+  --sh-muted: #f5f5f5; --sh-muted-fg: #737373;
+  --sh-accent: #f5f5f5; --sh-accent-fg: #171717;
+  --sh-destructive: #ef4444; --sh-destructive-fg: #fafafa;
+  --sh-border: #e5e5e5; --sh-input: #e5e5e5; --sh-ring: #0a0a0a;
+  --sh-radius: 0.5rem;
+}
+.style-shadcn { background: var(--sh-bg); border: 1px solid var(--sh-border); color: var(--sh-fg); border-radius: var(--sh-radius); }
+.style-shadcn .panel-header { background: var(--sh-secondary); border-bottom: 1px solid var(--sh-border); color: var(--sh-muted-fg); }
+.style-shadcn .panel-header .tag { background: var(--sh-accent); color: var(--sh-accent-fg); }
+
+.style-shadcn .card { background: var(--sh-card); border: 1px solid var(--sh-border); border-radius: var(--sh-radius); padding: 14px; }
+.style-shadcn .card:hover { background: var(--sh-accent); }
+.style-shadcn .card-title { font-size: 14px; font-weight: 600; color: var(--sh-card-fg); }
+.style-shadcn .card-meta { font-size: 12px; color: var(--sh-muted-fg); margin-top: 4px; }
+.style-shadcn .card-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+
+.style-shadcn .badge-high { font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: #fee2e2; color: #dc2626; font-weight: 500; }
+.style-shadcn .badge-progress { font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: #dbeafe; color: #1d4ed8; font-weight: 500; }
+.style-shadcn .pill-tag { font-size: 10px; padding: 1px 6px; border-radius: 9999px; background: var(--sh-secondary); color: var(--sh-muted-fg); }
+
+.style-shadcn .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--sh-radius); font-size: 13px; font-weight: 500; background: var(--sh-primary); color: var(--sh-primary-fg); border: none; cursor: pointer; }
+.style-shadcn .btn-primary:hover { opacity: 0.9; }
+.style-shadcn .btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--sh-radius); font-size: 13px; font-weight: 500; background: var(--sh-bg); color: var(--sh-fg); border: 1px solid var(--sh-border); cursor: pointer; }
+.style-shadcn .btn-secondary:hover { background: var(--sh-accent); }
+.style-shadcn .btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--sh-radius); font-size: 13px; font-weight: 500; background: var(--sh-destructive); color: var(--sh-destructive-fg); border: none; cursor: pointer; }
+.style-shadcn .btn-danger:hover { opacity: 0.9; }
+
+.style-shadcn .input { width: 100%; padding: 8px 12px; border-radius: var(--sh-radius); border: 1px solid var(--sh-input); font-size: 13px; background: var(--sh-bg); outline: none; font-family: inherit; }
+.style-shadcn .input:focus { border-color: var(--sh-ring); box-shadow: 0 0 0 2px var(--sh-ring); }
+
+.style-shadcn .section-label { font-size: 10px; font-weight: 600; color: var(--sh-muted-fg); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.style-shadcn .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+.style-shadcn .quad-cell { padding: 8px; border-radius: var(--sh-radius); font-size: 11px; font-weight: 500; border: 1px solid var(--sh-border); }
+
+.style-shadcn .toggle { width: 36px; height: 20px; background: var(--sh-input); border-radius: 9999px; position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+.style-shadcn .toggle.on { background: var(--sh-primary); }
+.style-shadcn .toggle::after { content: ''; width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; left: 2px; transition: transform 0.2s; }
+.style-shadcn .toggle.on::after { transform: translateX(16px); }
+
+/* ======== STYLE 3: LINEAR DARK ======== */
+.style-linear { background: #08090a; border: 1px solid rgba(255,255,255,0.05); color: #d0d6e0; }
+.style-linear .panel-header { background: #0f1011; border-bottom: 1px solid rgba(255,255,255,0.05); color: #8a8f98; }
+.style-linear .panel-header .tag { background: rgba(94,106,210,0.15); color: #7170ff; }
+
+.style-linear .card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 14px; }
+.style-linear .card:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+.style-linear .card-title { font-size: 14px; font-weight: 510; color: #f7f8f8; letter-spacing: -0.1px; }
+.style-linear .card-meta { font-size: 12px; color: #62666d; margin-top: 4px; }
+.style-linear .card-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+
+.style-linear .badge-high { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #27a644; color: #f7f8f8; font-weight: 510; letter-spacing: -0.05px; }
+.style-linear .badge-progress { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(94,106,210,0.2); color: #828fff; font-weight: 510; }
+.style-linear .pill-tag { font-size: 10px; padding: 1px 8px; border-radius: 9999px; border: 1px solid #23252a; color: #8a8f98; font-weight: 510; }
+
+.style-linear .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 510; background: #5e6ad2; color: #fff; border: none; cursor: pointer; letter-spacing: -0.05px; }
+.style-linear .btn-primary:hover { background: #828fff; }
+.style-linear .btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 510; background: rgba(255,255,255,0.02); color: #d0d6e0; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; }
+.style-linear .btn-secondary:hover { background: rgba(255,255,255,0.04); }
+.style-linear .btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 510; background: transparent; color: #ef4444; border: none; cursor: pointer; }
+.style-linear .btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+.style-linear .input { width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); font-size: 13px; background: rgba(255,255,255,0.02); color: #d0d6e0; outline: none; font-family: inherit; }
+.style-linear .input:focus { border-color: #5e6ad2; background: rgba(255,255,255,0.04); }
+.style-linear .input::placeholder { color: #62666d; }
+
+.style-linear .section-label { font-size: 10px; font-weight: 510; color: #62666d; text-transform: uppercase; letter-spacing: 0.3px; }
+
+.style-linear .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
+.style-linear .quad-cell { padding: 6px 8px; border-radius: 4px; font-size: 10px; font-weight: 510; }
+.style-linear .q1 { background: rgba(239,68,68,0.1); color: #ef4444; }
+.style-linear .q2 { background: rgba(34,197,94,0.1); color: #22c55e; }
+.style-linear .q3 { background: rgba(249,115,22,0.1); color: #f97316; }
+.style-linear .q4 { background: rgba(59,130,246,0.1); color: #3b82f6; }
+
+.style-linear .toggle { width: 32px; height: 18px; background: rgba(255,255,255,0.08); border-radius: 9999px; position: relative; display: inline-flex; align-items: center; cursor: pointer; transition: background 0.2s; }
+.style-linear .toggle.on { background: #5e6ad2; }
+.style-linear .toggle::after { content: ''; width: 14px; height: 14px; background: #f7f8f8; border-radius: 50%; position: absolute; left: 2px; transition: transform 0.2s; }
+.style-linear .toggle.on::after { transform: translateX(14px); }
+
+/* ======== STYLE 4: ENTERPRISE 3-TIER ======== */
+:root {
+  --ent-bg: #ffffff; --ent-surface: #fafafa; --ent-surface-elevated: #ffffff;
+  --ent-text-primary: #111827; --ent-text-secondary: #4b5563; --ent-text-tertiary: #9ca3af;
+  --ent-border-default: #e5e7eb; --ent-border-strong: #d1d5db; --ent-border-focus: #4f46e5;
+  --ent-action-primary: #4f46e5; --ent-action-primary-hover: #4338ca; --ent-action-primary-text: #ffffff;
+  --ent-action-secondary: #ffffff; --ent-action-secondary-hover: #f9fafb; --ent-action-secondary-text: #374151; --ent-action-secondary-border: #d1d5db;
+  --ent-feedback-error: #ef4444; --ent-feedback-error-hover: #fef2f2;
+  --ent-feedback-success: #16a34a; --ent-feedback-warning: #f59e0b;
+  --ent-radius-sm: 6px; --ent-radius-md: 10px; --ent-radius-lg: 14px; --ent-radius-pill: 9999px;
+  --ent-shadow-sm: 0 1px 2px rgba(0,0,0,0.04); --ent-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --ent-font-xs: 11px; --ent-font-sm: 13px; --ent-font-base: 14px; --ent-font-lg: 16px;
+  --ent-font-weight-normal: 400; --ent-font-weight-medium: 500; --ent-font-weight-semibold: 600;
+  --ent-spacing-xs: 4px; --ent-spacing-sm: 8px; --ent-spacing-md: 12px; --ent-spacing-lg: 16px;
+}
+.style-enterprise { background: var(--ent-bg); border: 1px solid var(--ent-border-default); color: var(--ent-text-primary); }
+.style-enterprise .panel-header { background: var(--ent-surface); border-bottom: 1px solid var(--ent-border-default); color: var(--ent-text-tertiary); }
+.style-enterprise .panel-header .tag { background: #eef2ff; color: var(--ent-action-primary); }
+
+.style-enterprise .card { background: var(--ent-surface-elevated); border: 1px solid var(--ent-border-default); border-radius: var(--ent-radius-md); padding: 14px; box-shadow: var(--ent-shadow-sm); }
+.style-enterprise .card:hover { border-color: var(--ent-border-strong); box-shadow: var(--ent-shadow-md); }
+.style-enterprise .card-title { font-size: var(--ent-font-base); font-weight: var(--ent-font-weight-semibold); color: var(--ent-text-primary); }
+.style-enterprise .card-meta { font-size: var(--ent-font-xs); color: var(--ent-text-tertiary); margin-top: var(--ent-spacing-xs); }
+.style-enterprise .card-row { display: flex; align-items: center; gap: 6px; margin-top: var(--ent-spacing-sm); }
+
+.style-enterprise .badge-high { font-size: 10px; padding: 2px 8px; border-radius: var(--ent-radius-pill); background: #fef2f2; color: var(--ent-feedback-error); font-weight: var(--ent-font-weight-medium); }
+.style-enterprise .badge-progress { font-size: 10px; padding: 2px 8px; border-radius: var(--ent-radius-pill); background: #eef2ff; color: var(--ent-action-primary); font-weight: var(--ent-font-weight-medium); }
+.style-enterprise .pill-tag { font-size: 10px; padding: 1px 8px; border-radius: var(--ent-radius-pill); background: var(--ent-surface); color: var(--ent-text-tertiary); border: 1px solid var(--ent-border-default); }
+
+.style-enterprise .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: var(--ent-spacing-sm) var(--ent-spacing-lg); border-radius: var(--ent-radius-md); font-size: var(--ent-font-sm); font-weight: var(--ent-font-weight-medium); background: var(--ent-action-primary); color: var(--ent-action-primary-text); border: none; cursor: pointer; }
+.style-enterprise .btn-primary:hover { background: var(--ent-action-primary-hover); }
+.style-enterprise .btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: var(--ent-spacing-sm) var(--ent-spacing-lg); border-radius: var(--ent-radius-md); font-size: var(--ent-font-sm); font-weight: var(--ent-font-weight-medium); background: var(--ent-action-secondary); color: var(--ent-action-secondary-text); border: 1px solid var(--ent-action-secondary-border); cursor: pointer; }
+.style-enterprise .btn-secondary:hover { background: var(--ent-action-secondary-hover); }
+.style-enterprise .btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: var(--ent-spacing-sm) var(--ent-spacing-lg); border-radius: var(--ent-radius-md); font-size: var(--ent-font-sm); font-weight: var(--ent-font-weight-medium); background: transparent; color: var(--ent-feedback-error); border: none; cursor: pointer; }
+.style-enterprise .btn-danger:hover { background: var(--ent-feedback-error-hover); }
+
+.style-enterprise .input { width: 100%; padding: var(--ent-spacing-sm) var(--ent-spacing-md); border-radius: var(--ent-radius-md); border: 1px solid var(--ent-border-default); font-size: var(--ent-font-sm); background: var(--ent-surface); outline: none; font-family: inherit; }
+.style-enterprise .input:focus { border-color: var(--ent-border-focus); background: var(--ent-bg); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+
+.style-enterprise .section-label { font-size: 10px; font-weight: var(--ent-font-weight-semibold); color: var(--ent-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.style-enterprise .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ent-spacing-xs); margin-top: var(--ent-spacing-xs); }
+.style-enterprise .quad-cell { padding: var(--ent-spacing-sm); border-radius: var(--ent-radius-sm); font-size: 11px; font-weight: var(--ent-font-weight-medium); border: 1px solid var(--ent-border-default); }
+
+.style-enterprise .toggle { width: 36px; height: 20px; background: var(--ent-border-default); border-radius: var(--ent-radius-pill); position: relative; display: inline-flex; align-items: center; cursor: pointer; transition: background 0.2s; }
+.style-enterprise .toggle.on { background: var(--ent-action-primary); }
+.style-enterprise .toggle::after { content: ''; width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; left: 2px; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.style-enterprise .toggle.on::after { transform: translateX(16px); }
+
+/* ======== STYLE 5: VERCEL WHITE ======== */
+.style-vercel { background: #ffffff; border: none; box-shadow: rgba(0,0,0,0.08) 0px 0px 0px 1px; border-radius: 8px; color: #171717; }
+.style-vercel .panel-header { background: #fafafa; border-bottom: 1px solid #ebebeb; color: #666; }
+.style-vercel .panel-header .tag { background: #ebf5ff; color: #0068d6; }
+
+.style-vercel .card { background: #fff; border: none; box-shadow: rgba(0,0,0,0.08) 0px 0px 0px 1px; border-radius: 6px; padding: 14px; }
+.style-vercel .card:hover { box-shadow: rgba(0,0,0,0.08) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 8px; }
+.style-vercel .card-title { font-size: 14px; font-weight: 600; color: #171717; letter-spacing: -0.2px; }
+.style-vercel .card-meta { font-size: 12px; color: #666; margin-top: 4px; }
+.style-vercel .card-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+
+.style-vercel .badge-high { font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: #fef2f2; color: #ef4444; font-weight: 500; }
+.style-vercel .badge-progress { font-size: 11px; padding: 2px 8px; border-radius: 9999px; background: #eff6ff; color: #2563eb; font-weight: 500; }
+.style-vercel .pill-tag { font-size: 10px; padding: 1px 8px; border-radius: 9999px; background: #fafafa; color: #666; box-shadow: rgba(0,0,0,0.06) 0px 0px 0px 1px; }
+
+.style-vercel .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; background: #171717; color: #fff; border: none; cursor: pointer; letter-spacing: -0.1px; }
+.style-vercel .btn-primary:hover { background: #0a0a0a; }
+.style-vercel .btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; background: #fff; color: #171717; border: none; box-shadow: rgba(0,0,0,0.08) 0px 0px 0px 1px; cursor: pointer; }
+.style-vercel .btn-secondary:hover { background: #fafafa; }
+.style-vercel .btn-danger { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; background: transparent; color: #ff5b4f; border: none; cursor: pointer; }
+.style-vercel .btn-danger:hover { background: #fef2f2; }
+
+.style-vercel .input { width: 100%; padding: 8px 12px; border-radius: 6px; border: none; box-shadow: rgba(0,0,0,0.08) 0px 0px 0px 1px; font-size: 13px; background: #fff; outline: none; font-family: inherit; }
+.style-vercel .input:focus { box-shadow: 0px 0px 0px 2px #0a72ef; }
+
+.style-vercel .section-label { font-size: 10px; font-weight: 500; color: #808080; text-transform: uppercase; letter-spacing: 0.3px; }
+
+.style-vercel .quadrant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+.style-vercel .quad-cell { padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: #fafafa; box-shadow: rgba(0,0,0,0.06) 0px 0px 0px 1px; }
+.style-vercel .q1 { border-left: 2px solid #ff5b4f; color: #ef4444; }
+.style-vercel .q2 { border-left: 2px solid #16a34a; color: #16a34a; }
+.style-vercel .q3 { border-left: 2px solid #f59e0b; color: #f59e0b; }
+.style-vercel .q4 { border-left: 2px solid #0a72ef; color: #0a72ef; }
+
+.style-vercel .toggle { width: 36px; height: 20px; background: #ebebeb; border-radius: 9999px; position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+.style-vercel .toggle.on { background: #171717; }
+.style-vercel .toggle::after { content: ''; width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; left: 2px; transition: transform 0.2s; box-shadow: rgba(0,0,0,0.1) 0px 1px 3px; }
+.style-vercel .toggle.on::after { transform: translateX(16px); }
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 700px) { .showcase-grid { grid-template-columns: 1fr; } }
+
+/* Global interactive */
+button { font-family: inherit; }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <h1>TaskCube Design Token — Style Comparison</h1>
+  <p>同一套 UI 组件，5 种设计 token 规范，hover 看细节</p>
+</div>
+
+<div class="showcase-grid">
+
+<!-- ===== 1. Current TaskCube ===== -->
+<div class="panel style-taskcube">
+  <div class="panel-header"><h2>🔵 当前 TaskCube</h2><span class="tag">Tailwind 原生</span></div>
+  <div class="panel-body">
+
+    <!-- Card -->
+    <div class="section-label">◉ 任务卡片</div>
+    <div class="card">
+      <div class="card-title">设计系统调研</div>
+      <div class="card-meta">截止: 5月20日 · 项目: Design</div>
+      <div class="card-row">
+        <span class="badge-high">高</span>
+        <span class="badge-progress">进行中</span>
+        <span class="pill-tag">前端</span>
+        <span class="pill-tag">UI</span>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="section-label">◉ 按钮</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-primary">＋ 新建任务</button>
+      <button class="btn-secondary">⚙ 设置</button>
+      <button class="btn-danger">🗑 删除</button>
+    </div>
+
+    <!-- Inputs -->
+    <div class="section-label">◉ 输入框</div>
+    <input class="input" placeholder="输入任务标题...">
+
+    <!-- Quadrant -->
+    <div class="section-label">◉ 四象限</div>
+    <div class="quadrant-grid">
+      <div class="quad-cell q1">Q1 重要紧急</div>
+      <div class="quad-cell q2">Q2 重要不紧急</div>
+      <div class="quad-cell q3">Q3 紧急不重要</div>
+      <div class="quad-cell q4">Q4 不紧急不重要</div>
+    </div>
+
+    <!-- Toggle -->
+    <div class="section-label">◉ 重复开关</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="toggle on"></span>
+      <span style="font-size:12px;color:#6b7280;">已启用</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== 2. shadcn/ui ===== -->
+<div class="panel style-shadcn">
+  <div class="panel-header"><h2>⚫ shadcn/ui</h2><span class="tag">语义对</span></div>
+  <div class="panel-body">
+    <div class="section-label">◉ 任务卡片</div>
+    <div class="card">
+      <div class="card-title">设计系统调研</div>
+      <div class="card-meta">截止: 5月20日 · 项目: Design</div>
+      <div class="card-row">
+        <span class="badge-high">高</span>
+        <span class="badge-progress">进行中</span>
+        <span class="pill-tag">前端</span>
+        <span class="pill-tag">UI</span>
+      </div>
+    </div>
+    <div class="section-label">◉ 按钮</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-primary">＋ 新建任务</button>
+      <button class="btn-secondary">⚙ 设置</button>
+      <button class="btn-danger">🗑 删除</button>
+    </div>
+    <div class="section-label">◉ 输入框</div>
+    <input class="input" placeholder="输入任务标题...">
+    <div class="section-label">◉ 四象限</div>
+    <div class="quadrant-grid">
+      <div class="quad-cell q1">Q1 重要紧急</div>
+      <div class="quad-cell q2">Q2 重要不紧急</div>
+      <div class="quad-cell q3">Q3 紧急不重要</div>
+      <div class="quad-cell q4">Q4 不紧急不重要</div>
+    </div>
+    <div class="section-label">◉ 重复开关</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="toggle on"></span>
+      <span style="font-size:12px;color:#737373;">已启用</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3. Linear ===== -->
+<div class="panel style-linear">
+  <div class="panel-header"><h2>💜 Linear</h2><span class="tag">极简暗黑</span></div>
+  <div class="panel-body">
+    <div class="section-label">◉ 任务卡片</div>
+    <div class="card">
+      <div class="card-title">设计系统调研</div>
+      <div class="card-meta">截止: 5月20日 · 项目: Design</div>
+      <div class="card-row">
+        <span class="badge-high">高</span>
+        <span class="badge-progress">进行中</span>
+        <span class="pill-tag">前端</span>
+        <span class="pill-tag">UI</span>
+      </div>
+    </div>
+    <div class="section-label">◉ 按钮</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-primary">＋ 新建任务</button>
+      <button class="btn-secondary">⚙ 设置</button>
+      <button class="btn-danger">🗑 删除</button>
+    </div>
+    <div class="section-label">◉ 输入框</div>
+    <input class="input" placeholder="输入任务标题...">
+    <div class="section-label">◉ 四象限</div>
+    <div class="quadrant-grid">
+      <div class="quad-cell q1">Q1 重要紧急</div>
+      <div class="quad-cell q2">Q2 重要不紧急</div>
+      <div class="quad-cell q3">Q3 紧急不重要</div>
+      <div class="quad-cell q4">Q4 不紧急不重要</div>
+    </div>
+    <div class="section-label">◉ 重复开关</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="toggle on"></span>
+      <span style="font-size:12px;color:#62666d;">已启用</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 4. Enterprise 3-Tier ===== -->
+<div class="panel style-enterprise">
+  <div class="panel-header"><h2>🏢 企业三层</h2><span class="tag">WCAG AA</span></div>
+  <div class="panel-body">
+    <div class="section-label">◉ 任务卡片</div>
+    <div class="card">
+      <div class="card-title">设计系统调研</div>
+      <div class="card-meta">截止: 5月20日 · 项目: Design</div>
+      <div class="card-row">
+        <span class="badge-high">高</span>
+        <span class="badge-progress">进行中</span>
+        <span class="pill-tag">前端</span>
+        <span class="pill-tag">UI</span>
+      </div>
+    </div>
+    <div class="section-label">◉ 按钮</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-primary">＋ 新建任务</button>
+      <button class="btn-secondary">⚙ 设置</button>
+      <button class="btn-danger">🗑 删除</button>
+    </div>
+    <div class="section-label">◉ 输入框</div>
+    <input class="input" placeholder="输入任务标题...">
+    <div class="section-label">◉ 四象限</div>
+    <div class="quadrant-grid">
+      <div class="quad-cell q1">Q1 重要紧急</div>
+      <div class="quad-cell q2">Q2 重要不紧急</div>
+      <div class="quad-cell q3">Q3 紧急不重要</div>
+      <div class="quad-cell q4">Q4 不紧急不重要</div>
+    </div>
+    <div class="section-label">◉ 重复开关</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="toggle on"></span>
+      <span style="font-size:12px;color:#9ca3af;">已启用</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 5. Vercel ===== -->
+<div class="panel style-vercel">
+  <div class="panel-header"><h2>▲ Vercel</h2><span class="tag">Shadow Border</span></div>
+  <div class="panel-body">
+    <div class="section-label">◉ 任务卡片</div>
+    <div class="card">
+      <div class="card-title">设计系统调研</div>
+      <div class="card-meta">截止: 5月20日 · 项目: Design</div>
+      <div class="card-row">
+        <span class="badge-high">高</span>
+        <span class="badge-progress">进行中</span>
+        <span class="pill-tag">前端</span>
+        <span class="pill-tag">UI</span>
+      </div>
+    </div>
+    <div class="section-label">◉ 按钮</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-primary">＋ 新建任务</button>
+      <button class="btn-secondary">⚙ 设置</button>
+      <button class="btn-danger">🗑 删除</button>
+    </div>
+    <div class="section-label">◉ 输入框</div>
+    <input class="input" placeholder="输入任务标题...">
+    <div class="section-label">◉ 四象限</div>
+    <div class="quadrant-grid">
+      <div class="quad-cell q1">Q1 重要紧急</div>
+      <div class="quad-cell q2">Q2 重要不紧急</div>
+      <div class="quad-cell q3">Q3 紧急不重要</div>
+      <div class="quad-cell q4">Q4 不紧急不重要</div>
+    </div>
+    <div class="section-label">◉ 重复开关</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="toggle on"></span>
+      <span style="font-size:12px;color:#666;">已启用</span>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -400,7 +400,7 @@ const TaskItem = React.memo(({
   return (
     <div
       key={task.id}
-      className={`${bgColor} ${cursorClass} absolute left-0 right-0 rounded-md border-l-4 p-1 text-xs shadow-sm overflow-hidden transition-all duration-100 ${isDraggingThis ? 'opacity-80 z-30 shadow-lg' : 'z-10'}`}
+      className={`${bgColor} ${cursorClass} absolute left-0 right-0 rounded-md border-l-4 p-1 text-xs shadow-sm overflow-hidden transition-all duration-100 ${isDraggingThis ? 'opacity-80 z-30' : 'z-10'}`}
       style={{ top: `${startMinutes}px`, height: `${duration}px`, ...(Object.keys(style).length > 1 ? style : {}) }}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}

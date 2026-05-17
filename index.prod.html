@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>NextDo</title>
+    <style>
+      @font-face {
+        font-family: 'SF Pro Display';
+        src: local('SF Pro Display'), local('San Francisco'), local('-apple-system'), local('BlinkMacSystemFont'), local('Segoe UI'), local('Roboto'), local('Helvetica Neue'), sans-serif;
+      }
+      html, body, #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #F7F7F7;
+        color: #111827;
+        -webkit-font-smoothing: antialiased;
+        transition: background-color 0.3s ease;
+      }
+      .dark body {
+        background-color: #121217;
+        color: #f4f4f5;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #52525b; }
+      input[type="date"]::-webkit-calendar-picker-indicator,
+      input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0); }
+      .dark input[type="date"]::-webkit-calendar-picker-indicator,
+      .dark input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+      .ios-btn-active:active { opacity: 0.7; transform: scale(0.98); }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+  </body>
+</html>

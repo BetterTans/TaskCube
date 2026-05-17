@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      base: './',  // relative paths for file:// compatibility
       server: {
         port: 3000,
         host: '0.0.0.0',
@@ -19,11 +20,10 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, '.'),
         }
       },
-      // 使用 vite-tauri.html 作为构建入口
       root: __dirname,
       build: {
         rollupOptions: {
-          input: mode === 'tauri' ? 'vite-tauri.html' : 'index.html'
+          input: mode === 'tauri' ? 'vite-tauri.html' : 'index.prod.html'
         }
       }
     };

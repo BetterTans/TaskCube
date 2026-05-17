@@ -429,23 +429,21 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           </TaskEditorCore>
 
                 {/* Recurring */}
-                <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
-                    <div className="flex items-center gap-2 p-3 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-zinc-800">
-                        <div className="bg-indigo-500 rounded-md p-1 text-white"><Repeat size={14}/></div>
-                        <span className="text-sm font-medium">重复</span>
-                        <div className="flex-1" />
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Repeat size={14} className="text-gray-400 dark:text-zinc-500" />
+                            <span className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">重复</span>
+                            {isRecurring && <span className="text-[10px] text-indigo-500 font-medium bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded-full">已启用</span>}
+                        </div>
                         <label htmlFor="recurring-toggle" className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="recurring-toggle" className="sr-only peer" checked={isRecurring} onChange={handleRecurringToggle} />
-                          <div className="w-11 h-6 bg-gray-200 dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                          <div className="w-9 h-5 bg-gray-200 dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500"></div>
                         </label>
                     </div>
-                    {isRecurring && <div className="p-3"><RecurringOptions 
-                        frequency={recurFreq} 
-                        interval={recurInterval} 
-                        weekDays={recurWeekDays} 
-                        startDate={recurStartDate} 
-                        endDate={recurEndDate} 
-                        isRequired={isRecurring}
+                    {isRecurring && <div><RecurringOptions 
+                        frequency={recurFreq} interval={recurInterval} weekDays={recurWeekDays}
+                        startDate={recurStartDate} endDate={recurEndDate} isRequired={isRecurring}
                         onChange={(updates) => {
                             if (updates.frequency) setRecurFreq(updates.frequency);
                             if (updates.interval) setRecurInterval(updates.interval);
@@ -455,47 +453,47 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                         }}
                     /></div>}
                     {recurringRule && (
-                      <div className="px-3 pb-3">
-                        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
-                         <p className="mb-1 font-semibold">此为周期任务，你要编辑？</p>
+                      <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2.5 rounded-xl text-xs text-indigo-700 dark:text-indigo-300">
+                         <p className="mb-1.5 font-medium">此为周期任务，你要编辑？</p>
                          <div className="flex gap-2">
-                            <button onClick={() => setEditMode('single')} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${editMode === 'single' ? 'bg-white dark:bg-indigo-700 shadow-sm' : 'hover:bg-white/50 dark:hover:bg-indigo-800/50'}`}>仅此事项</button>
-                            <button onClick={() => setEditMode('series')} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${editMode === 'series' ? 'bg-white dark:bg-indigo-700 shadow-sm' : 'hover:bg-white/50 dark:hover:bg-indigo-800/50'}`}>后续所有</button>
+                            <button onClick={() => setEditMode('single')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${editMode === 'single' ? 'bg-white dark:bg-indigo-700 shadow-sm' : 'hover:bg-white/60 dark:hover:bg-indigo-800/50'}`}>仅此事项</button>
+                            <button onClick={() => setEditMode('series')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${editMode === 'series' ? 'bg-white dark:bg-indigo-700 shadow-sm' : 'hover:bg-white/60 dark:hover:bg-indigo-800/50'}`}>后续所有</button>
                          </div>
-                        </div>
                       </div>
                     )}
                 </div>
 
              {/* --- Dependencies --- */}
-             <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
-                <div className="flex items-center gap-2 p-3 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-zinc-800">
-                  <div className="bg-green-500 rounded-md p-1 text-white"><Link2 size={14}/></div>
-                  <span className="text-sm font-medium">关联任务</span>
+             <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Link2 size={14} className="text-gray-400 dark:text-zinc-500" />
+                  <span className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">关联任务</span>
+                  {predecessorIds.length > 0 && (
+                    <span className="text-[10px] text-gray-500 bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{predecessorIds.length}</span>
+                  )}
                 </div>
-                <div className="p-3 space-y-3">
+                <div className="space-y-2">
                   <div>
-                    <label className="text-xs font-semibold text-gray-400 dark:text-gray-500">前置任务 (需先完成)</label>
-                    <div className="flex flex-wrap gap-2 mt-1">
+                    <label className="text-[11px] text-gray-400 dark:text-zinc-500">前置任务 (需先完成)</label>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
                       {predecessors.map(p => (
-                        <div key={p.id} className="flex items-center bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 text-xs pl-2 pr-1 py-1 rounded-full border border-gray-200 dark:border-zinc-700">
+                        <span key={p.id} className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 text-xs pl-2.5 pr-1 py-1 rounded-full">
                           {p.title}
-                          <button onClick={() => handleRemovePredecessor(p.id)} className="ml-1 text-gray-400 hover:text-red-500"><X size={12}/></button>
-                        </div>
+                          <button onClick={() => handleRemovePredecessor(p.id)} className="hover:text-red-500 transition-colors"><X size={11}/></button>
+                        </span>
                       ))}
-                      <button ref={selectorAnchorRef} onClick={() => setIsSelectorOpen(true)} className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2 py-1 rounded-full">
-                        <Plus size={12} /> 添加
+                      <button ref={selectorAnchorRef} onClick={() => setIsSelectorOpen(true)}
+                        className="inline-flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2.5 py-1 rounded-full transition-colors font-medium">
+                        <Plus size={11} /> 添加
                       </button>
                     </div>
                   </div>
-                   <div>
-                    <label className="text-xs font-semibold text-gray-400 dark:text-gray-500">后置任务 (依赖此项)</label>
-                    <div className="flex flex-wrap gap-2 mt-1">
+                  <div>
+                    <label className="text-[11px] text-gray-400 dark:text-zinc-500">后置任务 (依赖此项)</label>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
                       {successors.length > 0 ? successors.map(s => (
-                        <div key={s.id} className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs px-2 py-1 rounded-full border border-gray-200 dark:border-zinc-700">
-                          {s.title}
-                        </div>
-                      )) : <p className="text-xs text-gray-400 italic mt-1">无</p>}
+                        <span key={s.id} className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs px-2.5 py-1 rounded-full">{s.title}</span>
+                      )) : <p className="text-xs text-gray-400 italic">无</p>}
                     </div>
                   </div>
                 </div>

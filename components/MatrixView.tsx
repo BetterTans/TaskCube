@@ -87,7 +87,7 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
 
       <div className="flex items-center justify-between mt-3 text-xs">
         <div className="flex items-center gap-2">
-          <span className={`px-1.5 py-0.5 rounded-md font-medium ${progressDisplay.style.badge}`}>{progressDisplay.label}</span>
+          <span className={`px-1.5 py-0.5 rounded-lg font-medium ${progressDisplay.style.badge}`}>{progressDisplay.label}</span>
           {task.startTime && (
             <div className="flex items-center gap-1 text-gray-500 dark:text-zinc-400 bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
               <Clock size={12} />

@@ -122,7 +122,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                 onClick={() => { cmd.action(); onClose(); }}
                 className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${index === selectedIndex ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-zinc-800'}`}>
                 <div className="flex items-center gap-3">
-                  <div className={`p-1.5 rounded-md ${index === selectedIndex ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-zinc-400'}`}>{cmd.icon}</div>
+                  <div className={`p-1.5 rounded-lg ${index === selectedIndex ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-zinc-400'}`}>{cmd.icon}</div>
                   <span className={`font-medium ${index === selectedIndex ? 'text-indigo-800 dark:text-indigo-200' : 'text-gray-800 dark:text-zinc-200'}`}>{cmd.title}</span>
                 </div>
                 {cmd.shortcut && <kbd className="text-xs font-mono bg-gray-200 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400 px-1.5 py-0.5 rounded border-b-2 border-gray-300 dark:border-zinc-600">{cmd.shortcut}</kbd>}

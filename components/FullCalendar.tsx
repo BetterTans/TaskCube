@@ -328,7 +328,7 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                     onClick={(e) => { e.stopPropagation(); onTaskClick(task, e); }}
                     className={`
                       absolute flex items-center h-[22px] px-2 text-xs font-medium text-white transition-all duration-100 shadow-sm gap-1.5
-                      ${isStart ? 'rounded-md' : ''} ${isEnd ? 'rounded-md' : ''}
+                      ${isStart ? 'rounded-lg' : ''} ${isEnd ? 'rounded-lg' : ''}
                       ${task.completed ? 'opacity-60 grayscale' : (isBlocked ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110 cursor-grab')}
                       ${draggedTask?.id === task.id ? 'opacity-30' : ''}
                     `}

@@ -23,7 +23,7 @@ export const ViewTabs: React.FC<ViewTabsProps> = ({ viewMode, onChange }) => {
           key={tab.id}
           onClick={() => onChange(tab.id)}
           className={`
-            flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium
+            flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium
             transition-all duration-200
             ${viewMode === tab.id
               ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm'

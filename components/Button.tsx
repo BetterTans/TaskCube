@@ -26,7 +26,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props 
 }) => {
   // 基础样式，定义了按钮的通用外观和行为
-  const baseStyles = "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyles = "inline-flex items-center justify-center rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed";
   
   // 样式变体，根据 variant prop 切换不同的背景色和文本颜色
   const variants = {

@@ -345,7 +345,7 @@ const TaskItem = React.memo(({
     const isRightSide = taskIsOnRightSide();
 
     timePreview = (
-      <div className={`absolute -top-6 text-xs bg-gray-900 text-white px-2 py-1 rounded-md font-medium whitespace-nowrap z-50 shadow-lg ${
+      <div className={`absolute -top-6 text-xs bg-gray-900 text-white px-2 py-1 rounded-lg font-medium whitespace-nowrap z-50 shadow-lg ${
         isRightSide ? 'right-2' : 'left-2'
       }`}>
         {formatTime(newStartMinutes)} - {formatTime(newEndMinutes)}
@@ -400,7 +400,7 @@ const TaskItem = React.memo(({
   return (
     <div
       key={task.id}
-      className={`${bgColor} ${cursorClass} absolute left-0 right-0 rounded-md border-l-4 p-1 text-xs shadow-sm overflow-hidden transition-all duration-100 ${isDraggingThis ? 'opacity-80 z-30' : 'z-10'}`}
+      className={`${bgColor} ${cursorClass} absolute left-0 right-0 rounded-lg border-l-4 p-1 text-xs shadow-sm overflow-hidden transition-all duration-100 ${isDraggingThis ? 'opacity-80 z-30' : 'z-10'}`}
       style={{ top: `${startMinutes}px`, height: `${duration}px`, ...(Object.keys(style).length > 1 ? style : {}) }}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}

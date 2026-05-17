@@ -89,14 +89,14 @@ export const RecurringManager: React.FC<RecurringManagerProps> = ({
                   <div className="flex gap-1">
                     <button 
                       onClick={() => onEditRule(rule)}
-                      className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded-md hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+                      className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
                       title="编辑规则"
                     >
                       <Edit2 size={16} />
                     </button>
                     <button 
                       onClick={() => onDeleteRule(rule.id)}
-                      className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                      className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                       title="删除规则及后续任务"
                     >
                       <Trash2 size={16} />

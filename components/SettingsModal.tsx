@@ -70,7 +70,7 @@ const KeyInput: React.FC<{ value: string; onChange: (value: string) => void }> =
     <button
       onClick={() => setIsListening(true)}
       onBlur={() => setIsListening(false)}
-      className="min-w-[80px] text-center bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-md px-2 py-1 text-sm font-mono font-semibold text-gray-700 dark:text-zinc-300 hover:border-indigo-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+      className="min-w-[80px] text-center bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg px-2 py-1 text-sm font-mono font-semibold text-gray-700 dark:text-zinc-300 hover:border-indigo-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
     >
       {isListening ? '...' : value.replace('meta', 'Cmd').toUpperCase()}
     </button>
@@ -276,7 +276,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <label className="text-sm font-semibold text-gray-700 dark:text-zinc-300">应用主题</label>
                 <div className="flex bg-gray-100 dark:bg-zinc-800 p-1 rounded-lg">
                    {[{ id: 'light', icon: <Sun size={14}/>, label: '浅色' }, { id: 'dark', icon: <Moon size={14}/>, label: '深色' }, { id: 'system', icon: <Monitor size={14}/>, label: '跟随系统' }].map(t => (
-                     <button key={t.id} onClick={() => onThemeChange(t.id as ThemeMode)} className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all ${currentTheme === t.id ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200'}`}>{t.icon}{t.label}</button>
+                     <button key={t.id} onClick={() => onThemeChange(t.id as ThemeMode)} className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${currentTheme === t.id ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200'}`}>{t.icon}{t.label}</button>
                    ))}
                 </div>
              </div>
@@ -414,7 +414,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <button
                     key={item.id}
                     onClick={() => setActiveView(item.id as SettingsView)}
-                    className={`w-full flex items-center gap-3 text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
+                    className={`w-full flex items-center gap-3 text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors
                       ${isActive
                         ? 'bg-gray-200/70 dark:bg-zinc-800 text-gray-900 dark:text-white'
                         : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-200/50 dark:hover:bg-zinc-800/50'

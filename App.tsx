@@ -492,9 +492,9 @@ export default function App() {
               )}
               {viewMode === 'matrix' && (
                  <div className="flex items-center gap-2 animate-in fade-in duration-200">
-                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-zinc-300 dark:color-scheme-dark h-9"/>
+                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-zinc-300 dark:color-scheme-dark h-9"/>
                     <span className="text-gray-400 text-sm">-</span>
-                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-zinc-300 dark:color-scheme-dark h-9"/>
+                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-zinc-300 dark:color-scheme-dark h-9"/>
                  </div>
               )}
           </div>

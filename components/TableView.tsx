@@ -116,7 +116,7 @@ const FilterPopover: React.FC<{
     }, [onClose]);
 
     const renderContent = () => {
-        const baseBtnClass = 'w-full text-left text-sm px-3 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700';
+        const baseBtnClass = 'w-full text-left text-sm px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700';
         const activeBtnClass = 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300';
         
         switch (column) {
@@ -149,7 +149,7 @@ const FilterPopover: React.FC<{
         >
           {renderContent()}
           <div className="border-t border-gray-100 dark:border-zinc-700 p-2">
-            <button onClick={handleClear} className="w-full text-center text-sm py-1 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-md">清除筛选</button>
+            <button onClick={handleClear} className="w-full text-center text-sm py-1 text-indigo-600 dark:text-indigo-400 font-medium hover:bg-gray-50 dark:hover:bg-zinc-700 rounded-lg">清除筛选</button>
           </div>
         </div>
     );
@@ -274,11 +274,11 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
                         {key === 'status' && <div className="w-full text-center"><button disabled={isBlocked} onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }} className={`transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-zinc-600 hover:text-indigo-500'}`}>{task.completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}</button></div>}
                         {key === 'title' && <div onClick={() => onTaskClick(task)} className={`flex items-center font-medium text-sm truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer ${task.completed ? 'text-gray-400 dark:text-zinc-500 line-through' : 'text-gray-900 dark:text-zinc-200'}`}>{isBlocked && <span title="被前置任务阻塞"><Lock size={12} className="mr-1.5 text-gray-400 shrink-0" /></span>}<span className="truncate">{task.title}</span></div>}
                         {key === 'project' && <div className="text-sm text-gray-600 dark:text-zinc-300 truncate">{getProjectTitle(task.projectId)}</div>}
-                        {key === 'priority' && <span className={`px-1.5 py-0.5 rounded-md text-xs font-semibold ${getPriorityBadge(task.priority)}`}>{priorityBadgeStyles[task.priority].label}</span>}
+                        {key === 'priority' && <span className={`px-1.5 py-0.5 rounded-lg text-xs font-semibold ${getPriorityBadge(task.priority)}`}>{priorityBadgeStyles[task.priority].label}</span>}
                         {key === 'quadrant' && (() => { const info = task.quadrant && quadrantInfo[task.quadrant]; return info ? (<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-300">{info.icon}<span>{info.title}</span></div>) : null; })()}
-                        {key === 'progress' && <span className={`px-1.5 py-0.5 rounded-md text-xs font-medium ${getProgressBadge(task.progress)}`}>{task.progress || '初始'}</span>}
+                        {key === 'progress' && <span className={`px-1.5 py-0.5 rounded-lg text-xs font-medium ${getProgressBadge(task.progress)}`}>{task.progress || '初始'}</span>}
                         {key === 'date' && <div className="text-sm text-gray-600 dark:text-zinc-300">{task.date}</div>}
-                        {key === 'tags' && <div className="flex flex-wrap gap-1">{task.tags?.map(tag => { const tc = getTagColor(tag); return <span key={tag} className={`text-xs px-1.5 py-0.5 rounded-md font-medium ${tc.light} ${tc.dark}`}>{tag}</span>; })}</div>}
+                        {key === 'tags' && <div className="flex flex-wrap gap-1">{task.tags?.map(tag => { const tc = getTagColor(tag); return <span key={tag} className={`text-xs px-1.5 py-0.5 rounded-lg font-medium ${tc.light} ${tc.dark}`}>{tag}</span>; })}</div>}
                         {key === 'subtasks' && <div className="text-center w-full text-sm text-gray-500 dark:text-zinc-400">{task.subTasks?.length > 0 && (<span className="flex items-center justify-center gap-1.5"><AlignLeft size={12} /><span>{task.subTasks.filter(s => s.completed).length}/{task.subTasks.length}</span></span>)}</div>}
                       </div>
                     ))}

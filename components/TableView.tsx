@@ -255,8 +255,8 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
           </div>
 
           {sortedTasks.length === 0 ? (
-            <div className="py-20 text-center">
-              <div className="text-gray-300 dark:text-zinc-600 mb-3">
+            <div className="py-20 text-center w-full">
+              <div className="text-gray-300 dark:text-zinc-600 mb-3 inline-flex justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="m9 9 0 12"/><path d="m3 15 18 0"/></svg>
               </div>
               <p className="text-gray-400 dark:text-zinc-500 font-medium">没有匹配的任务</p>

@@ -1,5 +1,6 @@
 import { db } from '../db';
 import { STORAGE_KEYS } from '../config/storageKeys';
+import { TaskProgress } from '../types';
 
 const BACKUP_FILENAME = 'nextdo-auto-backup.json';
 const DEBOUNCE_MS = 5000;
@@ -207,6 +208,25 @@ export const checkAndRestoreBackup = async (): Promise<boolean> => {
 
     if (!backupData.database) return false;
 
+    // Compatibility: handle v1.0 data without progress field
+    let tasksToImport = backupData.database.tasks || [];
+    const today = new Date().toISOString().split('T')[0];
+    if (backupData.version === '1.0' || !tasksToImport.some((task: any) => task.progress !== undefined)) {
+      console.log('Auto-restore: detected old data format, adding progress field...');
+      tasksToImport = tasksToImport.map((task: any) => {
+        if (!task.progress) {
+          if (task.completed) {
+            task.progress = TaskProgress.COMPLETED;
+          } else if (task.endDate && task.endDate < today) {
+            task.progress = TaskProgress.DELAYED;
+          } else {
+            task.progress = TaskProgress.INITIAL;
+          }
+        }
+        return task;
+      });
+    }
+
     // Restore database
     await db.transaction('rw', db.tasks, db.projects, db.recurringRules, async () => {
       await Promise.all([
@@ -215,7 +235,7 @@ export const checkAndRestoreBackup = async (): Promise<boolean> => {
         db.recurringRules.clear(),
       ]);
       await Promise.all([
-        db.tasks.bulkAdd(backupData.database.tasks || []),
+        db.tasks.bulkAdd(tasksToImport),
         db.projects.bulkAdd(backupData.database.projects || []),
         db.recurringRules.bulkAdd(backupData.database.recurringRules || []),
       ]);

@@ -56,25 +56,17 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
-      /* Custom scrollbar for better aesthetics where needed */
-      ::-webkit-scrollbar {
-        width: 4px;
-        height: 4px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background-color: rgba(0,0,0,0.1);
-        border-radius: 20px;
-      }
-      .dark ::-webkit-scrollbar-thumb {
-        background-color: rgba(255,255,255,0.2);
-      }
-      .ios-btn-active:active {
-        opacity: 0.7;
-        transform: scale(0.98);
-      }
+      /* Custom scrollbar */
+      .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #52525b; }
+      /* Dark mode date/time inputs */
+      input[type="date"]::-webkit-calendar-picker-indicator,
+      input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0); }
+      .dark input[type="date"]::-webkit-calendar-picker-indicator,
+      .dark input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+      .ios-btn-active:active { opacity: 0.7; transform: scale(0.98); }
     </style>
   <script type="importmap">
 {

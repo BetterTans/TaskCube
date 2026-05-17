@@ -457,6 +457,12 @@ export default function App() {
     }
   };
 
+  const animatedView = (
+    <div key={viewMode} className="h-full animate-in fade-in duration-200">
+      {renderCurrentView()}
+    </div>
+  );
+
   return (
     <div className="flex h-screen w-screen overflow-hidden transition-colors duration-300">
       <Sidebar
@@ -509,7 +515,7 @@ export default function App() {
           />
         )}
         <main className="flex-1 overflow-hidden relative">
-          {renderCurrentView()}
+          {animatedView}
         </main>
       </div>
 

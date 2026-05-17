@@ -57,7 +57,7 @@ export const RecurringManager: React.FC<RecurringManagerProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[80vh]">
         {/* 模态框头部 */}
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between bg-gray-50 dark:bg-zinc-900/50">
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-900">
           <div className="flex items-center gap-2">
             <Repeat className="text-indigo-600 dark:text-indigo-400" size={20} />
             <h3 className="text-lg font-bold text-gray-800 dark:text-white">周期任务管理</h3>
@@ -121,7 +121,7 @@ export const RecurringManager: React.FC<RecurringManagerProps> = ({
         </div>
         
         {/* 底部操作区 */}
-        <div className="p-4 border-t border-gray-100 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/50 text-right">
+        <div className="p-4 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-right">
            <Button variant="secondary" onClick={onClose}>关闭</Button>
         </div>
       </div>

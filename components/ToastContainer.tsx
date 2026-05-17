@@ -24,7 +24,7 @@ export const ToastContainer: React.FC<{ toasts: Toast[]; onRemove: (id: string) 
       {toasts.map(toast => (
         <div
           key={toast.id}
-          className={`flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg animate-in slide-in-from-right-5 duration-200 ${bgMap[toast.type]}`}
+          className={`flex items-center gap-2 px-4 py-3 rounded-xl border shadow-lg animate-in slide-in-from-right-5 duration-200 ${bgMap[toast.type]}`}
         >
           {iconMap[toast.type]}
           <span className="text-sm text-gray-800 dark:text-gray-200 flex-1">{toast.message}</span>

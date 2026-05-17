@@ -57,7 +57,7 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-sm transition-all">
       <div className="bg-[#F2F2F7] dark:bg-black sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[90vh] sm:h-[80vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
         
-        <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
+        <div className="bg-white dark:bg-zinc-900 px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
            <button onClick={onClose} className="text-indigo-600 dark:text-indigo-400 font-medium text-base ios-btn-active">完成</button>
            <h3 className="font-semibold text-gray-900 dark:text-white text-base">项目</h3>
            <button 

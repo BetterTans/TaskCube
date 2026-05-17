@@ -30,7 +30,6 @@ v3.2 (当前) ──→ v3.3 (Level 1) ──→ v3.4 (Level 2) ──→ v4.0 (
 | Spec | 描述 | 影响文件 | 数据兼容 |
 |------|------|----------|----------|
 | `ai-smart-scheduling` | AI 分析空闲推荐时间 | aiService.ts, 新 scheduler | 无 |
-| `focus-mode` | 番茄钟 + 任务关联 + 统计 | 新 FocusTimer, 新 focusStats | 需统计表 |
 | `habit-tracking` | 周期任务连续完成统计 | 新 habitService, 新 habitView | 需习惯记录表 |
 | `markdown-notes` | 任务详情 Markdown 渲染 | TaskDetailPanel, 新 markdown renderer | 无 |
 
@@ -59,7 +58,6 @@ Level 2 (部分依赖 Level 1):
 
 Level 3 (部分依赖 panel-modal-merge + undo-redo):
   panel-modal-merge ──→ ai-scheduling ───┐
-  panel-modal-merge ──→ markdown-notes ──┤
-  undo-redo ──────────→ focus-mode ──────┤→ v4.0
+  panel-modal-merge ──→ markdown-notes ──┤→ v4.0
   (独立)               habit-tracking ───┘
 ```

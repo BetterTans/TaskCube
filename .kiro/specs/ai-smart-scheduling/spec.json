@@ -1,0 +1,23 @@
+{
+  "feature_name": "ai-smart-scheduling",
+  "description": "AI 智能排程——分析空闲时段推荐任务时间",
+  "created_at": "2026-05-17T13:00:00+08:00",
+  "language": "zh",
+  "phase": "spec-complete",
+  "level": 3,
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": false
+    },
+    "design": {
+      "generated": true,
+      "approved": false
+    },
+    "tasks": {
+      "generated": true,
+      "approved": false
+    }
+  },
+  "updated_at": "2026-05-17T13:30:00+08:00"
+}

@@ -1,0 +1,23 @@
+{
+  "feature_name": "tag-management",
+  "description": "标签管理面板（重命名/删除/合并/颜色）",
+  "created_at": "2026-05-17T13:00:00+08:00",
+  "language": "zh",
+  "phase": "spec-complete",
+  "level": 1,
+  "approvals": {
+    "requirements": {
+      "generated": true,
+      "approved": false
+    },
+    "design": {
+      "generated": true,
+      "approved": false
+    },
+    "tasks": {
+      "generated": true,
+      "approved": false
+    }
+  },
+  "updated_at": "2026-05-17T13:30:00+08:00"
+}

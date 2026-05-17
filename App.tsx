@@ -25,6 +25,7 @@ import { Box, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, Briefcase } 
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db.ts';
 import { useHotkeys } from './hooks/useHotkeys.ts';
+import { useUndoStack } from './hooks/useUndoStack.ts';
 import { generateUUID } from './utils/generateUUID.ts';
 import { getTodayString } from './utils/dateUtils.ts';
 import { DEFAULT_AI_SETTINGS } from './config/defaultValues.ts';
@@ -104,6 +105,8 @@ export default function App() {
     filterProjectId,
     filterQuadrant,
   );
+
+  const undoStack = useUndoStack();
 
   const selectedTask = selectedTaskId ? (tasks ?? []).find(t => t.id === selectedTaskId) ?? null : null;
 
@@ -235,15 +238,19 @@ export default function App() {
     if (!tasks) return;
     const task = tasks.find(t => t.id === id);
     if (task) {
+      const oldCompleted = task.completed;
+      const oldProgress = task.progress;
       const newCompleted = !task.completed;
       const updateData: Partial<Task> = { completed: newCompleted };
-      // Sync progress with completed status
-      if (newCompleted) {
-        updateData.progress = TaskProgress.COMPLETED;
-      } else {
-        updateData.progress = TaskProgress.INITIAL;
-      }
+      if (newCompleted) { updateData.progress = TaskProgress.COMPLETED; }
+      else { updateData.progress = TaskProgress.INITIAL; }
       await db.tasks.update(id, updateData);
+      undoStack.push({
+        id: `toggle-${id}`,
+        description: `${newCompleted ? '完成' : '取消完成'}「${task.title}」`,
+        undo: async () => { await db.tasks.update(id, { completed: oldCompleted, progress: oldProgress }); },
+        redo: async () => { await db.tasks.update(id, updateData); },
+      });
     }
   }
 
@@ -269,7 +276,17 @@ export default function App() {
       };
       await db.recurringRules.add(newRule);
     } else if (taskData.id) {
+      const oldTask = tasks?.find(t => t.id === taskData.id);
       await db.tasks.update(taskData.id, taskData);
+      if (oldTask) {
+        const oldSnapshot = { ...oldTask };
+        undoStack.push({
+          id: `edit-${taskData.id}`,
+          description: `编辑「${taskData.title || oldTask.title}」`,
+          undo: async () => { await db.tasks.update(taskData.id!, oldSnapshot); },
+          redo: async () => { await db.tasks.update(taskData.id!, taskData); },
+        });
+      }
     } else {
       const newTask: Task = {
         id: generateUUID(),
@@ -310,7 +327,19 @@ export default function App() {
     }
   };
 
-  const deleteTask = (id: string) => db.tasks.delete(id);
+  const deleteTask = async (id: string) => {
+    const task = tasks?.find(t => t.id === id);
+    if (task) {
+      const snapshot = { ...task };
+      await db.tasks.delete(id);
+      undoStack.push({
+        id: `delete-${id}`,
+        description: `删除「${task.title}」`,
+        undo: async () => { await db.tasks.add(snapshot); },
+        redo: async () => { await db.tasks.delete(id); },
+      });
+    }
+  };
   const deleteRule = async (ruleId: string) => {
     showConfirm(
       '删除周期规则',
@@ -347,6 +376,22 @@ export default function App() {
     const currentIndex = views.indexOf(viewMode);
     setViewMode(views[(currentIndex + 1) % views.length]);
   }, [viewMode]);
+
+  // Undo/Redo keyboard listener (works in inputs too)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key === 'z' && !e.shiftKey && undoStack.canUndo) {
+        e.preventDefault();
+        undoStack.undo().then(() => addToast(`已撤销 ${undoStack.lastDescription || '操作'}`, 'info'));
+      } else if (mod && e.key === 'z' && e.shiftKey && undoStack.canRedo) {
+        e.preventDefault();
+        undoStack.redo();
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [undoStack, addToast]);
 
   const hotkeyActions = useMemo(() => ({
     [hotkeys.open_palette]: () => setIsCommandPaletteOpen(true),

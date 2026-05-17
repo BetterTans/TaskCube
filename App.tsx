@@ -13,6 +13,7 @@ import { SettingsModal } from './components/SettingsModal.tsx';
 import { CommandPalette, Command } from './components/CommandPalette.tsx';
 import { EventPopover } from './components/EventPopover.tsx';
 import { Sidebar } from './components/Sidebar.tsx';
+import { ViewTabs } from './components/ViewTabs.tsx';
 import { TaskDetailPanel } from './components/TaskDetailPanel.tsx';
 import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
 import { ToastContainer } from './components/ToastContainer.tsx';
@@ -404,8 +405,6 @@ export default function App() {
   return (
     <div className="flex h-screen w-screen overflow-hidden transition-colors duration-300">
       <Sidebar
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
         filterProjectId={filterProjectId}
         onProjectFilter={setFilterProjectId}
         filterQuadrant={filterQuadrant}
@@ -420,25 +419,29 @@ export default function App() {
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-lg px-6 py-4 shrink-0 z-20 border-b border-gray-100 dark:border-zinc-800 transition-colors flex items-center justify-between">
-          <div className="flex items-center h-full">
+        <header className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-lg px-4 sm:px-6 py-3 shrink-0 z-20 border-b border-gray-100 dark:border-zinc-800 transition-colors flex items-center justify-between gap-3">
+          {/* Left: Date navigation */}
+          <div className="flex items-center min-w-0">
               {(viewMode === 'calendar' || viewMode === 'day') && (
                  <div className="flex items-center animate-in fade-in duration-200">
-                   <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - (viewMode === 'calendar' ? 1 : 0), d.getDate() - (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50"><ChevronLeft size={20} /></button>
-                   <span className="text-xl font-bold text-gray-900 dark:text-gray-100 mx-3 min-w-[120px] text-center">{viewMode === 'day' ? (getTodayString(currentDate) === TODAY ? '今天' : `${currentDate.getMonth()+1}月${currentDate.getDate()}日`) : `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</span>
-                   <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + (viewMode === 'calendar' ? 1 : 0), d.getDate() + (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50"><ChevronRight size={20} /></button>
+                   <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - (viewMode === 'calendar' ? 1 : 0), d.getDate() - (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50 flex-shrink-0"><ChevronLeft size={18} /></button>
+                   <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mx-2 min-w-[80px] sm:min-w-[120px] text-center truncate">{viewMode === 'day' ? (getTodayString(currentDate) === TODAY ? '今天' : `${currentDate.getMonth()+1}月${currentDate.getDate()}日`) : `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</span>
+                   <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + (viewMode === 'calendar' ? 1 : 0), d.getDate() + (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50 flex-shrink-0"><ChevronRight size={18} /></button>
                  </div>
               )}
               {viewMode === 'matrix' && (
                  <div className="flex items-center gap-2 animate-in fade-in duration-200">
                     <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
-                    <span className="text-gray-400">-</span>
+                    <span className="text-gray-400 text-sm">-</span>
                     <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
                  </div>
               )}
           </div>
-          <div className="flex items-center gap-3">
-              <button onClick={() => openNewTaskModal(getTodayString())} className="px-4 py-2 flex items-center justify-center gap-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md shadow-indigo-200 dark:shadow-none transition-all active:scale-95 text-sm font-medium" title="添加新任务 (N)"><Plus size={16} /> 新建任务</button>
+          {/* Center: View Tabs */}
+          <ViewTabs viewMode={viewMode} onChange={setViewMode} />
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+              <button onClick={() => openNewTaskModal(getTodayString())} className="px-3 sm:px-4 py-2 flex items-center justify-center gap-1.5 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md shadow-indigo-200 dark:shadow-none transition-all active:scale-95 text-sm font-medium" title="添加新任务 (N)"><Plus size={16} /> <span className="hidden sm:inline">新建任务</span></button>
            </div>
         </header>
         <main className="flex-1 overflow-hidden relative">

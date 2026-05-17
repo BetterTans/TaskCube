@@ -68,6 +68,8 @@ npm run tauri:build:linux   # 构建 Linux AppImage
 ## 📚 文档中心
 
 *   **[快速入门](./docs/QUICK_START.md)**: 开发和部署指南
+*   **[演进路线图](./.kiro/specs/evolution-roadmap/requirements.md)**: v3.2 → v4.0 SDD 规约
+*   **[SDD Specs](./.kiro/specs/)**: 12 个特性规约（需求→设计→任务）
 *   **[打包指南](./docs/PACKAGING.md)**: 桌面应用打包和分发
 *   **[贡献指南](./docs/CONTRIB.md)**: 开发环境和工作流
 *   **[任务进展功能](./docs/PROGRESS_FEATURE.md)**: 任务进展跟踪功能说明

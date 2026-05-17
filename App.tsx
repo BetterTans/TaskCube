@@ -31,6 +31,7 @@ import { getTodayString } from './utils/dateUtils.ts';
 import { DEFAULT_AI_SETTINGS } from './config/defaultValues.ts';
 import { STORAGE_KEYS } from './config/storageKeys.ts';
 import { initAutoBackup, triggerBackup, checkAndRestoreBackup, isFileSystemAccessSupported, selectBackupDirectory, clearBackupDirectory, isBackupConfigured } from './services/autoBackup.ts';
+import { checkRemindersOnce } from './services/reminderService.ts';
 
 // Helper function to get the week range
 const getWeekRange = (date = new Date()) => {
@@ -178,6 +179,14 @@ export default function App() {
   useEffect(() => {
     triggerBackup();
   }, [tasks, projects, recurringRules]);
+
+  // --- Reminder check (every 60s) ---
+  useEffect(() => {
+    if (!tasks || tasks.length === 0) return;
+    const interval = setInterval(() => checkRemindersOnce(tasks), 60000);
+    checkRemindersOnce(tasks); // Check immediately on mount
+    return () => clearInterval(interval);
+  }, [tasks]);
 
   // 计算依赖阻塞状态
   const tasksById = useMemo(() => {

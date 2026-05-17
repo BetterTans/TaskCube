@@ -417,6 +417,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             endDate={endDate} onEndDateChange={handleEndDateChange}
             isEndDateDisabled={isRecurring}
             startTime={startTime} onStartTimeChange={setStartTime}
+            reminderOffset={reminderOffset} onReminderOffsetChange={setReminderOffset}
             duration={duration} onDurationChange={(v) => setDuration(v)}
             projectId={selectedProjectId || undefined} onProjectIdChange={(v) => setSelectedProjectId(v || '')}
             projects={projects}

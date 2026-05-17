@@ -36,6 +36,7 @@ interface TaskEditorCoreProps {
   isEndDateDisabled?: boolean;
   startTime?: string; onStartTimeChange?: (v: string) => void;
   duration?: number; onDurationChange?: (v: number) => void;
+  reminderOffset?: number; onReminderOffsetChange?: (v: number | undefined) => void;
   projectId?: string; onProjectIdChange: (v: string | undefined) => void;
   projects: Project[];
   tags: string[]; onTagsChange: (tags: string[]) => void;
@@ -61,6 +62,7 @@ export const TaskEditorCore: React.FC<TaskEditorCoreProps> = ({
   progress, onProgressChange, startDate, onStartDateChange,
   endDate, onEndDateChange, isEndDateDisabled,
   startTime, onStartTimeChange, duration, onDurationChange,
+  reminderOffset, onReminderOffsetChange,
   projectId, onProjectIdChange, projects, tags, onTagsChange,
   subTasks, onSubTasksChange, onTitleBlur, titleError, children,
 }) => {
@@ -112,6 +114,23 @@ export const TaskEditorCore: React.FC<TaskEditorCoreProps> = ({
               <select value={duration || 60} onChange={e => onDurationChange?.(Number(e.target.value))} onBlur={onTitleBlur}
                 className="bg-gray-50 dark:bg-zinc-800/50 rounded-xl px-3 py-2.5 text-sm outline-none border border-transparent focus:border-indigo-300 dark:focus:border-indigo-600">
                 {[15,30,60,90,120].map(m => <option key={m} value={m}>{m} 分钟</option>)}
+              </select>
+            </div>
+          )}
+          {onReminderOffsetChange && (
+            <div className="flex items-center gap-2 mt-2">
+              <Bell size={13} className="text-gray-400 shrink-0" />
+              <select
+                value={reminderOffset ?? ''}
+                onChange={e => onReminderOffsetChange(e.target.value ? Number(e.target.value) : undefined)}
+                className="flex-1 bg-gray-50 dark:bg-zinc-800/50 rounded-xl px-3 py-2.5 text-sm outline-none border border-transparent focus:border-indigo-300 dark:focus:border-indigo-600">
+                <option value="">无提醒</option>
+                <option value="0">任务开始时</option>
+                <option value="-5">提前 5 分钟</option>
+                <option value="-15">提前 15 分钟</option>
+                <option value="-30">提前 30 分钟</option>
+                <option value="-60">提前 1 小时</option>
+                <option value="-1440">提前 1 天</option>
               </select>
             </div>
           )}

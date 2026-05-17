@@ -388,6 +388,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             startTime={form.startTime}
             onStartTimeChange={(v) => { updateField('startTime', v || undefined); handleBlur('startTime', v || undefined); }}
             duration={form.duration}
+            reminderOffset={form.reminderOffset} onReminderOffsetChange={(v) => { updateField('reminderOffset', v); handleBlur('reminderOffset', v); }}
             onDurationChange={(v) => { updateField('duration', v || undefined); handleBlur('duration', v || undefined); }}
             projectId={form.projectId}
             onProjectIdChange={(v) => { updateField('projectId', v); handleBlur('projectId', v); }}

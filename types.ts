@@ -120,6 +120,7 @@ export interface Task {
   predecessorIds?: string[]; // 前置任务 ID 列表 (此任务依赖的任务)
   successorIds?: string[];   // 后置任务 ID 列表 (依赖此任务的任务)
   progress?: TaskProgress; // 任务进展状态
+  reminderOffset?: number; // 提醒偏移（分钟，负数=提前），undefined=无提醒
 }
 
 /**

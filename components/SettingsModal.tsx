@@ -9,6 +9,7 @@ import { STORAGE_KEYS } from '../config/storageKeys.ts';
 import { ToastType } from '../hooks/useToast.ts';
 import { isFileSystemAccessSupported, selectBackupDirectoryNative, clearBackupDirectory, isBackupConfigured, getBackupState, triggerBackup, generateBackupData } from '../services/autoBackup.ts';
 import { Save } from 'lucide-react';
+import { logger } from '../utils/logger.ts';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -182,7 +183,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         // If no progress field exists, convert old data format
         if (backupData.version === '1.0' || !tasksToImport.some((task: any) => task.progress !== undefined)) {
-          console.log('Detected old data format, adding progress field compatibility...');
+          logger.info('Detected old data format, adding progress field compatibility...');
           tasksToImport = tasksToImport.map((task: any) => {
             // Only add progress if it doesn't exist
             if (!task.progress) {

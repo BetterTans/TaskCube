@@ -1,3 +1,4 @@
+import { logger } from '../utils/logger';
 import { db } from '../db';
 import { STORAGE_KEYS } from '../config/storageKeys';
 import { TaskProgress } from '../types';
@@ -32,10 +33,10 @@ export const getBackupState = (): { configured: boolean; dirName: string } => {
 // Try showDirectoryPicker — works reliably on Windows Chrome/Edge, may fail on macOS
 export const selectBackupDirectoryNative = async (): Promise<{ success: boolean; dirName?: string; error?: string }> => {
   try {
-    console.log('showDirectoryPicker: calling with mode=readwrite');
+    logger.debug('showDirectoryPicker: calling with mode=readwrite');
     directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
     backupDirName = directoryHandle.name;
-    console.log('showDirectoryPicker: selected directory', backupDirName);
+    logger.info('showDirectoryPicker: selected directory', backupDirName);
 
     await saveDirectoryHandle(directoryHandle);
     try {
@@ -115,7 +116,7 @@ const loadDirectoryHandle = async (): Promise<FileSystemDirectoryHandle | null> 
     }
   } catch (e) {
     // _meta table might not exist yet
-    console.log('No saved directory handle found');
+    logger.debug('No saved directory handle found');
   }
   return null;
 };
@@ -130,9 +131,9 @@ const performBackup = async () => {
     const writable = await fileHandle.createWritable();
     await writable.write(jsonString);
     await writable.close();
-    console.log('Auto-backup written successfully');
+    logger.info('Auto-backup written successfully');
   } catch (e) {
-    console.error('Auto-backup write failed:', e);
+    logger.error('Auto-backup write failed:', e);
     // Permission might have been revoked
     if (e instanceof DOMException && e.name === 'NotAllowedError') {
       directoryHandle = null;
@@ -212,7 +213,7 @@ export const checkAndRestoreBackup = async (): Promise<boolean> => {
     let tasksToImport = backupData.database.tasks || [];
     const today = new Date().toISOString().split('T')[0];
     if (backupData.version === '1.0' || !tasksToImport.some((task: any) => task.progress !== undefined)) {
-      console.log('Auto-restore: detected old data format, adding progress field...');
+      logger.info('Auto-restore: detected old data format, adding progress field...');
       tasksToImport = tasksToImport.map((task: any) => {
         if (!task.progress) {
           if (task.completed) {
@@ -251,10 +252,10 @@ export const checkAndRestoreBackup = async (): Promise<boolean> => {
       if (ls.tableFilters) localStorage.setItem(STORAGE_KEYS.TABLE_FILTERS, ls.tableFilters);
     }
 
-    console.log('Auto-restore from backup completed');
+    logger.info('Auto-restore from backup completed');
     return true;
   } catch (e) {
-    console.error('Auto-restore failed:', e);
+    logger.error('Auto-restore failed:', e);
     return false;
   }
 };

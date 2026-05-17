@@ -4,6 +4,7 @@ import { Plus, Zap, Star, Bell, Coffee, Lock, Activity } from 'lucide-react';
 import { getProgressDisplay } from '../utils/taskDisplay';
 import { progressIconColors } from '../config/taskColors';
 import { formatDate as formatDateUtil, getTodayString } from '../utils/dateUtils';
+import { logger } from '../utils/logger';
 
 interface DayTimeViewProps {
   currentDate: Date;

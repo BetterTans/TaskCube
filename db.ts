@@ -1,6 +1,7 @@
 import Dexie, { Table } from 'dexie';
 import { Task, Project, RecurringRule, Priority, EisenhowerQuadrant } from './types';
 import { STORAGE_KEYS } from './config/storageKeys';
+import { logger } from './utils/logger';
 
 /**
  * 定义应用的 IndexedDB 数据库类。
@@ -53,7 +54,7 @@ class NextDoDB extends Dexie {
       projects: 'id, status',
       recurringRules: 'id, *tags'
     }).upgrade(async tx => {
-      console.log("Upgrading database to version 4: Adding progress field to tasks...");
+      logger.info("Upgrading database to version 4: Adding progress field to tasks...");
 
       const today = new Date().toISOString().split('T')[0];
 
@@ -73,7 +74,7 @@ class NextDoDB extends Dexie {
         }
       });
 
-      console.log("Database upgrade to version 4 completed");
+      logger.info("Database upgrade to version 4 completed");
     });
 
     // 版本 5: 增加 _meta 表用于存储自动备份目录句柄等元数据
@@ -93,7 +94,7 @@ class NextDoDB extends Dexie {
      * 2. 如果没有任何旧数据，则添加一些初始的演示数据，以引导新用户。
      */
     this.on('populate', () => {
-      console.log("Populating database for the first time, checking for legacy LocalStorage data...");
+      logger.info("Populating database for the first time, checking for legacy LocalStorage data...");
 
       // 尝试从 localStorage 获取旧数据
       const savedTasks = localStorage.getItem(STORAGE_KEYS.LEGACY_TASKS_FULL);

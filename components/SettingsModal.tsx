@@ -11,6 +11,8 @@ import { isFileSystemAccessSupported, selectBackupDirectoryNative, clearBackupDi
 import { Save } from 'lucide-react';
 import { logger } from '../utils/logger.ts';
 import { TagsManager } from './TagsManager.tsx';
+import { logger } from '../utils/logger';
+
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -156,7 +158,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       URL.revokeObjectURL(url);
       addToast('数据已成功导出！', 'success');
     } catch (error) {
-      console.error('Failed to export data:', error);
+      logger.error('Failed to export data:', error);
       addToast('数据导出失败，请检查控制台获取更多信息。', 'error');
     }
   };
@@ -248,7 +250,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         addToast('数据导入成功！应用将重新加载以应用更改。', 'success');
         window.location.reload();
       } catch (error) {
-        console.error('Failed to import data:', error);
+        logger.error('Failed to import data:', error);
         addToast(`数据导入失败：${error instanceof Error ? error.message : String(error)}`, 'error');
       } finally {
         if (fileInputRef.current) fileInputRef.current.value = '';

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Task, Project, Priority, TaskProgress } from '../types';
 import { X, Edit, Trash2, CheckCircle2, Circle, Clock, Briefcase, Lock } from 'lucide-react';
 import { getPriorityBadge, priorityBadgeStyles, getProgressBadge, progressBadgeStyles } from '../config/taskColors';
+import { logger } from '../utils/logger';
+
 
 /**
  * EventPopoverProps 接口定义了事件浮窗组件的属性。
@@ -59,7 +61,7 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
     const calculatePosition = () => {
       try {
         if (!anchorEl || !popoverRef.current) {
-          console.warn('EventPopover: anchorEl or popoverRef not available');
+          logger.warn('EventPopover: anchorEl or popoverRef not available');
           return;
         }
 
@@ -70,7 +72,7 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
 
         // 检查getBoundingClientRect是否返回了有效数值
         if (!anchorRect || typeof anchorRect.left !== 'number' || typeof anchorRect.top !== 'number') {
-          console.warn('EventPopover: anchorRect is invalid', anchorRect);
+          logger.warn('EventPopover: anchorRect is invalid', anchorRect);
           return;
         }
 
@@ -85,7 +87,7 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
 
         // 如果是零位置或看起来不合理的位置，默认显示在屏幕中心
         if (isZeroPosition || !top || !left || !isFinite(top) || !isFinite(left)) {
-          console.warn('EventPopover: Detected invalid position, using fallback', { anchorRect });
+          logger.warn('EventPopover: Detected invalid position, using fallback', { anchorRect });
           // 默认显示在屏幕中心附近
           top = 100;
           left = (viewWidth - popoverRect.width) / 2;
@@ -110,7 +112,7 @@ export const EventPopover: React.FC<EventPopoverProps> = ({
 
         setPosition({ top, left, opacity: 1 });
       } catch (error) {
-        console.error('EventPopover: Error calculating position', error);
+        logger.error('EventPopover: Error calculating position', error);
         // 发生错误时，使用安全位置
         setPosition({ top: 100, left: (window.innerWidth - 288) / 2, opacity: 1 });
       }

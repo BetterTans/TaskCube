@@ -5,6 +5,8 @@ import { getProgressDisplay } from '../utils/taskDisplay';
 import { progressIconColors } from '../config/taskColors';
 import { formatDate as formatDateUtil, getTodayString } from '../utils/dateUtils';
 import { logger } from '../utils/logger';
+import { logger } from '../utils/logger';
+
 
 interface DayTimeViewProps {
   currentDate: Date;
@@ -180,7 +182,7 @@ const DayBlock = React.memo(({
         initialTop, initialHeight: task.duration || 60,
         previewTop: initialTop, previewHeight: task.duration || 60
       });
-      console.log(`Started dragging task: ${task.title}, type: ${type}`);
+      logger.info(`Started dragging task: ${task.title}, type: ${type}`);
     }, 0);
   };
 
@@ -225,7 +227,7 @@ const DayBlock = React.memo(({
 
       // Ensure we're still working with valid drag data
       if (!dragInfo.task || dragInfo.previewTop < 0 || dragInfo.previewHeight <= 0) {
-        console.error('Invalid drag state detected on mouseUp:', dragInfo);
+        logger.error('Invalid drag state detected on mouseUp:', dragInfo);
         setDragInfo(null);
         return;
       }

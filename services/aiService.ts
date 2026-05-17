@@ -1,5 +1,7 @@
 import { AISettings, Task, Priority, EisenhowerQuadrant } from "../types";
 import { STORAGE_KEYS } from '../config/storageKeys';
+import { logger } from '../utils/logger';
+
 
 // Helper to get settings from localStorage
 const getSettings = (): AISettings => {
@@ -8,7 +10,7 @@ const getSettings = (): AISettings => {
         try {
             return JSON.parse(saved);
         } catch (e) {
-            console.error("Could not parse AI settings, using default.", e);
+            logger.error("Could not parse AI settings, using default.", e);
         }
     }
     return {
@@ -66,13 +68,13 @@ const callAI = async (prompt: string, model: string, expectJson: boolean) => {
             try {
                 return JSON.parse(content);
             } catch (e) {
-                console.error("Failed to parse AI JSON response:", content);
+                logger.error("Failed to parse AI JSON response:", content);
                 throw new Error("AI returned invalid JSON.");
             }
         }
         return content;
     } catch (error) {
-        console.error("AI Service Error:", error);
+        logger.error("AI Service Error:", error);
         // Re-throw a more user-friendly error
         throw new Error(`AI request failed: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -95,7 +97,7 @@ Task to break down: "${taskTitle}"`;
         }
         return [];
     } catch (error) {
-        console.error("AI Service Error (breakDownTask):", error);
+        logger.error("AI Service Error (breakDownTask):", error);
         throw new Error("智能拆解失败，请检查AI设置或网络连接。");
     }
 };
@@ -134,7 +136,7 @@ Parse this: "${input}"`;
         }
         return task;
     } catch (error) {
-        console.error("AI Service Error (parseTaskFromNaturalLanguage):", error);
+        logger.error("AI Service Error (parseTaskFromNaturalLanguage):", error);
         throw new Error("智能识别失败，请检查AI设置。将仅使用输入内容作为标题。");
     }
 };
@@ -159,7 +161,7 @@ ${projectDesc ? `Project Description: ${projectDesc}` : ''}`;
         }
         return [];
     } catch (error) {
-        console.error("AI Service Error (generateProjectPlan):", error);
+        logger.error("AI Service Error (generateProjectPlan):", error);
         throw new Error("生成项目计划失败，请检查AI设置。");
     }
 };

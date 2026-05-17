@@ -1,6 +1,8 @@
 import { RecurringRule, Task } from "../types";
 import { generateUUID } from '../utils/generateUUID';
 import { formatDate } from '../utils/dateUtils';
+import { logger } from '../utils/logger';
+
 
 /**
  * 辅助函数：为一个 Date 对象增加指定的天数。
@@ -23,7 +25,7 @@ const addDays = (date: Date, days: number): Date => {
 export const parseDate = (dateStr: string): Date => {
   // 对空或无效的字符串进行安全检查，防止生成 "Invalid Date"
   if (!dateStr || typeof dateStr !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-    console.warn(`Invalid date string passed to parseDate: ${dateStr}. Falling back to today.`);
+    logger.warn(`Invalid date string passed to parseDate: ${dateStr}. Falling back to today.`);
     const today = new Date();
     today.setHours(0, 0, 0, 0); // 确保时间是午夜
     return today;

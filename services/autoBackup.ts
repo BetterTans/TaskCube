@@ -2,6 +2,8 @@ import { logger } from '../utils/logger';
 import { db } from '../db';
 import { STORAGE_KEYS } from '../config/storageKeys';
 import { TaskProgress } from '../types';
+import { logger } from '../utils/logger';
+
 
 const BACKUP_FILENAME = 'nextdo-auto-backup.json';
 const DEBOUNCE_MS = 5000;
@@ -14,7 +16,7 @@ let backupDirName: string = '';
 export const requestPersistentStorage = async (): Promise<boolean> => {
   if (navigator.storage && navigator.storage.persist) {
     const granted = await navigator.storage.persist();
-    console.log(`Persistent storage: ${granted ? 'granted' : 'denied'}`);
+    logger.info(`Persistent storage: ${granted ? 'granted' : 'denied'}`);
     return granted;
   }
   return false;
@@ -42,12 +44,12 @@ export const selectBackupDirectoryNative = async (): Promise<{ success: boolean;
     try {
       await performBackup();
     } catch (backupErr) {
-      console.error('Initial backup write failed:', backupErr);
+      logger.error('Initial backup write failed:', backupErr);
       return { success: false, error: '备份文件写入失败，请检查文件夹权限' };
     }
     return { success: true, dirName: backupDirName };
   } catch (e) {
-    console.error('showDirectoryPicker error:', e, 'name:', (e as DOMException)?.name, 'message:', (e as Error)?.message);
+    logger.error('showDirectoryPicker error:', e, 'name:', (e as DOMException)?.name, 'message:', (e as Error)?.message);
     if (e instanceof DOMException) {
       if (e.name === 'AbortError') {
         return { success: false, error: 'macOS Chrome 可能不支持此功能，请尝试手动导出备份或使用 Edge 浏览器' };
@@ -96,7 +98,7 @@ const saveDirectoryHandle = async (handle: FileSystemDirectoryHandle) => {
   try {
     await db.table('_meta').put({ id: 'backupDirHandle', handle });
   } catch (e) {
-    console.error('Failed to save directory handle:', e);
+    logger.error('Failed to save directory handle:', e);
   }
 };
 

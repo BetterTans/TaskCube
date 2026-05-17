@@ -2,6 +2,8 @@ import Dexie, { Table } from 'dexie';
 import { Task, Project, RecurringRule, Priority, EisenhowerQuadrant } from './types';
 import { STORAGE_KEYS } from './config/storageKeys';
 import { logger } from './utils/logger';
+import { logger } from 'utils/logger';
+
 
 /**
  * 定义应用的 IndexedDB 数据库类。
@@ -110,7 +112,7 @@ class NextDoDB extends Dexie {
             progress: task.progress || (task.completed ? 'Completed' : 'Initial')
           }));
           this.tasks.bulkAdd(tasksWithProgress); // 批量添加到新数据库
-        } catch (e) { console.error("Failed to migrate tasks from LocalStorage:", e); }
+        } catch (e) { logger.error("Failed to migrate tasks from LocalStorage:", e); }
       } else {
         // 如果没有旧数据，添加一条欢迎任务作为演示
         const TODAY = new Date().toISOString().split('T')[0];
@@ -138,14 +140,14 @@ class NextDoDB extends Dexie {
         try {
           const rules = JSON.parse(savedRules);
           this.recurringRules.bulkAdd(rules);
-        } catch (e) { console.error("Failed to migrate recurring rules from LocalStorage:", e); }
+        } catch (e) { logger.error("Failed to migrate recurring rules from LocalStorage:", e); }
       }
 
       if (savedProjects) {
         try {
           const projects = JSON.parse(savedProjects);
           this.projects.bulkAdd(projects);
-        } catch (e) { console.error("Failed to migrate projects from LocalStorage:", e); }
+        } catch (e) { logger.error("Failed to migrate projects from LocalStorage:", e); }
       }
     });
   }

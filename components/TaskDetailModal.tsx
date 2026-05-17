@@ -395,6 +395,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   ];
 
   return (
+    <React.Fragment>
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-sm transition-all duration-300">
       <div className="bg-[#F2F2F7] dark:bg-black sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/20 dark:border-zinc-800">
         
@@ -404,156 +405,29 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           <button onClick={handleSave} className={`text-indigo-600 dark:text-indigo-400 font-semibold text-sm px-2 py-1 ios-btn-active ${isSaveDisabled ? 'opacity-50' : ''}`} disabled={isSaveDisabled}>完成</button>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
-          <div className="space-y-4">
-             <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800">
-                <div className="relative">
-                    <input
-                      type="text"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="事项标题"
-                      className="w-full pl-4 pr-12 py-3 border-b border-gray-100 dark:border-zinc-800 outline-none text-base font-medium placeholder:text-gray-400 dark:placeholder:text-zinc-600 bg-transparent text-gray-900 dark:text-white"
-                    />
-                    <button 
-                      onClick={handleSmartFill} 
-                      disabled={isSmartFilling}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-500 disabled:text-gray-400 disabled:animate-pulse p-1"
-                      title="智能识别"
-                    >
-                      <Wand2 size={18} />
-                    </button>
-                </div>
-                <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="备注..."
-                    className="w-full px-4 py-3 outline-none text-sm text-gray-600 dark:text-gray-300 resize-none h-20 bg-transparent"
-                />
-            </div>
-             
-             <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800 divide-y divide-gray-100 dark:divide-zinc-800">
-                {/* Date/Time Settings */}
-                <div className="p-3 space-y-3">
-                    <div className="flex items-center">
-                        <div className="flex items-center gap-2 w-24 shrink-0 text-gray-700 dark:text-gray-300">
-                            <div className="bg-red-500 rounded-md p-1 text-white"><CalendarIcon size={14}/></div>
-                            <span className="text-sm font-medium">日期</span>
-                        </div>
-                        <div className="flex-1 flex items-center justify-end gap-2 text-sm">
-                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"/>
-                            <span>-</span>
-                            <input 
-                              type="date" 
-                              value={isRecurring ? '' : endDate}
-                              onChange={handleEndDateChange} 
-                              disabled={isRecurring}
-                              className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none disabled:opacity-50 disabled:cursor-not-allowed"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex items-center">
-                        <div className="flex items-center gap-2 w-24 shrink-0 text-gray-700 dark:text-gray-300">
-                            <div className="bg-blue-500 rounded-md p-1 text-white"><Clock size={14}/></div>
-                            <span className="text-sm font-medium">时间</span>
-                        </div>
-                        <div className="flex-1 flex items-center justify-end gap-2 text-sm">
-                            <div className="flex items-center gap-2">
-                                <input type="checkbox" id="all-day-check" checked={isAllDay} onChange={(e) => setIsAllDay(e.target.checked)} className="h-4 w-4 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-zinc-600 dark:bg-zinc-700 dark:checked:bg-indigo-500" />
-                                <label htmlFor="all-day-check">全天</label>
-                            </div>
-                            {!isAllDay && (
-                                <>
-                                    <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"/>
-                                    <input type="number" value={duration} onChange={(e) => setDuration(parseInt(e.target.value))} className="w-16 bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"/>
-                                    <span>分钟</span>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
+          <TaskEditorCore
+            mode="modal"
+            title={title} onTitleChange={setTitle}
+            description={description} onDescriptionChange={setDescription}
+            priority={priority} onPriorityChange={setPriority}
+            quadrant={quadrant} onQuadrantChange={setQuadrant}
+            progress={progress} onProgressChange={setProgress}
+            startDate={startDate} onStartDateChange={setStartDate}
+            endDate={endDate} onEndDateChange={handleEndDateChange}
+            isEndDateDisabled={isRecurring}
+            startTime={startTime} onStartTimeChange={setStartTime}
+            duration={duration} onDurationChange={(v) => setDuration(v)}
+            projectId={selectedProjectId || undefined} onProjectIdChange={(v) => setSelectedProjectId(v || '')}
+            projects={projects}
+            tags={tags} onTagsChange={setTags}
+            subTasks={subtasks} onSubTasksChange={(sts) => setSubtasks(sts)}
+          >
+            <button onClick={handleSmartFill} disabled={isSmartFilling}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-500 disabled:text-gray-400 disabled:animate-pulse p-1"
+              title="智能识别"><Wand2 size={18} /></button>
+          </TaskEditorCore>
 
-                {/* Project */}
-                <div className="p-3 flex items-center">
-                    <div className="flex items-center gap-2 w-24 shrink-0 text-gray-700 dark:text-gray-300">
-                        <div className="bg-purple-500 rounded-md p-1 text-white"><Briefcase size={14}/></div>
-                        <span className="text-sm font-medium">项目</span>
-                    </div>
-                    <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="flex-1 bg-transparent text-right outline-none text-sm text-gray-500 dark:text-gray-400">
-                        <option value="">无</option>
-                        {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-                    </select>
-                    <ChevronRight size={16} className="text-gray-300 dark:text-zinc-600 ml-1"/>
-                </div>
-
-                {/* Priority */}
-                <div className="p-3 flex items-center">
-                     <div className="flex items-center gap-2 w-24 shrink-0 text-gray-700 dark:text-gray-300">
-                        <div className="bg-orange-500 rounded-md p-1 text-white"><Zap size={14}/></div>
-                        <span className="text-sm font-medium">优先级</span>
-                     </div>
-                     <div className="flex-1 flex justify-end">
-                        <div className="flex bg-gray-100 dark:bg-zinc-800 p-0.5 rounded-lg">
-                           {Object.values(Priority).map(p => (
-                              <button key={p} onClick={() => setPriority(p)} className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${priority === p ? getPriorityBtnClass(p) : 'text-gray-500 dark:text-gray-400'}`}>
-                                 {p === Priority.HIGH ? '高' : p === Priority.MEDIUM ? '中' : '低'}
-                              </button>
-                           ))}
-                        </div>
-                     </div>
-                </div>
-
-                {/* Progress */}
-                <div className="p-3 flex items-center">
-                     <div className="flex items-center gap-2 w-24 shrink-0 text-gray-700 dark:text-gray-300">
-                        <div className="bg-green-500 rounded-md p-1 text-white"><Activity size={14}/></div>
-                        <span className="text-sm font-medium">进展</span>
-                     </div>
-                     <div className="flex-1 flex justify-end">
-                        <select
-                          value={progress}
-                          onChange={(e) => setProgress(e.target.value as TaskProgress)}
-                          className="bg-gray-100 dark:bg-zinc-800 rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-indigo-500 text-sm border-none min-w-[120px]"
-                        >
-                          <option value={TaskProgress.INITIAL}>初始</option>
-                          <option value={TaskProgress.IN_PROGRESS}>进行中</option>
-                          <option value={TaskProgress.ON_HOLD}>挂起</option>
-                          <option value={TaskProgress.BLOCKED}>阻塞</option>
-                          <option value={TaskProgress.COMPLETED}>已完成</option>
-                          <option value={TaskProgress.DELAYED}>延迟</option>
-                        </select>
-                     </div>
-                </div>
-
-                {/* Tags */}
-                <div className="p-3">
-                    <div className="flex items-center mb-2">
-                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                            <div className="bg-teal-500 rounded-md p-1 text-white"><Tag size={14}/></div>
-                            <span className="text-sm font-medium">标签</span>
-                        </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {tags.map(tag => {
-                              const tc = getTagColor(tag);
-                              return (
-                            <div key={tag} className={`flex items-center ${tc.light} ${tc.dark} text-xs pl-2 pr-1 py-1 rounded-full font-medium`}>
-                                {tag}
-                                <button onClick={() => handleRemoveTag(tag)} className="ml-1 text-gray-400 hover:text-red-500"><X size={12}/></button>
-                            </div>
-                              );
-                            })}
-                        <input
-                            type="text"
-                            value={newTagInput}
-                            onChange={e => setNewTagInput(e.target.value)}
-                            onKeyDown={e => e.key === 'Enter' && handleAddTag()}
-                            placeholder="添加标签..."
-                            className="flex-1 bg-transparent outline-none text-xs min-w-[80px]"
-                        />
-                    </div>
-                </div>
-                
                 {/* Recurring */}
                 <div className="p-3">
                     <div className="flex items-center justify-between">
@@ -591,7 +465,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                       </div>
                     )}
                 </div>
-            </div>
 
              {/* --- Dependencies --- */}
              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
@@ -627,54 +500,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 </div>
              </div>
 
-             <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800 p-3">
-                <div className="flex items-center gap-2 mb-3 text-gray-700 dark:text-gray-300">
-                    <div className="bg-green-500 rounded-md p-1 text-white"><LayoutGrid size={14}/></div>
-                    <span className="text-sm font-medium">四象限</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                    {quadrantOptions.map(opt => (
-                        <button key={opt.id} onClick={() => setQuadrant(opt.id)} className={`p-2 rounded-lg text-left transition-colors ${quadrant === opt.id ? opt.selectedClass : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>
-                            <div className="flex items-center gap-1.5">
-                                {opt.icon}
-                                <span className="text-xs font-semibold">{opt.label}</span>
-                            </div>
-                            <p className="text-[10px] mt-0.5">{opt.desc}</p>
-                        </button>
-                    ))}
-                </div>
-            </div>
-             
-             <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800">
-                <div className="p-3 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800">
-                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <div className="bg-cyan-500 rounded-md p-1 text-white"><AlignLeft size={14}/></div>
-                        <span className="text-sm font-medium">子任务</span>
-                    </div>
-                    <Button
-                      variant="ghost" size="sm"
-                      onClick={handleGenerateSubtasks}
-                      isLoading={isGenerating}
-                      className="gap-1 text-indigo-600 dark:text-indigo-400"
-                    >
-                      <Sparkles size={14} /> AI 拆解
-                    </Button>
-                </div>
-                <div className="p-3 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-                    {subtasks.map(sub => (
-                      <div key={sub.id} className="flex items-center gap-3 group/sub">
-                          <button onClick={() => handleToggleSubtaskLocal(sub.id)} className="shrink-0">{sub.completed ? <CheckCircle2 size={18} className="text-green-500"/> : <Circle size={18} className="text-gray-300 dark:text-zinc-600"/>}</button>
-                          <input type="text" value={sub.title} onChange={(e) => setSubtasks(s => s.map(i => i.id === sub.id ? {...i, title: e.target.value} : i))} className={`flex-1 bg-transparent outline-none text-sm ${sub.completed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-200'}`} />
-                          <button onClick={(e) => handleDeleteSubtask(sub.id, e)} className="text-gray-400 hover:text-red-500 opacity-0 group-hover/sub:opacity-100"><Trash2 size={14}/></button>
-                      </div>
-                    ))}
-                    <div className="flex items-center gap-3">
-                      <Plus size={18} className="text-gray-300 dark:text-zinc-600 shrink-0"/>
-                      <input type="text" value={newSubtaskTitle} onChange={e => setNewSubtaskTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSubtask()} placeholder="添加子任务" className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-zinc-500" />
-                    </div>
-                </div>
-            </div>
-
              {task && (<button onClick={() => { onDelete(task.id); onClose(); }} className="w-full py-3 text-red-500 bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">删除事项</button>)}
           </div>
         </div>
@@ -688,6 +513,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         onSelect={handleAddPredecessor}
         title="选择前置任务"
       />
-    </div>
+    </React.Fragment>
   );
 };

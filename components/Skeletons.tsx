@@ -85,7 +85,7 @@ export const TableSkeleton = () => (
          <SkeletonBox key={i} className="w-full h-11" />
        ))}
     </div>
-    <div className="bg-gray-50 dark:bg-zinc-800 border-t border-gray-200 dark:border-zinc-700 p-2 text-xs text-gray-500 dark:text-gray-400 flex justify-end px-4 h-8">
+    <div className="bg-gray-50 dark:bg-zinc-800 border-t border-gray-200 dark:border-zinc-700 p-2 text-xs text-gray-500 dark:text-zinc-400 flex justify-end px-4 h-8">
        <SkeletonBox className="w-20 h-4" />
     </div>
   </div>

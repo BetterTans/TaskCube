@@ -91,7 +91,7 @@ export const TagsManager: React.FC<TagsManagerProps> = ({ tasks, addToast }) => 
                 onBlur={saveRename}
                 className="flex-1 bg-transparent text-sm outline-none border-b border-indigo-500" autoFocus/>
             ) : (
-              <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{name}</span>
+              <span className="flex-1 text-sm font-medium text-gray-700 dark:text-zinc-300 truncate">{name}</span>
             )}
             <span className="text-xs text-gray-400">{count}</span>
             <button onClick={() => startRename(name)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-indigo-500"><Pencil size={14}/></button>

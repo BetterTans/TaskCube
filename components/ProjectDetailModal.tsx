@@ -187,8 +187,8 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
             </div>
 
             <div className="bg-gray-200/80 dark:bg-zinc-800 p-0.5 rounded-lg flex">
-              <button onClick={() => setActiveTab('tasks')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all shadow-sm ${activeTab === 'tasks' ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow' : 'text-gray-500 dark:text-zinc-400 bg-transparent shadow-none'}`}>任务清单</button>
-              <button onClick={() => setActiveTab('timeline')} className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all shadow-sm ${activeTab === 'timeline' ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow' : 'text-gray-500 dark:text-zinc-400 bg-transparent shadow-none'}`}>过程日志</button>
+              <button onClick={() => setActiveTab('tasks')} className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all shadow-sm ${activeTab === 'tasks' ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow' : 'text-gray-500 dark:text-zinc-400 bg-transparent shadow-none'}`}>任务清单</button>
+              <button onClick={() => setActiveTab('timeline')} className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all shadow-sm ${activeTab === 'timeline' ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow' : 'text-gray-500 dark:text-zinc-400 bg-transparent shadow-none'}`}>过程日志</button>
             </div>
 
             <div>

@@ -345,7 +345,7 @@ const TaskItem = React.memo(({
     const isRightSide = taskIsOnRightSide();
 
     timePreview = (
-      <div className={`absolute -top-6 text-xs bg-gray-900 text-white px-2 py-1 rounded-lg font-medium whitespace-nowrap z-50 shadow-lg ${
+      <div className={`absolute -top-6 text-xs bg-gray-900 text-white px-2 py-1 rounded-lg font-medium whitespace-nowrap z-50 ${
         isRightSide ? 'right-2' : 'left-2'
       }`}>
         {formatTime(newStartMinutes)} - {formatTime(newEndMinutes)}

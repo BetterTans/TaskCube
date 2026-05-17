@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:dist": "vite build && node scripts/inline-build.cjs",
     "build:tauri": "vite build --mode tauri",
     "preview": "vite preview",
     "tauri": "tauri",
@@ -16,6 +17,7 @@
     "tauri:build:linux": "npm run build:tauri && tauri build --target x86_64-unknown-linux-gnu"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-virtual": "^3.7.0",
     "dexie": "4.0.1",
     "dexie-react-hooks": "1.1.6",

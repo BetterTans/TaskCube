@@ -394,9 +394,9 @@ export default function App() {
     
     switch(viewMode) {
       case 'calendar': return <div className="h-full p-2 sm:p-4"><FullCalendar currentDate={currentDate} tasks={filteredTasks} projects={projects} blockedTaskIds={blockedTaskIds} onDateChange={handleDateChange} onDateClick={handleDateClick} onTaskClick={(task, _e) => setSelectedTaskId(task.id)} onUpdateTask={saveTask} onInlineCreate={(dateStr, title) => saveTask({ title, date: dateStr, priority: Priority.MEDIUM, quadrant: EisenhowerQuadrant.Q2 })} /></div>;
-      case 'day': return <DayTimeView currentDate={currentDate} tasks={tasks} blockedTaskIds={blockedTaskIds} onTaskClick={handleTaskPopoverOpen} onTimeSlotClick={(time) => openNewTaskModal(getTodayString(currentDate), time)} onToggleTask={toggleTask} onDateChange={handleDateChange} onUpdateTask={saveTask} />;
-      case 'matrix': return <MatrixView tasks={tasks} projects={projects} dateRange={matrixDateRange} blockedTaskIds={blockedTaskIds} onUpdateTask={saveTask} onTaskClick={handleTaskPopoverOpen}/>;
-      case 'table': return <TableView tasks={tasks} projects={projects} blockedTaskIds={blockedTaskIds} onTaskClick={openEditModal} onToggleTask={toggleTask} onUpdateTask={saveTask} />;
+      case 'day': return <DayTimeView currentDate={currentDate} tasks={filteredTasks} blockedTaskIds={blockedTaskIds} onTaskClick={handleTaskPopoverOpen} onTimeSlotClick={(time) => openNewTaskModal(getTodayString(currentDate), time)} onToggleTask={toggleTask} onDateChange={handleDateChange} onUpdateTask={saveTask} />;
+      case 'matrix': return <MatrixView tasks={filteredTasks} projects={projects} dateRange={matrixDateRange} blockedTaskIds={blockedTaskIds} onUpdateTask={saveTask} onTaskClick={handleTaskPopoverOpen}/>;
+      case 'table': return <TableView tasks={filteredTasks} projects={projects} blockedTaskIds={blockedTaskIds} onTaskClick={openEditModal} onToggleTask={toggleTask} onUpdateTask={saveTask} />;
       default: return null;
     }
   };

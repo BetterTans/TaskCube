@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AISettings, ThemeMode, TaskProgress } from '../types.ts';
-import { X, Server, Key, Box, Check, RotateCcw, Moon, Sun, Monitor, Download, Upload, Database, Keyboard, Palette, FolderOpen } from 'lucide-react';
+import { AISettings, ThemeMode, TaskProgress, Task } from '../types.ts';
+import { X, Server, Key, Box, Check, RotateCcw, Moon, Sun, Monitor, Download, Upload, Database, Keyboard, Palette, FolderOpen, Tag } from 'lucide-react';
 import { Button } from './Button.tsx';
 import { ConfirmDialog } from './ConfirmDialog.tsx';
 import { db } from '../db.ts';
@@ -10,6 +10,7 @@ import { ToastType } from '../hooks/useToast.ts';
 import { isFileSystemAccessSupported, selectBackupDirectoryNative, clearBackupDirectory, isBackupConfigured, getBackupState, triggerBackup, generateBackupData } from '../services/autoBackup.ts';
 import { Save } from 'lucide-react';
 import { logger } from '../utils/logger.ts';
+import { TagsManager } from './TagsManager.tsx';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ interface SettingsModalProps {
   defaultHotkeys: Record<string, string>;
   addToast: (message: string, type: ToastType, duration?: number) => string;
   onRequestBackupDir?: () => void;
+  tasks?: Task[];
 }
 
 const HOTKEY_LABELS: Record<string, string> = {
@@ -33,7 +35,7 @@ const HOTKEY_LABELS: Record<string, string> = {
   'open_palette': '打开指令面板',
 };
 
-type SettingsView = 'appearance' | 'hotkeys' | 'ai' | 'data';
+type SettingsView = 'appearance' | 'hotkeys' | 'ai' | 'data' | 'tags';
 
 const KeyInput: React.FC<{ value: string; onChange: (value: string) => void }> = ({ value, onChange }) => {
   const [isListening, setIsListening] = useState(false);
@@ -79,7 +81,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen, onClose, settings, onSave,
   currentTheme = 'light', onThemeChange,
   hotkeys, onHotkeysChange, defaultHotkeys, addToast,
-  onRequestBackupDir
+  onRequestBackupDir, tasks = []
 }) => {
   const [formData, setFormData] = useState<AISettings>(settings);
   const [hotkeyData, setHotkeyData] = useState(hotkeys);
@@ -260,6 +262,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     { id: 'hotkeys', label: '快捷键', icon: Keyboard },
     { id: 'ai', label: 'AI 模型', icon: Box },
     { id: 'data', label: '数据管理', icon: Database },
+    { id: 'tags', label: '标签', icon: Tag },
   ];
 
   const renderContent = () => {
@@ -385,6 +388,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <button onClick={async () => { try { const jsonString = await generateBackupData(); const blob = new Blob([jsonString], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `nextdo-backup-${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); addToast('备份文件已下载', 'success'); } catch { addToast('备份下载失败', 'error'); } }} className="flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"><Download size={16}/> 一键下载备份</button>
                 </div>
               )}
+          </div>
+        );
+      case 'tags':
+        return (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">标签管理</h2>
+            <TagsManager tasks={tasks ?? []} addToast={addToast} />
           </div>
         );
     }

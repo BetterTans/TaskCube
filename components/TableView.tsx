@@ -145,7 +145,7 @@ const FilterPopover: React.FC<{
                 top: position.top, 
                 left: position.left,
             }}
-            className="fixed z-30 w-56 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-lg rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 animate-in fade-in zoom-in-95 duration-200 ease-out origin-top"
+            className="fixed z-30 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 animate-in fade-in zoom-in-95 duration-200 ease-out origin-top"
         >
           {renderContent()}
           <div className="border-t border-gray-100 dark:border-zinc-700 p-2">

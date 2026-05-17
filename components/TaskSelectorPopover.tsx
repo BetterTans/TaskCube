@@ -79,7 +79,7 @@ export const TaskSelectorPopover: React.FC<TaskSelectorPopoverProps> = ({
       <div
         ref={popoverRef}
         style={{ top: position.top, left: position.left }}
-        className={`fixed w-80 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-lg rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 flex flex-col max-h-80 transition-opacity duration-150 ${isReady ? 'opacity-100 animate-in fade-in zoom-in-95' : 'opacity-0'}`}
+        className={`fixed w-80 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-gray-200 dark:border-zinc-700 flex flex-col max-h-80 transition-opacity duration-150 ${isReady ? 'opacity-100 animate-in fade-in zoom-in-95' : 'opacity-0'}`}
         onClick={e => e.stopPropagation()}
       >
         <div className="p-3 border-b border-gray-100 dark:border-zinc-800">

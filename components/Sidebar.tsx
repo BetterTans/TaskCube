@@ -43,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className={`relative z-40 flex-shrink-0 bg-gray-100/50 dark:bg-zinc-800/20 backdrop-blur-lg border-r border-gray-200/80 dark:border-zinc-700/50 flex flex-col p-4 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'}`}>
+    <aside className={`relative z-40 flex-shrink-0 bg-gray-100 dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 flex flex-col p-4 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'}`}>
       <div className={`flex items-center gap-2 mb-6 ${isCollapsed ? 'justify-center' : ''}`}>
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-sm flex items-center justify-center text-white flex-shrink-0"><Box size={18} /></div>
         {!isCollapsed && <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">NextDo</h1>}
@@ -141,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onMouseDown={() => onToggleCollapse()}
         onClick={(e) => e.preventDefault()}
         title={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
-        className="absolute bottom-5 left-full -translate-x-1/2 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700/50 text-gray-500 dark:text-zinc-400 hover:border-gray-300 dark:hover:border-zinc-600 hover:text-gray-900 dark:hover:text-white transition-all"
+        className="absolute bottom-5 left-full -translate-x-1/2 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 hover:border-gray-300 dark:hover:border-zinc-600 hover:text-gray-900 dark:hover:text-white transition-all"
       >
         {isCollapsed ? <PanelRightClose size={16} /> : <PanelLeftClose size={16} />}
       </button>

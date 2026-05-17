@@ -2,12 +2,21 @@
   "feature_name": "design-tokens",
   "created_at": "2026-05-17T18:00:00+08:00",
   "language": "zh",
-  "phase": "tasks-generated",
+  "phase": "implemented",
   "description": "统一 Tailwind 原生 token 标准，修复审计发现的不一致项",
   "approvals": {
-    "requirements": { "generated": true, "approved": false },
-    "design": { "generated": true, "approved": false },
-    "tasks": { "generated": true, "approved": false }
+    "requirements": { "generated": true, "approved": true },
+    "design": { "generated": true, "approved": true },
+    "tasks": { "generated": true, "approved": true }
   },
-  "ready_for_implementation": false
+  "ready_for_implementation": true,
+  "commits": [
+    "ee7c55b — Task 1: remove shadow-md/shadow-lg",
+    "4ec9ff5 — Task 2: dark:text-gray → dark:text-zinc (92 replacements)",
+    "9b53e7e — Task 3: remove decorative backdrop-blur",
+    "8d9eab3 — Task 4: unify border radius (24 changes)",
+    "7f48753 — Task 5: font-bold → font-semibold (12 changes)",
+    "88ee468 — Task 6: normalize ProjectDetailModal z-index",
+    "2878f3d — Task 7: final edge cases + verification"
+  ]
 }

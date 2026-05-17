@@ -55,7 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Project Filter */}
           <div className="mb-3">
             <div className="flex items-center justify-between px-1 mb-1">
-              <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">项目</span>
+              <span className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider">项目</span>
               <button onClick={onOpenProjects} className="text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 p-0.5 rounded transition-colors">
                 <Briefcase size={14} />
               </button>
@@ -85,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Quadrant Filter */}
           <div className="mb-3">
-            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-1">象限</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider px-1">象限</span>
             <div className="space-y-0.5 mt-1 max-h-[25vh] overflow-y-auto">
               <button
                 onClick={() => onQuadrantFilter(null)}

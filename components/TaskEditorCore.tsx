@@ -198,7 +198,7 @@ export const TaskEditorCore: React.FC<TaskEditorCoreProps> = ({
             <input value={tagInput} onChange={e => setTagInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
               placeholder="添加标签..." className={`${fieldClass} flex-1 py-2 text-xs`} />
-            <button onClick={addTag} className="px-3 py-2 bg-indigo-500 text-white rounded-xl text-sm hover:bg-indigo-600 transition-colors"><Plus size={14}/></button>
+            <button onClick={addTag} className="px-3 py-2 bg-indigo-600 text-white rounded-xl text-sm hover:bg-indigo-700 transition-colors"><Plus size={14}/></button>
           </div>
         </Section>
       </div>

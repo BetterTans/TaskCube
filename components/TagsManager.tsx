@@ -79,7 +79,7 @@ export const TagsManager: React.FC<TagsManagerProps> = ({ tasks, addToast }) => 
           onKeyDown={e => { if (e.key === 'Enter') addTag(); }}
           placeholder="新建标签..."
           className="flex-1 bg-gray-100 dark:bg-zinc-800 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"/>
-        <button onClick={addTag} className="px-3 py-2 bg-indigo-500 text-white rounded-lg text-sm hover:bg-indigo-600"><Plus size={16}/></button>
+        <button onClick={addTag} className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"><Plus size={16}/></button>
       </div>
       <div className="space-y-1 max-h-[40vh] overflow-y-auto">
         {tags.map(({ name, count, color }) => (

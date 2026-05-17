@@ -328,7 +328,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
   // Shared section label style
   const SectionLabel = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
     <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-      <div className="bg-indigo-500 rounded-md p-1 text-white">{icon}</div>
+      <div className="text-gray-400 dark:text-zinc-500">{icon}</div>
       <span className="text-sm font-medium">{label}</span>
     </div>
   );
@@ -431,7 +431,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
               className="w-full p-3 flex items-center justify-between"
             >
               <div className="flex items-center gap-2">
-                <div className="bg-indigo-500 rounded-md p-1 text-white"><Repeat size={14}/></div>
+                <Repeat size={14} className="text-gray-400 dark:text-zinc-500" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">重复</span>
                 {isRecurring && <span className="text-[10px] text-indigo-500 font-medium bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 rounded-full">已启用</span>}
               </div>
@@ -441,7 +441,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
               <div className="px-3 pb-3 space-y-3 border-t border-gray-100 dark:border-zinc-800 pt-3">
                 <label htmlFor="panel-recurring-toggle" className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="panel-recurring-toggle" className="sr-only peer" checked={isRecurring} onChange={handleRecurringToggle} />
-                  <div className="w-11 h-6 bg-gray-200 dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  <div className="w-9 h-5 bg-gray-200 dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500"></div>
                   <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">重复任务</span>
                 </label>
                 {isRecurring && (
@@ -473,7 +473,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                     {isRecurring && !task.recurringRuleId && onSaveRule && (
                       <button
                         onClick={handleSaveRecurring}
-                        className="w-full py-2 rounded-lg bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-600 transition-colors"
+                        className="w-full py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
                       >
                         创建周期规则
                       </button>
@@ -491,7 +491,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
               className="w-full p-3 flex items-center justify-between"
             >
               <div className="flex items-center gap-2">
-                <div className="bg-green-500 rounded-md p-1 text-white"><Link2 size={14}/></div>
+                <Link2 size={14} className="text-gray-400 dark:text-zinc-500" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">关联任务</span>
                 {predecessorIds.length > 0 && (
                   <span className="text-[10px] text-gray-500 bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded-full">{predecessorIds.length}</span>

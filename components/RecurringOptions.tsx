@@ -139,7 +139,7 @@ export const RecurringOptions: React.FC<RecurringOptionsProps> = ({
       {/* 每周重复的特定选项：选择星期几 */}
       {frequency === 'weekly' && (
         <div className="space-y-3">
-          <label className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-1">重复日</label>
+          <label className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider px-1">重复日</label>
           <div className="flex justify-between gap-1 sm:gap-2">
             {weekDayLabels.map((label, idx) => (
               <button

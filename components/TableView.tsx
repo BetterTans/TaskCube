@@ -244,7 +244,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
                  const isFilterActive = (filters as any)[filterKey] && (filters as any)[filterKey] !== 'all';
                  
                  return (
-                 <div key={key} style={{ width: colWidths[key] }} className="py-2 px-3 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider select-none flex items-center justify-between group relative flex-shrink-0">
+                 <div key={key} style={{ width: colWidths[key] }} className="py-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider select-none flex items-center justify-between group relative flex-shrink-0">
                     <div className="flex items-center gap-1.5">
                         <span>{headers[key]}</span>
                         {hasFilter && ( <button onMouseDown={e => e.stopPropagation()} onClick={(e) => openFilterPopover(filterKey as keyof TableFilters, e.currentTarget)}><FilterIcon size={12} className={`transition-colors ${isFilterActive ? 'text-indigo-600' : 'text-gray-300 dark:text-zinc-600 group-hover:text-gray-500'}`} /></button> )}

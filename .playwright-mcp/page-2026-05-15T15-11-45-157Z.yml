@@ -1,0 +1,91 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [active] [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e32]:
+      - button "项目" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e37]: 项目
+      - button "周期规则" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e44]: 周期规则
+      - button "设置" [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+        - generic [ref=e49]: 设置
+    - button "折叠侧边栏" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+  - generic [ref=e54]:
+    - banner [ref=e55]:
+      - button "新建任务" [ref=e62] [cursor=pointer]:
+        - img [ref=e63]
+        - text: 新建任务
+    - main [ref=e64]:
+      - generic [ref=e1636]:
+        - generic [ref=e1638]:
+          - generic [ref=e1639]:
+            - generic [ref=e1641]:
+              - generic [ref=e1642]: 状态
+              - button [ref=e1643] [cursor=pointer]:
+                - img [ref=e1644]
+            - generic [ref=e1648]:
+              - generic [ref=e1649]: 任务标题
+              - button [ref=e1650] [cursor=pointer]:
+                - img [ref=e1651]
+            - generic [ref=e1655]:
+              - generic [ref=e1656]: 项目
+              - button [ref=e1657] [cursor=pointer]:
+                - img [ref=e1658]
+            - generic [ref=e1662]:
+              - generic [ref=e1663]: 优先级
+              - button [ref=e1664] [cursor=pointer]:
+                - img [ref=e1665]
+            - generic [ref=e1669]:
+              - generic [ref=e1670]: 四象限
+              - button [ref=e1671] [cursor=pointer]:
+                - img [ref=e1672]
+            - generic [ref=e1676]:
+              - generic [ref=e1677]: 进展
+              - button [ref=e1678] [cursor=pointer]:
+                - img [ref=e1679]
+            - generic [ref=e1683]:
+              - generic [ref=e1684]: 日期
+              - button [ref=e1685] [cursor=pointer]:
+                - img [ref=e1686]
+            - generic [ref=e1690]:
+              - generic [ref=e1691]: 标签
+              - button [ref=e1692] [cursor=pointer]:
+                - img [ref=e1693]
+            - generic [ref=e1698]: 子任务
+          - generic [ref=e1701]:
+            - button [ref=e1704] [cursor=pointer]:
+              - img [ref=e1705]
+            - generic [ref=e1709] [cursor=pointer]: 测试任务
+            - generic [ref=e1712]: Medium
+            - generic [ref=e1714]:
+              - img [ref=e1715]
+              - generic [ref=e1717]: 重要 & 不緊急
+            - generic [ref=e1719]:
+              - img [ref=e1720]
+              - generic [ref=e1722]: In Progress
+            - generic [ref=e1724]: 2026-05-15
+            - generic [ref=e1727]: 工作
+            - generic [ref=e1730]:
+              - img [ref=e1731]
+              - generic [ref=e1732]: 0/1
+        - generic [ref=e1733]:
+          - generic [ref=e1734]: 共 1 个任务
+          - button "清除所有筛选" [ref=e1735] [cursor=pointer]

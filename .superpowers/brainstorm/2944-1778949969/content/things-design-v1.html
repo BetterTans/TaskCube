@@ -1,0 +1,145 @@
+<h2>Things 模式改造方案：月视图即一切</h2>
+<p class="subtitle">核心理念：离开日历的次数趋近于零</p>
+
+<div class="section">
+  <h3>一、当前问题 vs 改造后</h3>
+
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">❌ 现在：功能孤岛</div>
+      <div class="mockup-body">
+        <div style="font-size:0.8em;line-height:2">
+          <p>新建任务 → <mark>弹出大模态框（14个字段）</mark></p>
+          <p>看任务详情 → <mark>弹出小浮窗（信息有限）</mark></p>
+          <p>编辑任务 → <mark>再次弹出大模态框</mark></p>
+          <p>管理项目 → <mark>独立的项目模态框</mark></p>
+          <p>看矩阵 → <mark>切换到完全不同的视图</mark></p>
+          <p>周期规则 → <mark>独立的规则管理器</mark></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="mockup-header">✅ 改造后：月视图即中心</div>
+      <div class="mockup-body">
+        <div style="font-size:0.8em;line-height:2">
+          <p>新建任务 → <mark>点日期直接打字，回车即成</mark></p>
+          <p>看详情 → <mark>点任务在侧面板展开</mark></p>
+          <p>编辑 → <mark>侧面板里直接改，实时保存</mark></p>
+          <p>项目 → <mark>侧边栏列表，点一下日历过滤</mark></p>
+          <p>矩阵 → <mark>四个象限以图层叠加在日历上</mark></p>
+          <p>周期 → <mark>右键任务选「重复」，不离开日历</mark></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>二、核心改造点</h3>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-image">
+        <div class="mockup">
+          <div class="mockup-header">改造 ①：日期点选即输入</div>
+          <div class="mockup-body" style="min-height:100px">
+            <p style="font-size:0.8em;color:var(--text-secondary);margin-bottom:8px">月视图每个日期格子里直接有一个半透明的输入框。点一下日期 → 光标出现 → 打字 → 回车。</p>
+            <div class="mock-input" style="margin-bottom:4px">写周报</div>
+            <p style="font-size:0.75em;color:var(--text-secondary)">默认：当天日期 + 中等优先级 + Q2 象限。<br/>任务立即出现在日历格子里。</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>即时创建</h3>
+        <p>从「点新建按钮→填表单→点完成」变成「点日期→打字→回车」，<strong>3 步变 1 步</strong></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-image">
+        <div class="mockup">
+          <div class="mockup-header">改造 ②：侧面板代替弹窗</div>
+          <div class="mockup-body" style="min-height:100px">
+            <p style="font-size:0.8em;color:var(--text-secondary);margin-bottom:8px">点击日历上的任务 → 右侧滑出详情面板（不遮挡日历）。</p>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;font-size:0.75em">
+                <strong>任务标题</strong> (可编辑)<br/>
+                <span style="color:var(--text-secondary)">进度 ▸ 初始</span><br/>
+                <span style="color:var(--text-secondary)">优先级 ▸ 中</span><br/>
+                <span style="color:var(--text-secondary)">项目 ▸ 工作</span><br/>
+                <span style="color:var(--text-secondary)">象限 ▸ Q2</span>
+              </div>
+              <div style="flex:1;font-size:0.75em">
+                <span style="color:var(--text-secondary)">日期 ▸ 5月17日</span><br/>
+                <span style="color:var(--text-secondary)">标签 ▸ + 添加</span><br/>
+                <span style="color:var(--text-secondary)">重复 ▸ 不重复 ▾</span><br/>
+                <span style="color:var(--text-secondary)">子任务 ▸ 0 项</span>
+              </div>
+            </div>
+            <p style="font-size:0.7em;color:var(--text-secondary);margin-top:8px">所有字段可编辑，实时保存。日历始终可见。</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>侧面板详情</h3>
+        <p>替代 EventPopover + TaskDetailModal。信息全在侧面板，<strong>不用弹窗、不用切换</strong></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-image">
+        <div class="mockup">
+          <div class="mockup-header">改造 ③：日历条上展示更多信息</div>
+          <div class="mockup-body" style="min-height:60px">
+            <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#3B82F6;border-radius:6px;color:white;font-size:0.75em;margin-bottom:4px">
+              <span>⬡</span><span>写周报</span><span style="margin-left:auto;opacity:0.8">初始</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#EF4444;border-radius:6px;color:white;font-size:0.75em">
+              <span>★</span><span>修复登录页Bug</span><span style="margin-left:auto;opacity:0.8">进行中</span>
+            </div>
+            <p style="font-size:0.7em;color:var(--text-secondary);margin-top:8px">图标 = 象限 &nbsp;|&nbsp; 颜色 = 项目或优先级 &nbsp;|&nbsp; 右端文字 = 进度</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>信息密度提升</h3>
+        <p>不用点进去就知道：<strong>什么象限、哪个项目、什么进度</strong></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-image">
+        <div class="mockup">
+          <div class="mockup-header">改造 ④：侧边栏 = 过滤器</div>
+          <div class="mockup-body" style="min-height:100px">
+            <p style="font-size:0.75em;font-weight:600;margin-bottom:4px">项目</p>
+            <div style="font-size:0.75em;margin-bottom:8px">
+              <span style="padding:2px 8px;background:var(--accent-bg);border-radius:4px;margin-right:4px">全部</span>
+              <span style="padding:2px 8px;margin-right:4px">工作</span>
+              <span style="padding:2px 8px;margin-right:4px">个人</span>
+              <span style="padding:2px 8px">+ 新建</span>
+            </div>
+            <p style="font-size:0.75em;font-weight:600;margin-bottom:4px">象限</p>
+            <div style="font-size:0.75em">
+              <span style="padding:2px 8px;background:var(--accent-bg);border-radius:4px;margin-right:4px">全部</span>
+              <span style="padding:2px 8px;margin-right:4px">Q1 紧急重要</span>
+              <span style="padding:2px 8px;margin-right:4px">Q2 重要不紧急</span>
+            </div>
+            <p style="font-size:0.7em;color:var(--text-secondary);margin-top:8px">点击过滤器 → 日历只显示匹配任务。<br/>同一数据，不同视角。</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>侧边栏过滤器</h3>
+        <p>项目、象限变成筛选条件。日历即时响应。<strong>不需要「切换视图」</strong></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>三、最后选择</h3>
+  <p>以上四个改造点的关系是：<strong>① 是基础（创建要快）→ ②③ 是核心（信息要看得见）→ ④ 是进阶（组织能力）。</strong></p>
+  <p>可以一口气全做，也可以分步推进。你怎么看？有没有哪个点你觉得不对、或者想调整的？</p>
+</div>

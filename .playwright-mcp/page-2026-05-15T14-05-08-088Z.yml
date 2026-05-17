@@ -1,0 +1,209 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e32]:
+      - button "项目" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e37]: 项目
+      - button "设置" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e42]: 设置
+    - button "折叠侧边栏" [ref=e43] [cursor=pointer]:
+      - img [ref=e44]
+  - generic [ref=e47]:
+    - banner [ref=e48]:
+      - generic [ref=e50]:
+        - textbox [ref=e51]: 2026-05-11
+        - generic [ref=e52]: "-"
+        - textbox [ref=e53]: 2026-05-17
+      - button "新建任务" [ref=e55] [cursor=pointer]:
+        - img [ref=e56]
+        - text: 新建任务
+    - main [ref=e57]:
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - img [ref=e77]
+              - generic [ref=e79]:
+                - heading "重要 & 紧急" [level=3] [ref=e80]
+                - paragraph [ref=e81]: 立即处理
+            - generic [ref=e82]:
+              - generic [ref=e83]: "1"
+              - button [ref=e84] [cursor=pointer]:
+                - img [ref=e85]
+          - generic [ref=e91] [cursor=pointer]:
+            - generic [ref=e92]:
+              - generic [ref=e93]:
+                - paragraph [ref=e94]: 欢迎使用 NextDo
+                - img [ref=e95]
+              - 'generic "优先级: High" [ref=e97]'
+            - generic [ref=e100]:
+              - img [ref=e101]
+              - generic [ref=e104]: 09:00
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - img [ref=e108]
+              - generic [ref=e110]:
+                - heading "重要 & 不紧急" [level=3] [ref=e111]
+                - paragraph [ref=e112]: 计划执行
+            - generic [ref=e113]:
+              - generic [ref=e114]: "1"
+              - button [ref=e115] [cursor=pointer]:
+                - img [ref=e116]
+          - generic [ref=e123] [cursor=pointer]:
+            - generic [ref=e124]:
+              - paragraph [ref=e125]: 测试任务
+              - img [ref=e126]
+            - 'generic "优先级: Medium" [ref=e128]'
+        - generic [ref=e130]:
+          - generic [ref=e131]:
+            - img [ref=e132]
+            - generic [ref=e135]:
+              - heading "紧急 & 不重要" [level=3] [ref=e136]
+              - paragraph [ref=e137]: 审慎处理
+          - generic [ref=e138]:
+            - generic [ref=e139]: "0"
+            - button [ref=e140] [cursor=pointer]:
+              - img [ref=e141]
+        - generic [ref=e146]:
+          - generic [ref=e147]:
+            - img [ref=e148]
+            - generic [ref=e150]:
+              - heading "不重要 & 不紧急" [level=3] [ref=e151]
+              - paragraph [ref=e152]: 暂缓排除
+          - generic [ref=e153]:
+            - generic [ref=e154]: "0"
+            - button [ref=e155] [cursor=pointer]:
+              - img [ref=e156]
+  - generic [ref=e185]:
+    - generic [ref=e186]:
+      - button "取消" [ref=e187] [cursor=pointer]
+      - generic [ref=e188]: 编辑事项
+      - button "完成" [ref=e189] [cursor=pointer]
+    - generic [ref=e191]:
+      - generic [ref=e192]:
+        - generic [ref=e193]:
+          - textbox "事项标题" [ref=e194]: 测试任务
+          - button "智能识别" [ref=e195] [cursor=pointer]:
+            - img [ref=e196]
+        - textbox "备注..." [ref=e199]
+      - generic [ref=e200]:
+        - generic [ref=e201]:
+          - generic [ref=e202]:
+            - generic [ref=e203]:
+              - img [ref=e205]
+              - generic [ref=e207]: 日期
+            - generic [ref=e208]:
+              - textbox [ref=e209]: 2026-05-15
+              - generic [ref=e210]: "-"
+              - textbox [ref=e211]: 2026-05-15
+          - generic [ref=e212]:
+            - generic [ref=e213]:
+              - img [ref=e215]
+              - generic [ref=e218]: 时间
+            - generic [ref=e220]:
+              - checkbox "全天" [checked] [ref=e221]
+              - generic [ref=e222]: 全天
+        - generic [ref=e223]:
+          - generic [ref=e224]:
+            - img [ref=e226]
+            - generic [ref=e229]: 项目
+          - combobox [ref=e230]:
+            - option "无" [selected]
+          - img [ref=e231]
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - img [ref=e236]
+            - generic [ref=e238]: 优先级
+          - generic [ref=e240]:
+            - button "高" [ref=e241] [cursor=pointer]
+            - button "中" [ref=e242] [cursor=pointer]
+            - button "低" [ref=e243] [cursor=pointer]
+        - generic [ref=e244]:
+          - generic [ref=e245]:
+            - img [ref=e247]
+            - generic [ref=e249]: 进展
+          - combobox [ref=e251]:
+            - option "初始"
+            - option "进行中" [selected]
+            - option "挂起"
+            - option "阻塞"
+            - option "已完成"
+            - option "延迟"
+        - generic [ref=e252]:
+          - generic [ref=e254]:
+            - img [ref=e256]
+            - generic [ref=e259]: 标签
+          - textbox "添加标签..." [ref=e261]
+        - generic [ref=e263]:
+          - generic [ref=e264]:
+            - img [ref=e266]
+            - generic [ref=e271]: 重复
+          - checkbox [ref=e273]
+      - generic [ref=e275]:
+        - generic [ref=e276]:
+          - img [ref=e278]
+          - generic [ref=e281]: 关联任务
+        - generic [ref=e282]:
+          - generic [ref=e283]:
+            - text: 前置任务 (需先完成)
+            - button "添加" [ref=e285] [cursor=pointer]:
+              - img [ref=e286]
+              - text: 添加
+          - generic [ref=e287]:
+            - text: 后置任务 (依赖此项)
+            - paragraph [ref=e289]: 无
+      - generic [ref=e290]:
+        - generic [ref=e291]:
+          - img [ref=e293]
+          - generic [ref=e298]: 四象限
+        - generic [ref=e299]:
+          - button "重要 & 紧急 立即处理" [ref=e300] [cursor=pointer]:
+            - generic [ref=e301]:
+              - img [ref=e302]
+              - generic [ref=e304]: 重要 & 紧急
+            - paragraph [ref=e305]: 立即处理
+          - button "重要 & 不紧急 计划执行" [ref=e306] [cursor=pointer]:
+            - generic [ref=e307]:
+              - img [ref=e308]
+              - generic [ref=e310]: 重要 & 不紧急
+            - paragraph [ref=e311]: 计划执行
+          - button "紧急 & 不重要 审慎处理" [ref=e312] [cursor=pointer]:
+            - generic [ref=e313]:
+              - img [ref=e314]
+              - generic [ref=e317]: 紧急 & 不重要
+            - paragraph [ref=e318]: 审慎处理
+          - button "不重要 & 不紧急 暂缓排除" [ref=e319] [cursor=pointer]:
+            - generic [ref=e320]:
+              - img [ref=e321]
+              - generic [ref=e323]: 不重要 & 不紧急
+            - paragraph [ref=e324]: 暂缓排除
+      - generic [ref=e325]:
+        - generic [ref=e326]:
+          - generic [ref=e327]:
+            - img [ref=e329]
+            - generic [ref=e330]: 子任务
+          - button "AI 拆解" [ref=e331] [cursor=pointer]:
+            - img [ref=e332]
+            - text: AI 拆解
+        - generic [ref=e336]:
+          - img [ref=e337]
+          - textbox "添加子任务" [ref=e338]
+      - button "删除事项" [ref=e339] [cursor=pointer]

@@ -1,0 +1,102 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e165]
+    - navigation [ref=e10]:
+      - button "四象限" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - generic [ref=e166]: 四象限
+      - button "月视图" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - generic [ref=e167]: 月视图
+      - button "日视图" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e168]: 日视图
+      - button "列表" [ref=e24] [cursor=pointer]:
+        - img [ref=e25]
+        - generic [ref=e169]: 列表
+    - generic [ref=e27]:
+      - button "项目" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e170]: 项目
+      - button "周期规则" [ref=e32] [cursor=pointer]:
+        - img [ref=e33]
+        - generic [ref=e171]: 周期规则
+      - button "设置" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e172]: 设置
+    - button "折叠侧边栏" [ref=e173] [cursor=pointer]:
+      - img [ref=e174]
+  - generic [ref=e46]:
+    - banner [ref=e47]:
+      - generic [ref=e49]:
+        - textbox [ref=e50]: 2026-05-11
+        - generic [ref=e51]: "-"
+        - textbox [ref=e52]: 2026-05-17
+      - button "新建任务" [ref=e54] [cursor=pointer]:
+        - img [ref=e55]
+        - text: 新建任务
+    - main [ref=e56]:
+      - generic [ref=e72]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - img [ref=e76]
+            - generic [ref=e78]:
+              - heading "重要 & 紧急" [level=3] [ref=e79]
+              - paragraph [ref=e80]: 立即处理
+          - generic [ref=e81]:
+            - generic [ref=e82]: "0"
+            - button [ref=e83] [cursor=pointer]:
+              - img [ref=e84]
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e90]:
+              - img [ref=e91]
+              - generic [ref=e93]:
+                - heading "重要 & 不紧急" [level=3] [ref=e94]
+                - paragraph [ref=e95]: 计划执行
+            - generic [ref=e96]:
+              - generic [ref=e97]: "3"
+              - button [ref=e98] [cursor=pointer]:
+                - img [ref=e99]
+          - generic [ref=e103]:
+            - generic [ref=e105] [cursor=pointer]:
+              - generic [ref=e106]:
+                - paragraph [ref=e108]: 纯纯粹粹
+                - 'generic "优先级: 中" [ref=e109]'
+              - generic [ref=e112]: 初始
+            - generic [ref=e114] [cursor=pointer]:
+              - generic [ref=e115]:
+                - paragraph [ref=e117]: 功能测试任务
+                - 'generic "优先级: 中" [ref=e118]'
+              - generic [ref=e121]: 初始
+            - generic [ref=e123] [cursor=pointer]:
+              - generic [ref=e124]:
+                - paragraph [ref=e126]: 测试任务
+                - 'generic "优先级: 中" [ref=e127]'
+              - generic [ref=e129]:
+                - generic [ref=e130]: 进行中
+                - generic [ref=e131]:
+                  - img [ref=e132]
+                  - generic [ref=e133]: 0/1
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - img [ref=e137]
+            - generic [ref=e140]:
+              - heading "紧急 & 不重要" [level=3] [ref=e141]
+              - paragraph [ref=e142]: 审慎处理
+          - generic [ref=e143]:
+            - generic [ref=e144]: "0"
+            - button [ref=e145] [cursor=pointer]:
+              - img [ref=e146]
+        - generic [ref=e151]:
+          - generic [ref=e152]:
+            - img [ref=e153]
+            - generic [ref=e155]:
+              - heading "不重要 & 不紧急" [level=3] [ref=e156]
+              - paragraph [ref=e157]: 暂缓排除
+          - generic [ref=e158]:
+            - generic [ref=e159]: "0"
+            - button [ref=e160] [cursor=pointer]:
+              - img [ref=e161]

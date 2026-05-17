@@ -1,0 +1,106 @@
+<h2>为什么你用不上这些功能？——产品经理视角</h2>
+<p class="subtitle">不是功能不好，是它们和你的月视图主战场脱节了</p>
+
+<div class="mockup">
+  <div class="mockup-header">🔍 现状分析：功能孤岛</div>
+  <div class="mockup-body">
+    <p style="margin-bottom:16px;color:var(--text-secondary)">你的核心行为是<strong>月视图 → 新建任务</strong>。每个高级功能都存在一个共同问题：<strong>脱离主流程，需要你主动去另一个地方操作</strong>。</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+      <div style="padding:12px;border-radius:8px;background:var(--bg-secondary)">
+        <strong>矩阵（四象限）</strong>
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-top:4px;">问题：在创建模态框底部选象限，月视图上看不到任何象限信息。<mark>分类了但看不见，等于没分。</mark></p>
+      </div>
+      <div style="padding:12px;border-radius:8px;background:var(--bg-secondary)">
+        <strong>项目</strong>
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-top:4px;">问题：要先在另一个模态框建项目，再在任务里关联。月视图上只能靠一个小色条区分。<mark>操作链太长，收益不明显。</mark></p>
+      </div>
+      <div style="padding:12px;border-radius:8px;background:var(--bg-secondary)">
+        <strong>周期规则</strong>
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-top:4px;">问题：独立的管理器，完全脱离创建流程。你建任务时不会想到「去周期管理器建规则」。<mark>触发点不存在。</mark></p>
+      </div>
+      <div style="padding:12px;border-radius:8px;background:var(--bg-secondary)">
+        <strong>标签 / 子任务 / 依赖</strong>
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-top:4px;">问题：全部藏在编辑模态框里，创建时不出现，月视图上也看不到。<mark>存在感为零。</mark></p>
+      </div>
+      <div style="padding:12px;border-radius:8px;background:var(--bg-secondary)">
+        <strong>日视图 / 列表视图</strong>
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-top:4px;">问题：切换后看不到月历的上下文，<mark>像是完全不同的应用。</mark>之间没有联动。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>📊 同类产品怎么做？</h2>
+
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">Todoist — 自然语言即界面</div>
+      <div class="mockup-body">
+        <p style="margin-bottom:12px;">核心哲学：<strong>输入框承担一切</strong>。用户不需要「学功能」，只需要打字。</p>
+        <div class="mock-input" style="margin-bottom:8px">买牛奶明天下午4点 #生活 p1</div>
+        <p style="font-size:0.8em;color:var(--text-secondary)">
+          一行文字自动解析出：<br/>
+          标题「买牛奶」日期「明天」时间「下午4点」<br/>
+          项目「生活」优先级「p1」<br/>
+          <strong>→ 没有模态框，没有下拉菜单。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="mockup-header">Things 3 — 日历即中心</div>
+      <div class="mockup-body">
+        <p style="margin-bottom:12px;">核心哲学：<strong>所有内容最终汇聚到日历</strong>。项目、标签、截止日期都在日历语境下呈现。</p>
+        <p style="font-size:0.8em;color:var(--text-secondary)">
+          - 侧边栏选项目 → 日历自动过滤<br/>
+          - 拖拽任务到日期 → 即时重排<br/>
+          - 项目进度在日历上可视<br/>
+          <strong>→ 日历是集成中心，不是孤立视图。</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="split" style="margin-top:16px">
+    <div class="mockup">
+      <div class="mockup-header">TickTick — 功能模块化但无缝切换</div>
+      <div class="mockup-body">
+        <p style="font-size:0.8em;color:var(--text-secondary)">
+          - 日历 + 列表 + 矩阵在底部 Tab 一键切<br/>
+          - 周期任务在创建时一个开关决定<br/>
+          - 番茄钟嵌入任务卡片<br/>
+          <strong>→ 功能多但不割裂，都在同一个任务卡片上操作。</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="mockup-header">Linear — 键盘驱动，视图即过滤器</div>
+      <div class="mockup-body">
+        <p style="font-size:0.8em;color:var(--text-secondary)">
+          - 矩阵/列表/日历只是同一批数据的不同视角<br/>
+          - 快捷键瞬间切换，不中断心流<br/>
+          - 创建时只问最少信息，后续在列表上快速补充<br/>
+          <strong>→ 创建和整理是两个独立的、各自优化的流程。</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>💡 核心结论</h2>
+
+  <div style="padding:16px;border-radius:8px;background:var(--bg-secondary);margin-bottom:12px">
+    <h3 style="margin-top:0">NextDo 的根本问题不是缺功能，是<mark>创建时问了太多，月视图上展示了太少</mark></h3>
+    <ul style="font-size:0.9em;color:var(--text-secondary);padding-left:20px">
+      <li><strong>Todoist 模式：</strong>创建时用自然语言一句话搞定，不用填表单</li>
+      <li><strong>Things 模式：</strong>月视图是核心，所有信息在日历上可见，不用切来切去</li>
+      <li><strong>Linear 模式：</strong>创建和整理分离——创建要快，整理时才补充细节</li>
+    </ul>
+  </div>
+
+  <p>现在，你觉得哪个方向比较对味？或者你想看我把这些思路更具体地展开？</p>
+</div>

@@ -1,0 +1,61 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e35]: 项目
+        - button [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+      - button "全部项目" [ref=e41] [cursor=pointer]:
+        - generic [ref=e42]: 全部项目
+    - generic [ref=e43]:
+      - text: 象限
+      - generic [ref=e44]:
+        - button "全部象限" [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]: 全部象限
+        - button "Q1 重要紧急" [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+          - generic [ref=e50]: Q1 重要紧急
+        - button "Q2 重要不紧急" [ref=e51] [cursor=pointer]:
+          - img [ref=e52]
+          - generic [ref=e54]: Q2 重要不紧急
+        - button "Q3 紧急不重要" [ref=e55] [cursor=pointer]:
+          - img [ref=e56]
+          - generic [ref=e59]: Q3 紧急不重要
+        - button "Q4 不重要不紧急" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+          - generic [ref=e63]: Q4 不重要不紧急
+    - generic [ref=e66]:
+      - button "周期规则" [ref=e67] [cursor=pointer]:
+        - img [ref=e68]
+        - generic [ref=e73]: 周期规则
+      - button "设置" [ref=e74] [cursor=pointer]:
+        - img [ref=e75]
+        - generic [ref=e78]: 设置
+    - button "折叠侧边栏" [ref=e79] [cursor=pointer]:
+      - img [ref=e80]
+  - generic [ref=e83]:
+    - banner [ref=e84]:
+      - generic [ref=e86]:
+        - textbox [ref=e87]: 2026-05-11
+        - generic [ref=e88]: "-"
+        - textbox [ref=e89]: 2026-05-17
+      - button "新建任务" [ref=e91] [cursor=pointer]:
+        - img [ref=e92]
+        - text: 新建任务
+    - main [ref=e93]

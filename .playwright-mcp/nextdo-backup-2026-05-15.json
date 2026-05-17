@@ -1,0 +1,72 @@
+{
+  "version": "1.1",
+  "exportedAt": "2026-05-15T14:53:45.200Z",
+  "database": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "欢迎使用 NextDo",
+        "description": "这是一个基于 IndexedDB 的演示任务",
+        "completed": false,
+        "priority": "High",
+        "quadrant": "Q3",
+        "subTasks": [],
+        "createdAt": 1778853182696,
+        "date": "2026-05-15",
+        "startTime": "09:00",
+        "duration": 60,
+        "isExpanded": false,
+        "tags": [
+          "演示",
+          "入门"
+        ],
+        "progress": "Initial"
+      },
+      {
+        "id": "5ea08727-f650-46ad-a632-0dc9c9af86a4",
+        "title": "测试任务",
+        "description": "",
+        "priority": "Medium",
+        "quadrant": "Q2",
+        "date": "2026-05-15",
+        "endDate": "2026-05-15",
+        "completed": false,
+        "progress": "In Progress",
+        "subTasks": [
+          {
+            "id": "9b05d4b5-9277-4998-980c-18da61252815",
+            "title": "子任务1",
+            "completed": false
+          }
+        ],
+        "createdAt": 1778853214945,
+        "isExpanded": false,
+        "tags": [
+          "工作"
+        ],
+        "predecessorIds": []
+      }
+    ],
+    "projects": [
+      {
+        "id": "d2c49dec-b161-4032-822b-4788e94c702c",
+        "title": "工作项目",
+        "status": "active",
+        "progress": 0,
+        "startDate": "2026-05-15",
+        "logs": [],
+        "createdAt": 1778854156659,
+        "color": "#EF4444",
+        "description": "这述"
+      }
+    ],
+    "recurringRules": []
+  },
+  "localStorage": {
+    "aiSettings": "{\"baseUrl\":\"https://api.openai.com/v1\",\"apiKey\":\"\",\"model\":\"gpt-3.5-turbo\"}",
+    "theme": "light",
+    "hotkeys": "{\"new_task\":\"n\",\"go_to_today\":\"t\",\"toggle_view\":\"v\",\"open_projects\":\"p\",\"open_palette\":\"meta+k\"}",
+    "sidebarCollapsed": "false",
+    "tableFilters": "{\"search\":\"\",\"status\":\"all\",\"priority\":\"all\",\"project\":\"all\",\"quadrant\":\"all\",\"progress\":\"In Progress\",\"date\":\"\",\"tags\":\"\"}"
+  }
+}

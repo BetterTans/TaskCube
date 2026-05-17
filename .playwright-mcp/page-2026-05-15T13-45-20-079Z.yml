@@ -1,0 +1,87 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [active] [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e32]:
+      - button "项目" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e37]: 项目
+      - button "设置" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e42]: 设置
+    - button "折叠侧边栏" [ref=e43] [cursor=pointer]:
+      - img [ref=e44]
+  - generic [ref=e47]:
+    - banner [ref=e48]:
+      - button "新建任务" [ref=e55] [cursor=pointer]:
+        - img [ref=e56]
+        - text: 新建任务
+    - main [ref=e57]:
+      - generic [ref=e873]:
+        - generic [ref=e875]:
+          - generic [ref=e876]:
+            - generic [ref=e878]:
+              - generic [ref=e879]: 状态
+              - button [ref=e880] [cursor=pointer]:
+                - img [ref=e881]
+            - generic [ref=e885]:
+              - generic [ref=e886]: 任务标题
+              - button [ref=e887] [cursor=pointer]:
+                - img [ref=e888]
+            - generic [ref=e892]:
+              - generic [ref=e893]: 项目
+              - button [ref=e894] [cursor=pointer]:
+                - img [ref=e895]
+            - generic [ref=e899]:
+              - generic [ref=e900]: 优先级
+              - button [ref=e901] [cursor=pointer]:
+                - img [ref=e902]
+            - generic [ref=e906]:
+              - generic [ref=e907]: 四象限
+              - button [ref=e908] [cursor=pointer]:
+                - img [ref=e909]
+            - generic [ref=e913]:
+              - generic [ref=e914]: 进展
+              - button [ref=e915] [cursor=pointer]:
+                - img [ref=e916]
+            - generic [ref=e920]:
+              - generic [ref=e921]: 日期
+              - button [ref=e922] [cursor=pointer]:
+                - img [ref=e923]
+            - generic [ref=e927]:
+              - generic [ref=e928]: 标签
+              - button [ref=e929] [cursor=pointer]:
+                - img [ref=e930]
+            - generic [ref=e935]: 子任务
+          - generic [ref=e938]:
+            - button [ref=e941] [cursor=pointer]:
+              - img [ref=e942]
+            - generic [ref=e946] [cursor=pointer]: 欢迎使用 NextDo
+            - generic [ref=e949]: High
+            - generic [ref=e951]:
+              - img [ref=e952]
+              - generic [ref=e954]: 重要 & 緊急
+            - generic [ref=e956]:
+              - img [ref=e957]
+              - generic [ref=e959]: Initial
+            - generic [ref=e961]: 2026-05-15
+            - generic [ref=e963]:
+              - generic [ref=e964]: 演示
+              - generic [ref=e965]: 入门
+        - generic [ref=e967]:
+          - generic [ref=e968]: 共 1 个任务
+          - button "清除所有筛选" [ref=e969] [cursor=pointer]

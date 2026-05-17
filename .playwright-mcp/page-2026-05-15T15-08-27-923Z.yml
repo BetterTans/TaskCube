@@ -1,0 +1,107 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [active] [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e32]:
+      - button "项目" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e37]: 项目
+      - button "周期规则" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e44]: 周期规则
+      - button "设置" [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+        - generic [ref=e49]: 设置
+    - button "折叠侧边栏" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+  - generic [ref=e54]:
+    - banner [ref=e55]:
+      - generic [ref=e1477]:
+        - textbox [ref=e1478]: 2026-05-11
+        - generic [ref=e1479]: "-"
+        - textbox [ref=e1480]: 2026-05-17
+      - button "新建任务" [ref=e62] [cursor=pointer]:
+        - img [ref=e63]
+        - text: 新建任务
+    - main [ref=e64]:
+      - generic [ref=e1482]:
+        - generic [ref=e1484]:
+          - generic [ref=e1485]:
+            - img [ref=e1486]
+            - generic [ref=e1488]:
+              - heading "重要 & 紧急" [level=3] [ref=e1489]
+              - paragraph [ref=e1490]: 立即处理
+          - generic [ref=e1491]:
+            - generic [ref=e1492]: "0"
+            - button [ref=e1493] [cursor=pointer]:
+              - img [ref=e1494]
+        - generic [ref=e1498]:
+          - generic [ref=e1499]:
+            - generic [ref=e1500]:
+              - img [ref=e1501]
+              - generic [ref=e1503]:
+                - heading "重要 & 不紧急" [level=3] [ref=e1504]
+                - paragraph [ref=e1505]: 计划执行
+            - generic [ref=e1506]:
+              - generic [ref=e1507]: "2"
+              - button [ref=e1508] [cursor=pointer]:
+                - img [ref=e1509]
+          - generic [ref=e1513]:
+            - generic [ref=e1516] [cursor=pointer]:
+              - generic [ref=e1517]:
+                - paragraph [ref=e1518]: 功能测试任务
+                - img [ref=e1519]
+              - 'generic "优先级: Medium" [ref=e1521]'
+            - generic [ref=e1523] [cursor=pointer]:
+              - generic [ref=e1524]:
+                - generic [ref=e1525]:
+                  - paragraph [ref=e1526]: 测试任务
+                  - img [ref=e1527]
+                - 'generic "优先级: Medium" [ref=e1529]'
+              - generic [ref=e1532]:
+                - img [ref=e1533]
+                - generic [ref=e1534]: 0/1
+        - generic [ref=e1535]:
+          - generic [ref=e1536]:
+            - generic [ref=e1537]:
+              - img [ref=e1538]
+              - generic [ref=e1541]:
+                - heading "紧急 & 不重要" [level=3] [ref=e1542]
+                - paragraph [ref=e1543]: 审慎处理
+            - generic [ref=e1544]:
+              - generic [ref=e1545]: "1"
+              - button [ref=e1546] [cursor=pointer]:
+                - img [ref=e1547]
+          - generic [ref=e1553] [cursor=pointer]:
+            - generic [ref=e1554]:
+              - generic [ref=e1555]:
+                - paragraph [ref=e1556]: 欢迎使用 NextDo
+                - img [ref=e1557]
+              - 'generic "优先级: High" [ref=e1559]'
+            - generic [ref=e1562]:
+              - img [ref=e1563]
+              - generic [ref=e1566]: 09:00
+        - generic [ref=e1568]:
+          - generic [ref=e1569]:
+            - img [ref=e1570]
+            - generic [ref=e1572]:
+              - heading "不重要 & 不紧急" [level=3] [ref=e1573]
+              - paragraph [ref=e1574]: 暂缓排除
+          - generic [ref=e1575]:
+            - generic [ref=e1576]: "0"
+            - button [ref=e1577] [cursor=pointer]:
+              - img [ref=e1578]

@@ -1,12 +1,11 @@
 
-
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 import { Task, Project, Priority, EisenhowerQuadrant, TaskProgress } from '../types.ts';
 import { Zap, Star, Bell, Coffee, Lock, ChevronDown } from 'lucide-react';
 import { parseDate } from '../services/recurringService.ts';
 import { formatDate } from '../utils/dateUtils.ts';
-import { getProgressDisplay } from '../utils/taskDisplay';
-import { priorityHexColors, quadrantStyles } from '../config/taskColors';
+import { getProgressDisplay } from '../utils/taskDisplay.ts';
+import { priorityHexColors, quadrantStyles } from '../config/taskColors.ts';
 
 const getTaskColor = (task: Task, project?: Project) => {
     if (project) return project.color;
@@ -17,8 +16,8 @@ const getTaskColor = (task: Task, project?: Project) => {
 interface WeekEvent {
   task: Task;
   laneIndex: number;
-  startDayIndex: number; 
-  span: number; 
+  startDayIndex: number;
+  span: number;
   isStart: boolean;
   isEnd: boolean;
   color: string;
@@ -51,7 +50,7 @@ const layoutWeekEvents = (week: (Date | null)[], tasks: Task[], projects: Projec
   for (const task of weekTasks) {
     const taskStart = parseDate(task.date);
     const taskEnd = parseDate(task.endDate || task.date);
-    
+
     let startDayIndex = 0;
     if (formatDate(taskStart) > weekStart) {
         startDayIndex = taskStart.getDay();
@@ -61,7 +60,7 @@ const layoutWeekEvents = (week: (Date | null)[], tasks: Task[], projects: Projec
     if (formatDate(taskEnd) < weekEnd) {
         endDayIndex = taskEnd.getDay();
     }
-    
+
     const span = endDayIndex - startDayIndex + 1;
     if (span <= 0) continue;
 
@@ -99,7 +98,7 @@ const layoutWeekEvents = (week: (Date | null)[], tasks: Task[], projects: Projec
   return lanes.flat();
 };
 
-const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateClick, onTaskClick, onUpdateTask, onVisible }: {
+const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateClick, onTaskClick, onUpdateTask, onVisible, onInlineCreate }: {
   date: Date;
   tasks: Task[];
   projects: Project[];
@@ -108,10 +107,14 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
   onTaskClick: (task: Task, event: React.MouseEvent) => void;
   onUpdateTask: (task: Partial<Task>) => void;
   onVisible?: () => void;
+  onInlineCreate?: (dateStr: string, title: string) => void;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
-  
+  const [quickCreateDate, setQuickCreateDate] = useState<string | null>(null);
+  const [quickCreateValue, setQuickCreateValue] = useState('');
+  const quickCreateRef = useRef<HTMLInputElement>(null);
+
   const calendarData = useMemo(() => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -173,25 +176,20 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
     if (!dateStr || !draggedTask) return;
     const droppedTaskId = e.dataTransfer.getData('text/plain');
     if (droppedTaskId === draggedTask.id) {
-      // Calculate the duration offset if the task has an endDate
       const updates: Partial<{ id: string; date: string; endDate: string }> = {
         id: droppedTaskId,
         date: dateStr
       };
 
-      // If the task has an endDate, calculate and preserve the duration
-      // Fix: Always update endDate when it exists, even if it equals startDate
       if (draggedTask.endDate) {
         const startDate = parseDate(draggedTask.date);
         const endDate = parseDate(draggedTask.endDate);
         const durationDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
-        // Calculate new end date based on the duration
         const newStartDate = parseDate(dateStr);
         const newEndDate = new Date(newStartDate);
         newEndDate.setDate(newEndDate.getDate() + durationDays);
 
-        // Format the new end date
         const offset = newEndDate.getTimezoneOffset() * 60000;
         const newEndDateStr = new Date(newEndDate.getTime() - offset).toISOString().split('T')[0];
 
@@ -203,12 +201,84 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
     setDraggedTask(null);
   };
 
+  // Quick-create (floating bar) handlers
+  useEffect(() => {
+    if (quickCreateDate && quickCreateRef.current) {
+      quickCreateRef.current.focus();
+    }
+  }, [quickCreateDate]);
+
+  useEffect(() => {
+    if (!quickCreateDate) return;
+    const handler = (e: MouseEvent) => {
+      if (quickCreateRef.current && !quickCreateRef.current.contains(e.target as Node)) {
+        setQuickCreateDate(null);
+        setQuickCreateValue('');
+      }
+    };
+    const timer = setTimeout(() => document.addEventListener('mousedown', handler), 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handler);
+    };
+  }, [quickCreateDate]);
+
+  const handleQuickCreateSubmit = () => {
+    const title = quickCreateValue.trim();
+    if (title && quickCreateDate && onInlineCreate) {
+      onInlineCreate(quickCreateDate, title);
+    }
+    setQuickCreateDate(null);
+    setQuickCreateValue('');
+  };
+
+  const handleQuickCreateKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleQuickCreateSubmit();
+    } else if (e.key === 'Escape') {
+      setQuickCreateDate(null);
+      setQuickCreateValue('');
+    }
+  };
+
+  const handleDateCellClick = (dateStr: string, e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[draggable]')) return;
+    if (onInlineCreate) {
+      if (quickCreateDate === dateStr) {
+        setQuickCreateDate(null);
+        setQuickCreateValue('');
+      } else {
+        setQuickCreateDate(dateStr);
+        setQuickCreateValue('');
+      }
+    }
+  };
+
   const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
   const TODAY = formatDate(new Date());
 
   return (
     <div ref={containerRef} className="pb-8">
       <div className="text-xl font-bold text-gray-800 dark:text-gray-200 p-4 sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm z-10">{date.getFullYear()}年 {monthNames[date.getMonth()]}</div>
+
+      {/* Floating quick-create bar */}
+      {quickCreateDate && (
+        <div className="mx-1 mb-1 flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-800 rounded-lg border border-indigo-300 dark:border-indigo-600 shadow-sm animate-in fade-in slide-in-from-top-2 duration-150">
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">{quickCreateDate}</span>
+          <input
+            ref={quickCreateRef}
+            type="text"
+            value={quickCreateValue}
+            onChange={(e) => setQuickCreateValue(e.target.value)}
+            onKeyDown={handleQuickCreateKeyDown}
+            className="flex-1 px-2 py-0.5 text-sm rounded bg-gray-50 dark:bg-zinc-900 text-gray-900 dark:text-white outline-none border border-gray-200 dark:border-zinc-700 focus:border-indigo-400 dark:focus:border-indigo-500"
+            placeholder="新任务标题，回车创建..."
+          />
+        </div>
+      )}
+
       <div className="flex flex-col border-b border-r border-gray-200 dark:border-zinc-800">
         {calendarData.map((week, weekIndex) => {
           const weekEvents = layoutWeekEvents(week, tasks, projects);
@@ -224,12 +294,14 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                 if (!day) return <div key={dayIndex} className="border-l border-gray-200 dark:border-zinc-800" />;
                 const dateStr = formatDate(day);
                 const isToday = dateStr === TODAY;
+                const isQuickCreateActive = quickCreateDate === dateStr;
                 return (
                   <div
                     key={dayIndex}
                     onDragOver={(e) => handleDragOver(e, dateStr)}
                     onDrop={(e) => handleDrop(e, dateStr)}
-                    className="border-l border-gray-200 dark:border-zinc-800 h-full p-1"
+                    onClick={(e) => handleDateCellClick(dateStr, e)}
+                    className={`border-l border-gray-200 dark:border-zinc-800 h-full p-1 cursor-text transition-colors ${isQuickCreateActive ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}
                   >
                     <button
                         onClick={() => onDateClick(dateStr)}
@@ -246,6 +318,7 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
               <div className="absolute top-0 left-0 right-0" style={{ top: `${dayHeaderHeight}px` }}>
                 {weekEvents.map(({ task, laneIndex, startDayIndex, span, isStart, isEnd, color }) => {
                   const isBlocked = blockedTaskIds.has(task.id);
+                  const progressInfo = getProgressDisplay(task.progress);
                   return (
                   <div
                     key={task.id}
@@ -266,8 +339,11 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                       backgroundColor: color
                     }}
                   >
-                    {isBlocked ? <Lock size={12} className="text-white/80" /> : <QuadrantIcon quadrant={task.quadrant} />}
-                    <span className="truncate">{task.title}</span>
+                    {isBlocked ? <Lock size={12} className="text-white/80 shrink-0" /> : <QuadrantIcon quadrant={task.quadrant} />}
+                    <span className="truncate flex-1">{task.title}</span>
+                    {span >= 3 && (
+                      <span className="text-[10px] text-white/70 shrink-0 hidden sm:inline">{progressInfo.text}</span>
+                    )}
                   </div>
                 )})}
               </div>
@@ -279,7 +355,6 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
   );
 });
 
-// FIX: Added missing FullCalendarProps interface to resolve the "Cannot find name 'FullCalendarProps'" error.
 interface FullCalendarProps {
   currentDate: Date;
   tasks: Task[];
@@ -289,6 +364,7 @@ interface FullCalendarProps {
   onDateClick: (date: string) => void;
   onTaskClick: (task: Task, event: React.MouseEvent) => void;
   onUpdateTask: (task: Partial<Task>) => void;
+  onInlineCreate?: (dateStr: string, title: string) => void;
 }
 
 export const FullCalendar: React.FC<FullCalendarProps> = ({
@@ -299,7 +375,8 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
   onDateChange,
   onDateClick,
   onTaskClick,
-  onUpdateTask
+  onUpdateTask,
+  onInlineCreate
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isInitialLoad = useRef(true);
@@ -345,7 +422,7 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
           <div key={d} className="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2">{d}</div>
         ))}
       </div>
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto custom-scrollbar relative"
@@ -360,6 +437,7 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
              onDateClick={onDateClick}
              onTaskClick={onTaskClick}
              onUpdateTask={onUpdateTask}
+             onInlineCreate={onInlineCreate}
            />
         ))}
       </div>

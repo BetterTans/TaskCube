@@ -1,0 +1,196 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [active] [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e32]:
+      - button "项目" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e37]: 项目
+      - button "周期规则" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e44]: 周期规则
+      - button "设置" [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+        - generic [ref=e49]: 设置
+    - button "折叠侧边栏" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+  - generic [ref=e54]:
+    - banner [ref=e55]:
+      - generic [ref=e1736]:
+        - button [ref=e1737] [cursor=pointer]:
+          - img [ref=e1738]
+        - generic [ref=e1740]: 今天
+        - button [ref=e1741] [cursor=pointer]:
+          - img [ref=e1742]
+      - button "新建任务" [ref=e62] [cursor=pointer]:
+        - img [ref=e63]
+        - text: 新建任务
+    - main [ref=e64]:
+      - generic [ref=e1744]:
+        - generic [ref=e1745]:
+          - heading "5月13日" [level=2] [ref=e1747]
+          - generic [ref=e1748]:
+            - generic [ref=e1751]: 00:00
+            - generic [ref=e1754]: 01:00
+            - generic [ref=e1757]: 02:00
+            - generic [ref=e1760]: 03:00
+            - generic [ref=e1763]: 04:00
+            - generic [ref=e1766]: 05:00
+            - generic [ref=e1769]: 06:00
+            - generic [ref=e1772]: 07:00
+            - generic [ref=e1775]: 08:00
+            - generic [ref=e1778]: 09:00
+            - generic [ref=e1781]: 10:00
+            - generic [ref=e1784]: 11:00
+            - generic [ref=e1787]: 12:00
+            - generic [ref=e1790]: 13:00
+            - generic [ref=e1793]: 14:00
+            - generic [ref=e1796]: 15:00
+            - generic [ref=e1799]: 16:00
+            - generic [ref=e1802]: 17:00
+            - generic [ref=e1805]: 18:00
+            - generic [ref=e1808]: 19:00
+            - generic [ref=e1811]: 20:00
+            - generic [ref=e1814]: 21:00
+            - generic [ref=e1817]: 22:00
+            - generic [ref=e1820]: 23:00
+        - generic [ref=e1822]:
+          - heading "5月14日" [level=2] [ref=e1824]
+          - generic [ref=e1825]:
+            - generic [ref=e1828]: 00:00
+            - generic [ref=e1831]: 01:00
+            - generic [ref=e1834]: 02:00
+            - generic [ref=e1837]: 03:00
+            - generic [ref=e1840]: 04:00
+            - generic [ref=e1843]: 05:00
+            - generic [ref=e1846]: 06:00
+            - generic [ref=e1849]: 07:00
+            - generic [ref=e1852]: 08:00
+            - generic [ref=e1855]: 09:00
+            - generic [ref=e1858]: 10:00
+            - generic [ref=e1861]: 11:00
+            - generic [ref=e1864]: 12:00
+            - generic [ref=e1867]: 13:00
+            - generic [ref=e1870]: 14:00
+            - generic [ref=e1873]: 15:00
+            - generic [ref=e1876]: 16:00
+            - generic [ref=e1879]: 17:00
+            - generic [ref=e1882]: 18:00
+            - generic [ref=e1885]: 19:00
+            - generic [ref=e1888]: 20:00
+            - generic [ref=e1891]: 21:00
+            - generic [ref=e1894]: 22:00
+            - generic [ref=e1897]: 23:00
+        - generic [ref=e1899]:
+          - heading "今天, 5月15日" [level=2] [ref=e1901]
+          - generic [ref=e1902]:
+            - generic [ref=e1903]: 全天
+            - generic [ref=e1904]:
+              - generic [ref=e1905] [cursor=pointer]:
+                - generic [ref=e1907]:
+                  - img [ref=e1908]
+                  - img [ref=e1910]
+                - generic [ref=e1912]: 功能测试任务
+              - generic [ref=e1913] [cursor=pointer]:
+                - generic [ref=e1915]:
+                  - img [ref=e1916]
+                  - img [ref=e1918]
+                - generic [ref=e1920]: 测试任务
+          - generic [ref=e1921]:
+            - generic [ref=e1924]: 00:00
+            - generic [ref=e1927]: 01:00
+            - generic [ref=e1930]: 02:00
+            - generic [ref=e1933]: 03:00
+            - generic [ref=e1936]: 04:00
+            - generic [ref=e1939]: 05:00
+            - generic [ref=e1942]: 06:00
+            - generic [ref=e1945]: 07:00
+            - generic [ref=e1948]: 08:00
+            - generic [ref=e1951]: 09:00
+            - generic [ref=e1954]: 10:00
+            - generic [ref=e1957]: 11:00
+            - generic [ref=e1960]: 12:00
+            - generic [ref=e1963]: 13:00
+            - generic [ref=e1966]: 14:00
+            - generic [ref=e1969]: 15:00
+            - generic [ref=e1972]: 16:00
+            - generic [ref=e1975]: 17:00
+            - generic [ref=e1978]: 18:00
+            - generic [ref=e1981]: 19:00
+            - generic [ref=e1984]: 20:00
+            - generic [ref=e1987]: 21:00
+            - generic [ref=e1990]: 22:00
+            - generic [ref=e1993]: 23:00
+            - generic [ref=e1996] [cursor=pointer]:
+              - generic [ref=e1997]:
+                - img [ref=e1998]
+                - img [ref=e2001]
+              - generic [ref=e2003]: 欢迎使用 NextDo
+        - generic [ref=e2005]:
+          - heading "明天, 5月16日" [level=2] [ref=e2007]
+          - generic [ref=e2008]:
+            - generic [ref=e2011]: 00:00
+            - generic [ref=e2014]: 01:00
+            - generic [ref=e2017]: 02:00
+            - generic [ref=e2020]: 03:00
+            - generic [ref=e2023]: 04:00
+            - generic [ref=e2026]: 05:00
+            - generic [ref=e2029]: 06:00
+            - generic [ref=e2032]: 07:00
+            - generic [ref=e2035]: 08:00
+            - generic [ref=e2038]: 09:00
+            - generic [ref=e2041]: 10:00
+            - generic [ref=e2044]: 11:00
+            - generic [ref=e2047]: 12:00
+            - generic [ref=e2050]: 13:00
+            - generic [ref=e2053]: 14:00
+            - generic [ref=e2056]: 15:00
+            - generic [ref=e2059]: 16:00
+            - generic [ref=e2062]: 17:00
+            - generic [ref=e2065]: 18:00
+            - generic [ref=e2068]: 19:00
+            - generic [ref=e2071]: 20:00
+            - generic [ref=e2074]: 21:00
+            - generic [ref=e2077]: 22:00
+            - generic [ref=e2080]: 23:00
+        - generic [ref=e2082]:
+          - heading "5月17日" [level=2] [ref=e2084]
+          - generic [ref=e2085]:
+            - generic [ref=e2088]: 00:00
+            - generic [ref=e2091]: 01:00
+            - generic [ref=e2094]: 02:00
+            - generic [ref=e2097]: 03:00
+            - generic [ref=e2100]: 04:00
+            - generic [ref=e2103]: 05:00
+            - generic [ref=e2106]: 06:00
+            - generic [ref=e2109]: 07:00
+            - generic [ref=e2112]: 08:00
+            - generic [ref=e2115]: 09:00
+            - generic [ref=e2118]: 10:00
+            - generic [ref=e2121]: 11:00
+            - generic [ref=e2124]: 12:00
+            - generic [ref=e2127]: 13:00
+            - generic [ref=e2130]: 14:00
+            - generic [ref=e2133]: 15:00
+            - generic [ref=e2136]: 16:00
+            - generic [ref=e2139]: 17:00
+            - generic [ref=e2142]: 18:00
+            - generic [ref=e2145]: 19:00
+            - generic [ref=e2148]: 20:00
+            - generic [ref=e2151]: 21:00
+            - generic [ref=e2154]: 22:00
+            - generic [ref=e2157]: 23:00

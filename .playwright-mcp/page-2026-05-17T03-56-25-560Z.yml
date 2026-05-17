@@ -1,0 +1,252 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [active] [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e35]: 项目
+        - button [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+      - generic [ref=e40]:
+        - button "全部项目" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: 全部项目
+        - button "工作项目" [ref=e108] [cursor=pointer]:
+          - generic [ref=e110]: 工作项目
+    - generic [ref=e43]:
+      - text: 象限
+      - generic [ref=e44]:
+        - button "全部象限" [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]: 全部象限
+        - button "Q1 重要紧急" [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+          - generic [ref=e50]: Q1 重要紧急
+        - button "Q2 重要不紧急 5" [ref=e111] [cursor=pointer]:
+          - img [ref=e52]
+          - generic [ref=e54]: Q2 重要不紧急
+          - generic [ref=e112]: "5"
+        - button "Q3 紧急不重要 1" [ref=e113] [cursor=pointer]:
+          - img [ref=e56]
+          - generic [ref=e59]: Q3 紧急不重要
+          - generic [ref=e114]: "1"
+        - button "Q4 不重要不紧急" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+          - generic [ref=e63]: Q4 不重要不紧急
+    - generic [ref=e66]:
+      - button "周期规则" [ref=e67] [cursor=pointer]:
+        - img [ref=e68]
+        - generic [ref=e73]: 周期规则
+      - button "设置" [ref=e74] [cursor=pointer]:
+        - img [ref=e75]
+        - generic [ref=e78]: 设置
+    - button "折叠侧边栏" [ref=e79] [cursor=pointer]:
+      - img [ref=e80]
+  - generic [ref=e83]:
+    - banner [ref=e84]:
+      - generic [ref=e209]:
+        - button [ref=e210] [cursor=pointer]:
+          - img [ref=e211]
+        - generic [ref=e213]: 2026年 5月
+        - button [ref=e214] [cursor=pointer]:
+          - img [ref=e215]
+      - button "新建任务" [ref=e91] [cursor=pointer]:
+        - img [ref=e92]
+        - text: 新建任务
+    - main [ref=e93]:
+      - generic [ref=e218]:
+        - generic [ref=e219]:
+          - generic [ref=e220]: 日
+          - generic [ref=e221]: 一
+          - generic [ref=e222]: 二
+          - generic [ref=e223]: 三
+          - generic [ref=e224]: 四
+          - generic [ref=e225]: 五
+          - generic [ref=e226]: 六
+        - generic [ref=e227]:
+          - generic [ref=e228]:
+            - generic [ref=e229]: 2026年 四月
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - button "1" [ref=e236] [cursor=pointer]
+                - button "2" [ref=e238] [cursor=pointer]
+                - button "3" [ref=e240] [cursor=pointer]
+                - button "4" [ref=e242] [cursor=pointer]
+              - generic [ref=e243]:
+                - button "5" [ref=e245] [cursor=pointer]
+                - button "6" [ref=e247] [cursor=pointer]
+                - button "7" [ref=e249] [cursor=pointer]
+                - button "8" [ref=e251] [cursor=pointer]
+                - button "9" [ref=e253] [cursor=pointer]
+                - button "10" [ref=e255] [cursor=pointer]
+                - button "11" [ref=e257] [cursor=pointer]
+              - generic [ref=e258]:
+                - button "12" [ref=e260] [cursor=pointer]
+                - button "13" [ref=e262] [cursor=pointer]
+                - button "14" [ref=e264] [cursor=pointer]
+                - button "15" [ref=e266] [cursor=pointer]
+                - button "16" [ref=e268] [cursor=pointer]
+                - button "17" [ref=e270] [cursor=pointer]
+                - button "18" [ref=e272] [cursor=pointer]
+              - generic [ref=e273]:
+                - button "19" [ref=e275] [cursor=pointer]
+                - button "20" [ref=e277] [cursor=pointer]
+                - button "21" [ref=e279] [cursor=pointer]
+                - button "22" [ref=e281] [cursor=pointer]
+                - button "23" [ref=e283] [cursor=pointer]
+                - button "24" [ref=e285] [cursor=pointer]
+                - button "25" [ref=e287] [cursor=pointer]
+              - generic [ref=e288]:
+                - button "26" [ref=e290] [cursor=pointer]
+                - button "27" [ref=e292] [cursor=pointer]
+                - button "28" [ref=e294] [cursor=pointer]
+                - button "29" [ref=e296] [cursor=pointer]
+                - button "30" [ref=e298] [cursor=pointer]
+          - generic [ref=e301]:
+            - generic [ref=e302]: 2026年 五月
+            - generic [ref=e303]:
+              - generic [ref=e304]:
+                - button "1" [ref=e311] [cursor=pointer]
+                - button "2" [ref=e313] [cursor=pointer]
+              - generic [ref=e314]:
+                - button "3" [ref=e316] [cursor=pointer]
+                - button "4" [ref=e318] [cursor=pointer]
+                - button "5" [ref=e320] [cursor=pointer]
+                - button "6" [ref=e322] [cursor=pointer]
+                - button "7" [ref=e324] [cursor=pointer]
+                - button "8" [ref=e326] [cursor=pointer]
+                - button "9" [ref=e328] [cursor=pointer]
+              - generic [ref=e329]:
+                - button "10" [ref=e331] [cursor=pointer]
+                - button "11" [ref=e333] [cursor=pointer]
+                - button "12" [ref=e335] [cursor=pointer]
+                - button "13" [ref=e337] [cursor=pointer]
+                - button "14" [ref=e339] [cursor=pointer]
+                - button "15" [ref=e341] [cursor=pointer]
+                - button "16" [ref=e343] [cursor=pointer]
+                - generic:
+                  - generic [ref=e344]:
+                    - img [ref=e345]
+                    - generic [ref=e347]: 测试任务
+                  - generic [ref=e348]:
+                    - img [ref=e349]
+                    - generic [ref=e351]: 纯纯粹粹
+                  - generic [ref=e352]:
+                    - img [ref=e353]
+                    - generic [ref=e355]: 功能测试任务
+              - generic [ref=e356]:
+                - button "17" [ref=e358] [cursor=pointer]
+                - button "18" [ref=e360] [cursor=pointer]
+                - button "19" [ref=e362] [cursor=pointer]
+                - button "20" [ref=e364] [cursor=pointer]
+                - button "21" [ref=e366] [cursor=pointer]
+                - button "22" [ref=e368] [cursor=pointer]
+                - button "23" [ref=e370] [cursor=pointer]
+                - generic:
+                  - generic [ref=e371]:
+                    - img [ref=e372]
+                    - generic [ref=e375]: 欢迎使用 NextDo
+                  - generic [ref=e376]:
+                    - img [ref=e377]
+                    - generic [ref=e379]: 纯纯粹粹
+              - generic [ref=e380]:
+                - button "24" [ref=e382] [cursor=pointer]
+                - button "25" [ref=e384] [cursor=pointer]
+                - button "26" [ref=e386] [cursor=pointer]
+                - button "27" [ref=e388] [cursor=pointer]
+                - button "28" [ref=e390] [cursor=pointer]
+                - button "29" [ref=e392] [cursor=pointer]
+                - button "30" [ref=e394] [cursor=pointer]
+                - generic [ref=e395]:
+                  - img [ref=e396]
+                  - generic [ref=e398]: 纯纯粹粹
+              - button "31" [ref=e401] [cursor=pointer]
+          - generic [ref=e408]:
+            - generic [ref=e409]: 2026年 六月
+            - generic [ref=e410]:
+              - generic [ref=e411]:
+                - button "1" [ref=e414] [cursor=pointer]
+                - button "2" [ref=e416] [cursor=pointer]
+                - button "3" [ref=e418] [cursor=pointer]
+                - button "4" [ref=e420] [cursor=pointer]
+                - button "5" [ref=e422] [cursor=pointer]
+                - button "6" [ref=e424] [cursor=pointer]
+              - generic [ref=e425]:
+                - button "7" [ref=e427] [cursor=pointer]
+                - button "8" [ref=e429] [cursor=pointer]
+                - button "9" [ref=e431] [cursor=pointer]
+                - button "10" [ref=e433] [cursor=pointer]
+                - button "11" [ref=e435] [cursor=pointer]
+                - button "12" [ref=e437] [cursor=pointer]
+                - button "13" [ref=e439] [cursor=pointer]
+              - generic [ref=e440]:
+                - button "14" [ref=e442] [cursor=pointer]
+                - button "15" [ref=e444] [cursor=pointer]
+                - button "16" [ref=e446] [cursor=pointer]
+                - button "17" [ref=e448] [cursor=pointer]
+                - button "18" [ref=e450] [cursor=pointer]
+                - button "19" [ref=e452] [cursor=pointer]
+                - button "20" [ref=e454] [cursor=pointer]
+              - generic [ref=e455]:
+                - button "21" [ref=e457] [cursor=pointer]
+                - button "22" [ref=e459] [cursor=pointer]
+                - button "23" [ref=e461] [cursor=pointer]
+                - button "24" [ref=e463] [cursor=pointer]
+                - button "25" [ref=e465] [cursor=pointer]
+                - button "26" [ref=e467] [cursor=pointer]
+                - button "27" [ref=e469] [cursor=pointer]
+              - generic [ref=e470]:
+                - button "28" [ref=e472] [cursor=pointer]
+                - button "29" [ref=e474] [cursor=pointer]
+                - button "30" [ref=e476] [cursor=pointer]
+          - generic [ref=e481]:
+            - generic [ref=e482]: 2026年 七月
+            - generic [ref=e483]:
+              - generic [ref=e484]:
+                - button "1" [ref=e489] [cursor=pointer]
+                - button "2" [ref=e491] [cursor=pointer]
+                - button "3" [ref=e493] [cursor=pointer]
+                - button "4" [ref=e495] [cursor=pointer]
+              - generic [ref=e496]:
+                - button "5" [ref=e498] [cursor=pointer]
+                - button "6" [ref=e500] [cursor=pointer]
+                - button "7" [ref=e502] [cursor=pointer]
+                - button "8" [ref=e504] [cursor=pointer]
+                - button "9" [ref=e506] [cursor=pointer]
+                - button "10" [ref=e508] [cursor=pointer]
+                - button "11" [ref=e510] [cursor=pointer]
+              - generic [ref=e511]:
+                - button "12" [ref=e513] [cursor=pointer]
+                - button "13" [ref=e515] [cursor=pointer]
+                - button "14" [ref=e517] [cursor=pointer]
+                - button "15" [ref=e519] [cursor=pointer]
+                - button "16" [ref=e521] [cursor=pointer]
+                - button "17" [ref=e523] [cursor=pointer]
+                - button "18" [ref=e525] [cursor=pointer]
+              - generic [ref=e526]:
+                - button "19" [ref=e528] [cursor=pointer]
+                - button "20" [ref=e530] [cursor=pointer]
+                - button "21" [ref=e532] [cursor=pointer]
+                - button "22" [ref=e534] [cursor=pointer]
+                - button "23" [ref=e536] [cursor=pointer]
+                - button "24" [ref=e538] [cursor=pointer]
+                - button "25" [ref=e540] [cursor=pointer]
+              - generic [ref=e541]:
+                - button "26" [ref=e543] [cursor=pointer]
+                - button "27" [ref=e545] [cursor=pointer]
+                - button "28" [ref=e547] [cursor=pointer]
+                - button "29" [ref=e549] [cursor=pointer]
+                - button "30" [ref=e551] [cursor=pointer]
+                - button "31" [ref=e553] [cursor=pointer]

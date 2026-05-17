@@ -1,0 +1,141 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e32]:
+      - button "项目" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e37]: 项目
+      - button "周期规则" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e44]: 周期规则
+      - button "设置" [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+        - generic [ref=e49]: 设置
+    - button "折叠侧边栏" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+  - generic [ref=e54]:
+    - banner [ref=e55]:
+      - generic [ref=e57]:
+        - textbox [ref=e58]: 2026-05-11
+        - generic [ref=e59]: "-"
+        - textbox [ref=e60]: 2026-05-17
+      - button "新建任务" [ref=e62] [cursor=pointer]:
+        - img [ref=e63]
+        - text: 新建任务
+    - main [ref=e64]:
+      - generic [ref=e66]:
+        - generic [ref=e68]:
+          - generic [ref=e69]:
+            - img [ref=e70]
+            - generic [ref=e72]:
+              - heading "重要 & 紧急" [level=3] [ref=e73]
+              - paragraph [ref=e74]: 立即处理
+          - generic [ref=e75]:
+            - generic [ref=e76]: "0"
+            - button [ref=e77] [cursor=pointer]:
+              - img [ref=e78]
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - img [ref=e85]
+              - generic [ref=e87]:
+                - heading "重要 & 不紧急" [level=3] [ref=e88]
+                - paragraph [ref=e89]: 计划执行
+            - generic [ref=e90]:
+              - generic [ref=e91]: "3"
+              - button [ref=e92] [cursor=pointer]:
+                - img [ref=e93]
+          - generic [ref=e97]:
+            - generic [ref=e99] [cursor=pointer]:
+              - generic [ref=e100]:
+                - paragraph [ref=e102]: 纯纯粹粹
+                - 'generic "优先级: 中" [ref=e103]'
+              - generic [ref=e106]: 初始
+            - generic [ref=e108] [cursor=pointer]:
+              - generic [ref=e109]:
+                - paragraph [ref=e111]: 功能测试任务
+                - 'generic "优先级: 中" [ref=e112]'
+              - generic [ref=e115]: 初始
+            - generic [ref=e117] [cursor=pointer]:
+              - generic [ref=e118]:
+                - paragraph [ref=e120]: 测试任务
+                - 'generic "优先级: 中" [ref=e121]'
+              - generic [ref=e123]:
+                - generic [ref=e124]: 进行中
+                - generic [ref=e125]:
+                  - img [ref=e126]
+                  - generic [ref=e127]: 0/1
+        - generic [ref=e129]:
+          - generic [ref=e130]:
+            - img [ref=e131]
+            - generic [ref=e134]:
+              - heading "紧急 & 不重要" [level=3] [ref=e135]
+              - paragraph [ref=e136]: 审慎处理
+          - generic [ref=e137]:
+            - generic [ref=e138]: "0"
+            - button [ref=e139] [cursor=pointer]:
+              - img [ref=e140]
+        - generic [ref=e145]:
+          - generic [ref=e146]:
+            - img [ref=e147]
+            - generic [ref=e149]:
+              - heading "不重要 & 不紧急" [level=3] [ref=e150]
+              - paragraph [ref=e151]: 暂缓排除
+          - generic [ref=e152]:
+            - generic [ref=e153]: "0"
+            - button [ref=e154] [cursor=pointer]:
+              - img [ref=e155]
+  - generic [ref=e160]:
+    - generic [ref=e161]:
+      - generic [ref=e163]:
+        - button "外观" [ref=e164] [cursor=pointer]:
+          - img [ref=e165]
+          - generic [ref=e171]: 外观
+        - button "快捷键" [ref=e172] [cursor=pointer]:
+          - img [ref=e173]
+          - generic [ref=e175]: 快捷键
+        - button "AI 模型" [ref=e176] [cursor=pointer]:
+          - img [ref=e177]
+          - generic [ref=e180]: AI 模型
+        - button "数据管理" [ref=e181] [cursor=pointer]:
+          - img [ref=e182]
+          - generic [ref=e186]: 数据管理
+      - generic [ref=e188]:
+        - heading "数据管理" [level=2] [ref=e189]
+        - generic [ref=e190]:
+          - generic [ref=e191]: 所有数据存储在本地浏览器 (IndexedDB)。为防止数据丢失，建议定期导出备份。
+          - generic [ref=e192]:
+            - button "导出备份" [ref=e193] [cursor=pointer]:
+              - img [ref=e194]
+              - text: 导出备份
+            - button "恢复数据" [active] [ref=e197] [cursor=pointer]:
+              - img [ref=e198]
+              - text: 恢复数据
+        - generic [ref=e201]:
+          - heading "自动备份" [level=3] [ref=e202]
+          - generic [ref=e203]: 选择一个本地文件夹后，应用会自动将数据备份到该文件夹。即使浏览器缓存被清理，数据文件仍保留在电脑上。
+          - button "选择备份文件夹" [ref=e205] [cursor=pointer]:
+            - img [ref=e206]
+            - text: 选择备份文件夹
+    - generic [ref=e208]:
+      - button "恢复默认" [ref=e209] [cursor=pointer]:
+        - img [ref=e210]
+        - text: 恢复默认
+      - generic [ref=e213]:
+        - button "关闭" [ref=e214] [cursor=pointer]
+        - button "保存" [ref=e215] [cursor=pointer]

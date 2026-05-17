@@ -1,0 +1,127 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - heading "NextDo" [level=1] [ref=e10]
+    - navigation [ref=e11]:
+      - button "四象限" [ref=e12] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e18]: 四象限
+      - button "月视图" [ref=e19] [cursor=pointer]:
+        - img [ref=e20]
+        - generic [ref=e22]: 月视图
+      - button "日视图" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e27]: 日视图
+      - button "列表" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+        - generic [ref=e31]: 列表
+    - generic [ref=e32]:
+      - button "项目" [ref=e33] [cursor=pointer]:
+        - img [ref=e34]
+        - generic [ref=e37]: 项目
+      - button "周期规则" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e44]: 周期规则
+      - button "设置" [active] [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+        - generic [ref=e49]: 设置
+    - button "折叠侧边栏" [ref=e50] [cursor=pointer]:
+      - img [ref=e51]
+  - generic [ref=e54]:
+    - banner [ref=e55]:
+      - generic [ref=e57]:
+        - textbox [ref=e58]: 2026-05-11
+        - generic [ref=e59]: "-"
+        - textbox [ref=e60]: 2026-05-17
+      - button "新建任务" [ref=e62] [cursor=pointer]:
+        - img [ref=e63]
+        - text: 新建任务
+    - main [ref=e64]:
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - img [ref=e84]
+              - generic [ref=e86]:
+                - heading "重要 & 紧急" [level=3] [ref=e87]
+                - paragraph [ref=e88]: 立即处理
+            - generic [ref=e89]:
+              - generic [ref=e90]: "1"
+              - button [ref=e91] [cursor=pointer]:
+                - img [ref=e92]
+          - generic [ref=e98] [cursor=pointer]:
+            - generic [ref=e99]:
+              - paragraph [ref=e101]: 欢迎使用 NextDo
+              - 'generic "优先级: 高" [ref=e102]'
+            - generic [ref=e104]:
+              - generic [ref=e105]: 初始
+              - generic [ref=e106]:
+                - img [ref=e107]
+                - generic [ref=e110]: 09:00
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - img [ref=e114]
+            - generic [ref=e116]:
+              - heading "重要 & 不紧急" [level=3] [ref=e117]
+              - paragraph [ref=e118]: 计划执行
+          - generic [ref=e119]:
+            - generic [ref=e120]: "0"
+            - button [ref=e121] [cursor=pointer]:
+              - img [ref=e122]
+        - generic [ref=e127]:
+          - generic [ref=e128]:
+            - img [ref=e129]
+            - generic [ref=e132]:
+              - heading "紧急 & 不重要" [level=3] [ref=e133]
+              - paragraph [ref=e134]: 审慎处理
+          - generic [ref=e135]:
+            - generic [ref=e136]: "0"
+            - button [ref=e137] [cursor=pointer]:
+              - img [ref=e138]
+        - generic [ref=e143]:
+          - generic [ref=e144]:
+            - img [ref=e145]
+            - generic [ref=e147]:
+              - heading "不重要 & 不紧急" [level=3] [ref=e148]
+              - paragraph [ref=e149]: 暂缓排除
+          - generic [ref=e150]:
+            - generic [ref=e151]: "0"
+            - button [ref=e152] [cursor=pointer]:
+              - img [ref=e153]
+  - generic [ref=e158]:
+    - generic [ref=e159]:
+      - generic [ref=e161]:
+        - button "外观" [ref=e162] [cursor=pointer]:
+          - img [ref=e163]
+          - generic [ref=e169]: 外观
+        - button "快捷键" [ref=e170] [cursor=pointer]:
+          - img [ref=e171]
+          - generic [ref=e173]: 快捷键
+        - button "AI 模型" [ref=e174] [cursor=pointer]:
+          - img [ref=e175]
+          - generic [ref=e178]: AI 模型
+        - button "数据管理" [ref=e179] [cursor=pointer]:
+          - img [ref=e180]
+          - generic [ref=e184]: 数据管理
+      - generic [ref=e186]:
+        - heading "外观" [level=2] [ref=e187]
+        - generic [ref=e188]:
+          - text: 应用主题
+          - generic [ref=e189]:
+            - button "浅色" [ref=e190] [cursor=pointer]:
+              - img [ref=e191]
+              - text: 浅色
+            - button "深色" [ref=e197] [cursor=pointer]:
+              - img [ref=e198]
+              - text: 深色
+            - button "跟随系统" [ref=e200] [cursor=pointer]:
+              - img [ref=e201]
+              - text: 跟随系统
+    - generic [ref=e203]:
+      - button "恢复默认" [ref=e204] [cursor=pointer]:
+        - img [ref=e205]
+        - text: 恢复默认
+      - generic [ref=e208]:
+        - button "关闭" [ref=e209] [cursor=pointer]
+        - button "保存" [ref=e210] [cursor=pointer]

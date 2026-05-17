@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Task, SubTask, Priority, RecurringRule, EisenhowerQuadrant, Project, ThemeMode, AISettings, TaskProgress } from './types.ts';
 import { generateTasksFromRule, parseDate } from './services/recurringService.ts';
 import { FullCalendar } from './components/FullCalendar.tsx';
@@ -12,11 +12,14 @@ import { ProjectDetailModal } from './components/ProjectDetailModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
 import { CommandPalette, Command } from './components/CommandPalette.tsx';
 import { EventPopover } from './components/EventPopover.tsx';
+import { Sidebar } from './components/Sidebar.tsx';
+import { TaskDetailPanel } from './components/TaskDetailPanel.tsx';
 import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
 import { ToastContainer } from './components/ToastContainer.tsx';
 import { ConfirmDialog } from './components/ConfirmDialog.tsx';
 import { useToast } from './hooks/useToast.ts';
-import { Calendar as CalendarIcon, Table as TableIcon, Repeat, Briefcase, Box, Clock, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, LayoutGrid, PanelLeftClose, PanelRightClose } from 'lucide-react';
+import { useTaskFilters } from './hooks/useTaskFilters.ts';
+import { Box, ChevronLeft, ChevronRight, Plus, Settings, Sun, Edit, Briefcase } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db.ts';
 import { useHotkeys } from './hooks/useHotkeys.ts';
@@ -80,11 +83,27 @@ export default function App() {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [popoverState, setPopoverState] = useState<{ task: Task | null; anchorEl: HTMLElement | null; }>({ task: null, anchorEl: null });
   
+  // 追踪是否从侧面板打开了模态框
+  const [openedFromPanel, setOpenedFromPanel] = useState(false); // kept for backward compat, unused in calendar
+
   // --- 选中项状态 ---
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [editingRule, setEditingRule] = useState<RecurringRule | null>(null); 
+  const [editingRule, setEditingRule] = useState<RecurringRule | null>(null);
   const [selectedDateStr, setSelectedDateStr] = useState<string>(TODAY);
+
+  // --- 日历过滤和侧面板状态 ---
+  const [filterProjectId, setFilterProjectId] = useState<string | null>(null);
+  const [filterQuadrant, setFilterQuadrant] = useState<EisenhowerQuadrant | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  const { filteredTasks, counts } = useTaskFilters(
+    tasks ?? [],
+    filterProjectId,
+    filterQuadrant,
+  );
+
+  const selectedTask = selectedTaskId ? (tasks ?? []).find(t => t.id === selectedTaskId) ?? null : null;
 
   // 确认对话框状态
   const [confirmState, setConfirmState] = useState<{ isOpen: boolean; title: string; message: string; onConfirm: () => void }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
@@ -362,13 +381,6 @@ export default function App() {
     return [...staticCommands, ...taskCommands];
   }, [tasks, hotkeys, openNewTaskModal, toggleView]);
 
-  const viewOptions: {id: ViewMode, icon: React.ElementType, title: string}[] = [
-      { id: 'matrix', icon: LayoutGrid, title: '四象限' },
-      { id: 'calendar', icon: CalendarIcon, title: '月视图' },
-      { id: 'day', icon: Clock, title: '日视图' },
-      { id: 'table', icon: TableIcon, title: '列表' }
-  ];
-
   const renderCurrentView = () => {
     if (tasks === undefined || projects === undefined) {
        switch(viewMode) {
@@ -381,7 +393,7 @@ export default function App() {
     }
     
     switch(viewMode) {
-      case 'calendar': return <div className="h-full p-2 sm:p-4"><FullCalendar currentDate={currentDate} tasks={tasks} projects={projects} blockedTaskIds={blockedTaskIds} onDateChange={handleDateChange} onDateClick={handleDateClick} onTaskClick={handleTaskPopoverOpen} onUpdateTask={saveTask} /></div>;
+      case 'calendar': return <div className="h-full p-2 sm:p-4"><FullCalendar currentDate={currentDate} tasks={filteredTasks} projects={projects} blockedTaskIds={blockedTaskIds} onDateChange={handleDateChange} onDateClick={handleDateClick} onTaskClick={(task, _e) => setSelectedTaskId(task.id)} onUpdateTask={saveTask} onInlineCreate={(dateStr, title) => saveTask({ title, date: dateStr, priority: Priority.MEDIUM, quadrant: EisenhowerQuadrant.Q2 })} /></div>;
       case 'day': return <DayTimeView currentDate={currentDate} tasks={tasks} blockedTaskIds={blockedTaskIds} onTaskClick={handleTaskPopoverOpen} onTimeSlotClick={(time) => openNewTaskModal(getTodayString(currentDate), time)} onToggleTask={toggleTask} onDateChange={handleDateChange} onUpdateTask={saveTask} />;
       case 'matrix': return <MatrixView tasks={tasks} projects={projects} dateRange={matrixDateRange} blockedTaskIds={blockedTaskIds} onUpdateTask={saveTask} onTaskClick={handleTaskPopoverOpen}/>;
       case 'table': return <TableView tasks={tasks} projects={projects} blockedTaskIds={blockedTaskIds} onTaskClick={openEditModal} onToggleTask={toggleTask} onUpdateTask={saveTask} />;
@@ -391,54 +403,21 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden transition-colors duration-300">
-      <aside className={`relative z-40 flex-shrink-0 bg-gray-100/50 dark:bg-zinc-800/20 backdrop-blur-lg border-r border-gray-200/80 dark:border-zinc-700/50 flex flex-col p-4 transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
-        <div className={`flex items-center gap-2 mb-8 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-           <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-sm flex items-center justify-center text-white flex-shrink-0"><Box size={18} /></div>
-           {!isSidebarCollapsed && <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight animate-in fade-in duration-300">NextDo</h1>}
-        </div>
-        <nav className="flex-1 space-y-2">
-          {viewOptions.map(view => {
-              const Icon = view.icon;
-              const isActive = viewMode === view.id;
-              return (
-                  <button 
-                      key={view.id}
-                      onClick={() => setViewMode(view.id as ViewMode)} 
-                      title={view.title}
-                      className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors
-                        ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}
-                        ${isActive
-                          ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm'
-                          : 'text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50'
-                        }
-                      `}
-                  >
-                      <Icon size={20} className="flex-shrink-0" />
-                      {!isSidebarCollapsed && <span className="animate-in fade-in duration-200">{view.title}</span>}
-                  </button>
-              );
-          })}
-        </nav>
-        <div className="flex flex-col gap-2">
-          <button onClick={() => setIsProjectListOpen(true)} title="项目" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
-            <Briefcase size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">项目</span>}
-          </button>
-          <button onClick={() => setIsRecurManagerOpen(true)} title="周期规则" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
-            <Repeat size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">周期规则</span>}
-          </button>
-           <button onClick={() => setIsSettingsOpen(true)} title="设置" className={`w-full flex items-center gap-3 text-left py-2 rounded-lg text-base font-medium transition-colors text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50 ${isSidebarCollapsed ? 'px-3 justify-center' : 'px-3'}`}>
-            <Settings size={20} className="flex-shrink-0" />{!isSidebarCollapsed && <span className="animate-in fade-in duration-200">设置</span>}
-          </button>
-        </div>
-        <button
-          onMouseDown={() => setIsSidebarCollapsed(prev => !prev)}
-          onClick={(e) => e.preventDefault()}
-          title={isSidebarCollapsed ? '展开侧边栏' : '折叠侧边栏'}
-          className="absolute bottom-5 left-full -translate-x-1/2 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm shadow-md border border-gray-200/80 dark:border-zinc-700/50 text-gray-500 dark:text-gray-400 hover:shadow-lg hover:border-gray-300 dark:hover:border-zinc-600 hover:text-gray-900 dark:hover:text-white transition-all"
-        >
-          {isSidebarCollapsed ? <PanelRightClose size={16} /> : <PanelLeftClose size={16} />}
-        </button>
-      </aside>
+      <Sidebar
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        filterProjectId={filterProjectId}
+        onProjectFilter={setFilterProjectId}
+        filterQuadrant={filterQuadrant}
+        onQuadrantFilter={setFilterQuadrant}
+        projects={projects ?? []}
+        taskCounts={counts}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
+        onOpenProjects={() => setIsProjectListOpen(true)}
+        onOpenRecurring={() => setIsRecurManagerOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-lg px-6 py-4 shrink-0 z-20 border-b border-gray-100 dark:border-zinc-800 transition-colors flex items-center justify-between">
@@ -473,6 +452,21 @@ export default function App() {
       <ProjectListModal isOpen={isProjectListOpen} onClose={() => setIsProjectListOpen(false)} projects={projects ?? []} onCreateProject={handleCreateProject} onProjectClick={(p) => { setSelectedProjectId(p.id); setIsProjectListOpen(false); }} />
       {selectedProject && <ProjectDetailModal isOpen={!!selectedProject} onClose={() => { setSelectedProjectId(null); setIsProjectListOpen(true); }} project={selectedProject} tasks={tasks ?? []} onUpdateProject={updateProject} onDeleteProject={deleteProject} onAddProjectTask={saveTask} onCreateTaskClick={(projectId) => { setNewTaskInitialProjectId(projectId); setEditingTask(null); setEditingRule(null); setIsModalOpen(true); }} onTaskClick={(t) => { setSelectedProjectId(null); openEditModal(t); }} addToast={addToast} />}
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} settings={aiSettings} onSave={setAiSettings} currentTheme={theme} onThemeChange={setTheme} hotkeys={hotkeys} onHotkeysChange={setHotkeys} defaultHotkeys={DEFAULT_HOTKEYS} addToast={addToast} />
+      <TaskDetailPanel
+        task={selectedTask}
+        isOpen={!!selectedTask && !isModalOpen}
+        onClose={() => setSelectedTaskId(null)}
+        onUpdate={saveTask}
+        onDelete={async (id) => { await deleteTask(id); }}
+        onSaveRule={async (taskData, ruleData) => {
+          await saveTask(taskData, ruleData);
+        }}
+        onUpdateRule={updateRecurringRule}
+        projects={projects ?? []}
+        allTasks={tasks ?? []}
+        recurringRule={getActiveRecurringRule()}
+        addToast={addToast}
+      />
       <EventPopover
         isOpen={!!popoverState.task}
         onClose={handlePopoverClose}

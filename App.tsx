@@ -14,6 +14,7 @@ import { CommandPalette, Command } from './components/CommandPalette.tsx';
 import { EventPopover } from './components/EventPopover.tsx';
 import { Sidebar } from './components/Sidebar.tsx';
 import { ViewTabs } from './components/ViewTabs.tsx';
+import { FilterIndicator } from './components/FilterIndicator.tsx';
 import { TaskDetailPanel } from './components/TaskDetailPanel.tsx';
 import { CalendarSkeleton, DayViewSkeleton, MatrixSkeleton, TableSkeleton } from './components/Skeletons.tsx';
 import { ToastContainer } from './components/ToastContainer.tsx';
@@ -444,6 +445,15 @@ export default function App() {
               <button onClick={() => openNewTaskModal(getTodayString())} className="px-3 sm:px-4 py-2 flex items-center justify-center gap-1.5 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md shadow-indigo-200 dark:shadow-none transition-all active:scale-95 text-sm font-medium" title="添加新任务 (N)"><Plus size={16} /> <span className="hidden sm:inline">新建任务</span></button>
            </div>
         </header>
+        {viewMode !== 'calendar' && (
+          <FilterIndicator
+            filterProjectId={filterProjectId}
+            filterQuadrant={filterQuadrant}
+            projects={projects ?? []}
+            onClearProject={() => setFilterProjectId(null)}
+            onClearQuadrant={() => setFilterQuadrant(null)}
+          />
+        )}
         <main className="flex-1 overflow-hidden relative">
           {renderCurrentView()}
         </main>

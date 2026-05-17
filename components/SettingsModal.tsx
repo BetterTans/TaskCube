@@ -270,7 +270,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       case 'appearance':
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">外观</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">外观</h2>
             {onThemeChange && (
              <div className="space-y-3">
                 <label className="text-sm font-semibold text-gray-700 dark:text-zinc-300">应用主题</label>
@@ -286,7 +286,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       case 'hotkeys':
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">快捷键</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">快捷键</h2>
             <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-100 dark:border-zinc-700 space-y-3">
                {Object.entries(HOTKEY_LABELS).map(([key, label]) => (
                   <div key={key} className="flex items-center justify-between">
@@ -300,7 +300,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       case 'ai':
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI 模型设置</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">AI 模型设置</h2>
              <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1">Base URL</label>
@@ -350,7 +350,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       case 'data':
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">数据管理</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">数据管理</h2>
              <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-100 dark:border-zinc-700 space-y-3">
                  <div className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">所有数据存储在本地浏览器 (IndexedDB)。为防止数据丢失，建议定期导出备份。</div>
                  <div className="flex gap-3">
@@ -393,7 +393,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       case 'tags':
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">标签管理</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">标签管理</h2>
             <TagsManager tasks={tasks ?? []} addToast={addToast} />
           </div>
         );

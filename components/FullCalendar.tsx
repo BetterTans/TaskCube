@@ -419,7 +419,7 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
     <div className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
       <div className="grid grid-cols-7 sticky top-0 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm z-20 border-b border-gray-100 dark:border-zinc-800">
         {weekDays.map(d => (
-          <div key={d} className="text-center text-xs font-bold text-gray-500 dark:text-zinc-400 py-2">{d}</div>
+          <div key={d} className="text-center text-xs font-semibold text-gray-500 dark:text-zinc-400 py-2">{d}</div>
         ))}
       </div>
       <div

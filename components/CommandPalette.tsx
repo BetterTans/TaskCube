@@ -103,7 +103,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                     onMouseEnter={() => setSelectedIndex(index)}
                     onClick={() => { onTaskSelect?.(result.task); onClose(); }}
                     className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${index === selectedIndex ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-zinc-800'}`}>
-                    <div className={`mt-0.5 shrink-0 ${mc.color}`}>{mc.icon || <span className="text-xs font-bold">T</span>}</div>
+                    <div className={`mt-0.5 shrink-0 ${mc.color}`}>{mc.icon || <span className="text-xs font-semibold">T</span>}</div>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-sm text-gray-800 dark:text-zinc-200 truncate">{result.task.title}</div>
                       {result.context && <div className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5 truncate">{result.context}</div>}

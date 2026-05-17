@@ -141,7 +141,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                         value={localTitle}
                         onChange={(e) => setLocalTitle(e.target.value)}
                         onBlur={handleTitleBlur}
-                        className="text-xl font-bold text-gray-900 dark:text-white bg-transparent border-none outline-none p-4 w-full placeholder:text-gray-300 dark:placeholder:text-zinc-600"
+                        className="text-xl font-semibold text-gray-900 dark:text-white bg-transparent border-none outline-none p-4 w-full placeholder:text-gray-300 dark:placeholder:text-zinc-600"
                     />
                     <textarea
                         value={localDescription}
@@ -181,7 +181,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                           onChange={(e) => onUpdateProject(project.id, { progress: parseInt(e.target.value) })}
                           className="w-full h-2 bg-gray-100 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         />
-                        <span className="text-xs font-bold text-gray-500 dark:text-zinc-400 w-8 text-right">{project.progress}%</span>
+                        <span className="text-xs font-semibold text-gray-500 dark:text-zinc-400 w-8 text-right">{project.progress}%</span>
                      </div>
                 </div>
             </div>
@@ -224,7 +224,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                             <p className="text-gray-800 dark:text-zinc-200 text-sm">{log.content}</p>
                             <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-50 dark:border-zinc-800">
                               <span className="text-xs text-gray-400">{new Date(log.date).toLocaleString()}</span>
-                              {log.type === 'milestone' && (<span className="text-[10px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Milestone</span>)}
+                              {log.type === 'milestone' && (<span className="text-[10px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded font-semibold uppercase tracking-wide">Milestone</span>)}
                             </div>
                          </div>))}
                    </div>

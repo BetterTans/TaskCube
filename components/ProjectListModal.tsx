@@ -90,7 +90,7 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
                      </button>
                      <button 
                        onClick={handleCreate}
-                       className="flex-1 py-3 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:bg-gray-50 dark:hover:bg-zinc-800"
+                       className="flex-1 py-3 text-indigo-600 dark:text-indigo-400 font-semibold text-sm hover:bg-gray-50 dark:hover:bg-zinc-800"
                      >
                        创建
                      </button>

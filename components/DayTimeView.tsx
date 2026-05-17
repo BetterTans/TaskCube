@@ -455,7 +455,7 @@ const TaskItem = React.memo(({
   return (
     <div ref={containerRef} className="pb-4 relative bg-white dark:bg-zinc-900 border-b-8 border-gray-100/50 dark:border-zinc-800">
       <div className="sticky top-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-4 py-3 border-b border-gray-100 dark:border-zinc-800 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-800 dark:text-zinc-200">{getLabel()}</h2>
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-zinc-200">{getLabel()}</h2>
       </div>
       
       {allDayTasks.length > 0 && (

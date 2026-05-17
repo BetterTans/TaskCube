@@ -148,14 +148,14 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                         onChange={(e) => setLocalDescription(e.target.value)}
                         onBlur={handleDescriptionBlur}
                         placeholder="添加项目描述..."
-                        className="text-sm text-gray-500 dark:text-gray-400 bg-transparent border-none outline-none p-4 w-full h-20 resize-none"
+                        className="text-sm text-gray-500 dark:text-zinc-400 bg-transparent border-none outline-none p-4 w-full h-20 resize-none"
                     />
                     <div className="p-4 flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">开始日期</span>
+                        <span className="text-sm text-gray-500 dark:text-zinc-400">开始日期</span>
                         <input type="date" value={project.startDate} onChange={e => onUpdateProject(project.id, { startDate: e.target.value })} className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"/>
                     </div>
                      <div className="p-4 flex items-center justify-between">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">结束日期</span>
+                        <span className="text-sm text-gray-500 dark:text-zinc-400">结束日期</span>
                         <input type="date" value={project.endDate || ''} onChange={e => onUpdateProject(project.id, { endDate: e.target.value })} className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"/>
                     </div>
                 </div>
@@ -166,7 +166,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                          <button
                            key={s.id}
                            onClick={() => handleStatusChange(s.id as ProjectStatus)}
-                           className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${ project.status === s.id ? 'bg-white dark:bg-zinc-600 shadow-sm text-gray-800 dark:text-white' : 'text-gray-500 dark:text-gray-400' }`}
+                           className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-all ${ project.status === s.id ? 'bg-white dark:bg-zinc-600 shadow-sm text-gray-800 dark:text-white' : 'text-gray-500 dark:text-zinc-400' }`}
                          >
                            {s.label}
                          </button>
@@ -181,14 +181,14 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                           onChange={(e) => onUpdateProject(project.id, { progress: parseInt(e.target.value) })}
                           className="w-full h-2 bg-gray-100 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         />
-                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 w-8 text-right">{project.progress}%</span>
+                        <span className="text-xs font-bold text-gray-500 dark:text-zinc-400 w-8 text-right">{project.progress}%</span>
                      </div>
                 </div>
             </div>
 
             <div className="bg-gray-200/80 dark:bg-zinc-800 p-0.5 rounded-lg flex">
-              <button onClick={() => setActiveTab('tasks')} className={`flex-1 py-1.5 text-sm font-medium rounded-[6px] transition-all shadow-sm ${activeTab === 'tasks' ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow' : 'text-gray-500 dark:text-gray-400 bg-transparent shadow-none'}`}>任务清单</button>
-              <button onClick={() => setActiveTab('timeline')} className={`flex-1 py-1.5 text-sm font-medium rounded-[6px] transition-all shadow-sm ${activeTab === 'timeline' ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow' : 'text-gray-500 dark:text-gray-400 bg-transparent shadow-none'}`}>过程日志</button>
+              <button onClick={() => setActiveTab('tasks')} className={`flex-1 py-1.5 text-sm font-medium rounded-[6px] transition-all shadow-sm ${activeTab === 'tasks' ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow' : 'text-gray-500 dark:text-zinc-400 bg-transparent shadow-none'}`}>任务清单</button>
+              <button onClick={() => setActiveTab('timeline')} className={`flex-1 py-1.5 text-sm font-medium rounded-[6px] transition-all shadow-sm ${activeTab === 'timeline' ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow' : 'text-gray-500 dark:text-zinc-400 bg-transparent shadow-none'}`}>过程日志</button>
             </div>
 
             <div>
@@ -204,10 +204,10 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                            <div key={task.id} onClick={() => onTaskClick(task)} className="flex items-center gap-3 p-3.5 hover:bg-gray-50 dark:hover:bg-zinc-800 cursor-pointer active:bg-gray-100 dark:active:bg-zinc-700 transition-colors">
                               <div className={task.completed ? 'text-gray-300 dark:text-zinc-600' : 'text-gray-300 dark:text-zinc-600'}>{task.completed ? <CheckCircle2 size={20} className="text-green-500" /> : <Circle size={20} />}</div>
                               <div className="flex-1 min-w-0">
-                                 <div className={`text-sm font-medium truncate ${task.completed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>{task.title}</div>
+                                 <div className={`text-sm font-medium truncate ${task.completed ? 'line-through text-gray-400 dark:text-zinc-500' : 'text-gray-900 dark:text-zinc-100'}`}>{task.title}</div>
                                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5"><span>{task.date}</span><span className={`px-1 rounded font-medium ${getPriorityBadge(task.priority)}`}>{priorityBadgeStyles[task.priority].label}</span></div>
                               </div>
-                              <MoreHorizontal size={16} className="text-gray-300 dark:text-gray-600" />
+                              <MoreHorizontal size={16} className="text-gray-300 dark:text-zinc-600" />
                            </div>)))}
                      <button onClick={() => onCreateTaskClick(project.id)} className="w-full py-3.5 text-indigo-600 dark:text-indigo-400 font-medium text-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-zinc-800"><Plus size={16} className="mr-1" /> 添加新任务</button>
                   </div>
@@ -221,7 +221,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
                    <div className="space-y-3">
                       {project.logs.map((log) => (
                          <div key={log.id} className="bg-white dark:bg-zinc-900 p-3.5 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm">
-                            <p className="text-gray-800 dark:text-gray-200 text-sm">{log.content}</p>
+                            <p className="text-gray-800 dark:text-zinc-200 text-sm">{log.content}</p>
                             <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-50 dark:border-zinc-800">
                               <span className="text-xs text-gray-400">{new Date(log.date).toLocaleString()}</span>
                               {log.type === 'milestone' && (<span className="text-[10px] bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Milestone</span>)}

@@ -27,7 +27,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <p className="text-sm text-gray-500 dark:text-zinc-400 mb-6">{message}</p>
         <div className="flex justify-end gap-2">
           <button onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">
+            className="px-4 py-2 text-sm font-medium rounded-xl bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">
             {cancelText}
           </button>
           <button onClick={onConfirm}

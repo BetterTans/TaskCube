@@ -27,7 +27,7 @@ export const ViewTabs: React.FC<ViewTabsProps> = ({ viewMode, onChange }) => {
             transition-all duration-200
             ${viewMode === tab.id
               ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}
+              : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'}
           `}
         >
           <tab.icon size={14} />

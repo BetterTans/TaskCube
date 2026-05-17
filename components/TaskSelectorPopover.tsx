@@ -83,7 +83,7 @@ export const TaskSelectorPopover: React.FC<TaskSelectorPopoverProps> = ({
         onClick={e => e.stopPropagation()}
       >
         <div className="p-3 border-b border-gray-100 dark:border-zinc-800">
-          <h4 className="font-semibold text-center text-sm text-gray-800 dark:text-gray-200">{title}</h4>
+          <h4 className="font-semibold text-center text-sm text-gray-800 dark:text-zinc-200">{title}</h4>
         </div>
         <div className="relative p-2">
           <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -107,7 +107,7 @@ export const TaskSelectorPopover: React.FC<TaskSelectorPopoverProps> = ({
                 }}
                 className="w-full text-left p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
               >
-                <span className="text-sm text-gray-800 dark:text-gray-200">{task.title}</span>
+                <span className="text-sm text-gray-800 dark:text-zinc-200">{task.title}</span>
                 <span className="text-xs text-gray-400 block">{task.date}</span>
               </button>
             ))

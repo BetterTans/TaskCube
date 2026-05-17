@@ -84,7 +84,7 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
                   <div className="flex border-t border-gray-100 dark:border-zinc-800 divide-x divide-gray-100 dark:divide-zinc-800">
                      <button 
                        onClick={() => setIsCreating(false)}
-                       className="flex-1 py-3 text-gray-500 dark:text-gray-400 font-medium text-sm hover:bg-gray-50 dark:hover:bg-zinc-800"
+                       className="flex-1 py-3 text-gray-500 dark:text-zinc-400 font-medium text-sm hover:bg-gray-50 dark:hover:bg-zinc-800"
                      >
                        取消
                      </button>
@@ -126,7 +126,7 @@ export const ProjectListModal: React.FC<ProjectListModalProps> = ({
                               <h4 className={`font-semibold text-base truncate pr-2 ${project.status === 'completed' ? 'text-gray-400' : 'text-gray-900 dark:text-white'}`}>
                                 {project.title}
                               </h4>
-                               <span className="text-xs text-gray-500 dark:text-gray-400">{project.progress}%</span>
+                               <span className="text-xs text-gray-500 dark:text-zinc-400">{project.progress}%</span>
                            </div>
                            <div className="flex items-center gap-3 mt-1">
                               <div className="flex-1 h-1 bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">

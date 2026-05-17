@@ -17,7 +17,7 @@ interface SidebarProps {
 }
 
 const activeClass = 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm';
-const inactiveClass = 'text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-zinc-700/50';
+const inactiveClass = 'text-gray-500 dark:text-zinc-400 hover:bg-white/50 dark:hover:bg-zinc-700/50';
 
 export const Sidebar: React.FC<SidebarProps> = ({
   filterProjectId,
@@ -76,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
                   <span className="truncate flex-1">{p.title}</span>
                   {(taskCounts.projects[p.id] || 0) > 0 && (
-                    <span className="text-xs text-gray-400 dark:text-gray-500">{taskCounts.projects[p.id]}</span>
+                    <span className="text-xs text-gray-400 dark:text-zinc-500">{taskCounts.projects[p.id]}</span>
                   )}
                 </button>
               ))}
@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <Icon size={14} className="flex-shrink-0" />
                     <span className="truncate flex-1">{q.label}</span>
                     {count > 0 && (
-                      <span className="text-xs text-gray-400 dark:text-gray-500">{count}</span>
+                      <span className="text-xs text-gray-400 dark:text-zinc-500">{count}</span>
                     )}
                   </button>
                 );
@@ -141,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onMouseDown={() => onToggleCollapse()}
         onClick={(e) => e.preventDefault()}
         title={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
-        className="absolute bottom-5 left-full -translate-x-1/2 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700/50 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-zinc-600 hover:text-gray-900 dark:hover:text-white transition-all"
+        className="absolute bottom-5 left-full -translate-x-1/2 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700/50 text-gray-500 dark:text-zinc-400 hover:border-gray-300 dark:hover:border-zinc-600 hover:text-gray-900 dark:hover:text-white transition-all"
       >
         {isCollapsed ? <PanelRightClose size={16} /> : <PanelLeftClose size={16} />}
       </button>

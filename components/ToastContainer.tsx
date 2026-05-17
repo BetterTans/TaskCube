@@ -27,8 +27,8 @@ export const ToastContainer: React.FC<{ toasts: Toast[]; onRemove: (id: string) 
           className={`flex items-center gap-2 px-4 py-3 rounded-xl border animate-in slide-in-from-right-5 duration-200 ${bgMap[toast.type]}`}
         >
           {iconMap[toast.type]}
-          <span className="text-sm text-gray-800 dark:text-gray-200 flex-1">{toast.message}</span>
-          <button onClick={() => onRemove(toast.id)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <span className="text-sm text-gray-800 dark:text-zinc-200 flex-1">{toast.message}</span>
+          <button onClick={() => onRemove(toast.id)} className="text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300">
             <X size={14} />
           </button>
         </div>

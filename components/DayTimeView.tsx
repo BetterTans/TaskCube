@@ -302,7 +302,7 @@ const TaskItem = React.memo(({
   }
 
   let bgColor = 'bg-sky-100 dark:bg-sky-900/30 border-sky-500 dark:border-sky-600 text-sky-800 dark:text-sky-100';
-  if (task.completed) bgColor = 'bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-600 text-gray-400 dark:text-gray-500';
+  if (task.completed) bgColor = 'bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-600 text-gray-400 dark:text-zinc-500';
   else if (task.priority === Priority.HIGH) bgColor = 'bg-red-100 dark:bg-red-900/30 border-red-500 dark:border-red-600 text-red-800 dark:text-red-100';
   else if (task.priority === Priority.MEDIUM) bgColor = 'bg-amber-100 dark:bg-amber-900/30 border-amber-500 dark:border-amber-600 text-amber-800 dark:text-amber-100';
 
@@ -455,7 +455,7 @@ const TaskItem = React.memo(({
   return (
     <div ref={containerRef} className="pb-4 relative bg-white dark:bg-zinc-900 border-b-8 border-gray-100/50 dark:border-zinc-800">
       <div className="sticky top-0 z-30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm px-4 py-3 border-b border-gray-100 dark:border-zinc-800 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">{getLabel()}</h2>
+        <h2 className="text-lg font-bold text-gray-800 dark:text-zinc-200">{getLabel()}</h2>
       </div>
       
       {allDayTasks.length > 0 && (
@@ -468,7 +468,7 @@ const TaskItem = React.memo(({
               <div 
                 key={task.id}
                 onClick={(e) => onTaskClick(task, e)}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm border cursor-pointer ${task.completed ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 border-transparent' : 'bg-white dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 shadow-sm text-gray-800 dark:text-gray-200'}`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm border cursor-pointer ${task.completed ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 border-transparent' : 'bg-white dark:bg-zinc-800/50 border-gray-200 dark:border-zinc-700 shadow-sm text-gray-800 dark:text-zinc-200'}`}
               >
                 <div className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${task.completed ? 'border-gray-400 bg-gray-400' : (task.priority === Priority.HIGH ? 'border-red-500 bg-red-500' : (task.priority === Priority.MEDIUM ? 'border-amber-500 bg-amber-500' : 'border-sky-500 bg-sky-500'))}`} />
                 <div className="flex items-center gap-2">

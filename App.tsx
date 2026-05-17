@@ -486,15 +486,15 @@ export default function App() {
               {(viewMode === 'calendar' || viewMode === 'day') && (
                  <div className="flex items-center animate-in fade-in duration-200">
                    <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - (viewMode === 'calendar' ? 1 : 0), d.getDate() - (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50 flex-shrink-0"><ChevronLeft size={18} /></button>
-                   <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mx-2 min-w-[80px] sm:min-w-[120px] text-center truncate">{viewMode === 'day' ? (getTodayString(currentDate) === TODAY ? '今天' : `${currentDate.getMonth()+1}月${currentDate.getDate()}日`) : `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</span>
+                   <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-zinc-100 mx-2 min-w-[80px] sm:min-w-[120px] text-center truncate">{viewMode === 'day' ? (getTodayString(currentDate) === TODAY ? '今天' : `${currentDate.getMonth()+1}月${currentDate.getDate()}日`) : `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`}</span>
                    <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + (viewMode === 'calendar' ? 1 : 0), d.getDate() + (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50 flex-shrink-0"><ChevronRight size={18} /></button>
                  </div>
               )}
               {viewMode === 'matrix' && (
                  <div className="flex items-center gap-2 animate-in fade-in duration-200">
-                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
+                    <input type="date" value={matrixDateRange.start} onChange={(e) => setMatrixDateRange(r => ({ ...r, start: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-zinc-300 dark:color-scheme-dark h-9"/>
                     <span className="text-gray-400 text-sm">-</span>
-                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-gray-300 dark:color-scheme-dark h-9"/>
+                    <input type="date" value={matrixDateRange.end} onChange={(e) => setMatrixDateRange(r => ({ ...r, end: e.target.value }))} className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md px-2 py-1.5 text-sm outline-none focus:border-indigo-500 text-gray-700 dark:text-zinc-300 dark:color-scheme-dark h-9"/>
                  </div>
               )}
           </div>

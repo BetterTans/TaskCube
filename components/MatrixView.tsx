@@ -34,17 +34,17 @@ const QuadrantHeader = ({
     <div className="flex items-center gap-3">
       {icon}
       <div>
-        <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-lg">{title}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
+        <h3 className="font-semibold text-gray-800 dark:text-zinc-100 text-lg">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-zinc-400">{subtitle}</p>
       </div>
     </div>
     <div className="flex items-center gap-2">
-      <span className="text-base font-medium text-gray-500 dark:text-gray-400 bg-gray-200/50 dark:bg-zinc-700/50 w-8 h-8 rounded-full flex items-center justify-center">
+      <span className="text-base font-medium text-gray-500 dark:text-zinc-400 bg-gray-200/50 dark:bg-zinc-700/50 w-8 h-8 rounded-full flex items-center justify-center">
         {taskCount}
       </span>
       <button
         onClick={() => onToggleCollapse(id)}
-        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+        className="text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
       >
         <ChevronDown
           size={20}
@@ -80,7 +80,7 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 flex items-start gap-2">
             {isBlocked && <Lock size={14} className="text-gray-400 mt-0.5 shrink-0" />}
-            <p className={`font-semibold text-gray-800 dark:text-gray-100 leading-snug break-words ${task.completed ? 'line-through' : ''}`}>{task.title}</p>
+            <p className={`font-semibold text-gray-800 dark:text-zinc-100 leading-snug break-words ${task.completed ? 'line-through' : ''}`}>{task.title}</p>
         </div>
         <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1.5 ${dot.light} ${dot.dark}`} title={`优先级: ${badge.label}`}></div>
       </div>
@@ -89,13 +89,13 @@ const MatrixTaskCard = React.memo(({ task, project, isBlocked, onDragStart, onDr
         <div className="flex items-center gap-2">
           <span className={`px-1.5 py-0.5 rounded-md font-medium ${progressDisplay.style.badge}`}>{progressDisplay.label}</span>
           {task.startTime && (
-            <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
+            <div className="flex items-center gap-1 text-gray-500 dark:text-zinc-400 bg-gray-100 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
               <Clock size={12} />
               <span>{task.startTime}</span>
             </div>
           )}
           {task.subTasks.length > 0 && (
-            <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1 text-gray-500 dark:text-zinc-400">
               <AlignLeft size={12} />
               <span>{task.subTasks.filter(s => s.completed).length}/{task.subTasks.length}</span>
             </div>

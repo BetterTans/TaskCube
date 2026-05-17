@@ -327,7 +327,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
 
   // Shared section label style
   const SectionLabel = ({ icon, label }: { icon: React.ReactNode; label: string }) => (
-    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+    <div className="flex items-center gap-2 text-gray-700 dark:text-zinc-300">
       <div className="text-gray-400 dark:text-zinc-500">{icon}</div>
       <span className="text-sm font-medium">{label}</span>
     </div>
@@ -345,7 +345,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
       >
         {/* Header */}
         <div className="bg-white dark:bg-zinc-900 px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
-          <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm font-medium px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">取消</button>
+          <button onClick={onClose} className="text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-200 text-sm font-medium px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">取消</button>
           <h2 className="text-sm font-semibold text-gray-900 dark:text-white">编辑事项</h2>
           <div className="flex items-center gap-1">
             <button
@@ -359,7 +359,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             >
               <Trash2 size={16} />
             </button>
-            <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800" title="关闭">
+            <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800" title="关闭">
               <X size={16} />
             </button>
           </div>
@@ -412,7 +412,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             <div className="p-2 -mt-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-xs text-red-600 dark:text-red-400 flex items-center gap-2">
               <span>确定要删除此任务吗？此操作不可撤销。</span>
               <button onClick={handleDelete} className="px-2 py-0.5 bg-red-500 text-white rounded font-medium shrink-0">确认</button>
-              <button onClick={() => setShowDeleteConfirm(false)} className="px-2 py-0.5 bg-gray-200 dark:bg-zinc-700 text-gray-600 dark:text-gray-300 rounded font-medium shrink-0">取消</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="px-2 py-0.5 bg-gray-200 dark:bg-zinc-700 text-gray-600 dark:text-zinc-300 rounded font-medium shrink-0">取消</button>
             </div>
           )}
 
@@ -440,7 +440,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                 <label htmlFor="panel-recurring-toggle" className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="panel-recurring-toggle" className="sr-only peer" checked={isRecurring} onChange={handleRecurringToggle} />
                   <div className="w-9 h-5 bg-gray-200 dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-500"></div>
-                  <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">重复任务</span>
+                  <span className="ml-2 text-sm text-gray-600 dark:text-zinc-400">重复任务</span>
                 </label>
                 {isRecurring && (
                   <>
@@ -500,7 +500,7 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                   <label className="text-[11px] text-gray-400 dark:text-zinc-500">前置任务 (需先完成)</label>
                   <div className="flex flex-wrap gap-1.5 mt-1">
                     {predecessors.map(p => (
-                      <span key={p.id} className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 text-xs pl-2.5 pr-1 py-1 rounded-full">
+                      <span key={p.id} className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 text-xs pl-2.5 pr-1 py-1 rounded-full">
                         {p.title}
                         <button onClick={() => handleRemovePredecessor(p.id)} className="hover:text-red-500 transition-colors"><X size={11}/></button>
                       </span>
@@ -512,10 +512,10 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-400 dark:text-gray-500">后置任务 (依赖此项)</label>
+                  <label className="text-xs font-semibold text-gray-400 dark:text-zinc-500">后置任务 (依赖此项)</label>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {successors.length > 0 ? successors.map(s => (
-                      <div key={s.id} className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs px-2 py-1 rounded-full border border-gray-200 dark:border-zinc-700">
+                      <div key={s.id} className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-zinc-400 text-xs px-2 py-1 rounded-full border border-gray-200 dark:border-zinc-700">
                         {s.title}
                       </div>
                     )) : <p className="text-xs text-gray-400 italic mt-1">无</p>}

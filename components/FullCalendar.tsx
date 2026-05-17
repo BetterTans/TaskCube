@@ -261,12 +261,12 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
 
   return (
     <div ref={containerRef} className="pb-8">
-      <div className="text-xl font-bold text-gray-800 dark:text-gray-200 p-4 sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm z-10">{date.getFullYear()}年 {monthNames[date.getMonth()]}</div>
+      <div className="text-xl font-bold text-gray-800 dark:text-zinc-200 p-4 sticky top-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm z-10">{date.getFullYear()}年 {monthNames[date.getMonth()]}</div>
 
       {/* Floating quick-create bar */}
       {quickCreateDate && (
         <div className="mx-1 mb-1 flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-800 rounded-lg border border-indigo-300 dark:border-indigo-600 shadow-sm animate-in fade-in slide-in-from-top-2 duration-150">
-          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">{quickCreateDate}</span>
+          <span className="text-xs font-medium text-gray-500 dark:text-zinc-400 whitespace-nowrap">{quickCreateDate}</span>
           <input
             ref={quickCreateRef}
             type="text"
@@ -306,7 +306,7 @@ const MonthBlock = React.memo(({ date, tasks, projects, blockedTaskIds, onDateCl
                     <button
                         onClick={() => onDateClick(dateStr)}
                         className={`w-6 h-6 rounded-full text-xs font-medium flex items-center justify-center transition-colors ${
-                        isToday ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800'
+                        isToday ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800'
                         }`}
                     >
                         {day.getDate()}
@@ -419,7 +419,7 @@ export const FullCalendar: React.FC<FullCalendarProps> = ({
     <div className="flex flex-col h-full bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
       <div className="grid grid-cols-7 sticky top-0 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm z-20 border-b border-gray-100 dark:border-zinc-800">
         {weekDays.map(d => (
-          <div key={d} className="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2">{d}</div>
+          <div key={d} className="text-center text-xs font-bold text-gray-500 dark:text-zinc-400 py-2">{d}</div>
         ))}
       </div>
       <div

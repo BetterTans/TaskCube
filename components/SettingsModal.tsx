@@ -70,7 +70,7 @@ const KeyInput: React.FC<{ value: string; onChange: (value: string) => void }> =
     <button
       onClick={() => setIsListening(true)}
       onBlur={() => setIsListening(false)}
-      className="min-w-[80px] text-center bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-md px-2 py-1 text-sm font-mono font-semibold text-gray-700 dark:text-gray-300 hover:border-indigo-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+      className="min-w-[80px] text-center bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-md px-2 py-1 text-sm font-mono font-semibold text-gray-700 dark:text-zinc-300 hover:border-indigo-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
     >
       {isListening ? '...' : value.replace('meta', 'Cmd').toUpperCase()}
     </button>
@@ -273,10 +273,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">外观</h2>
             {onThemeChange && (
              <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">应用主题</label>
+                <label className="text-sm font-semibold text-gray-700 dark:text-zinc-300">应用主题</label>
                 <div className="flex bg-gray-100 dark:bg-zinc-800 p-1 rounded-lg">
                    {[{ id: 'light', icon: <Sun size={14}/>, label: '浅色' }, { id: 'dark', icon: <Moon size={14}/>, label: '深色' }, { id: 'system', icon: <Monitor size={14}/>, label: '跟随系统' }].map(t => (
-                     <button key={t.id} onClick={() => onThemeChange(t.id as ThemeMode)} className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all ${currentTheme === t.id ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}>{t.icon}{t.label}</button>
+                     <button key={t.id} onClick={() => onThemeChange(t.id as ThemeMode)} className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-medium transition-all ${currentTheme === t.id ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200'}`}>{t.icon}{t.label}</button>
                    ))}
                 </div>
              </div>
@@ -290,7 +290,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-100 dark:border-zinc-700 space-y-3">
                {Object.entries(HOTKEY_LABELS).map(([key, label]) => (
                   <div key={key} className="flex items-center justify-between">
-                     <span className="text-sm text-gray-600 dark:text-gray-300">{label}</span>
+                     <span className="text-sm text-gray-600 dark:text-zinc-300">{label}</span>
                      <KeyInput value={hotkeyData[key] || ''} onChange={value => setHotkeyData(prev => ({ ...prev, [key]: value }))} />
                   </div>
                ))}
@@ -303,7 +303,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI 模型设置</h2>
              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Base URL</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1">Base URL</label>
                   <div className="relative">
                     <Server className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16}/>
                     <input 
@@ -316,7 +316,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">API Key</label>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1">API Key</label>
                   <div className="relative">
                     <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16}/>
                     <input 
@@ -329,7 +329,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                </div>
                <div>
-                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">模型名称</label>
+                 <label className="block text-xs font-medium text-gray-500 dark:text-zinc-400 mb-1">模型名称</label>
                  <div className="relative">
                    <Box className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16}/>
                    <input 
@@ -341,7 +341,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                    />
                  </div>
                </div>
-                <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+                <p className="text-xs text-gray-400 dark:text-zinc-500 text-center">
                   支持任何兼容 OpenAI API 格式的服务，包括本地模型。
                 </p>
              </div>
@@ -352,17 +352,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">数据管理</h2>
              <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-100 dark:border-zinc-700 space-y-3">
-                 <div className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">所有数据存储在本地浏览器 (IndexedDB)。为防止数据丢失，建议定期导出备份。</div>
+                 <div className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">所有数据存储在本地浏览器 (IndexedDB)。为防止数据丢失，建议定期导出备份。</div>
                  <div className="flex gap-3">
-                    <button onClick={handleExport} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-600 transition-colors"><Download size={16}/> 导出备份</button>
-                    <button onClick={handleImportClick} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-600 transition-colors"><Upload size={16}/> 恢复数据</button>
+                    <button onClick={handleExport} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-600 transition-colors"><Download size={16}/> 导出备份</button>
+                    <button onClick={handleImportClick} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-600 transition-colors"><Upload size={16}/> 恢复数据</button>
                     <input type="file" accept=".json" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                  </div>
               </div>
               {isFileSystemAccessSupported() && !backupNativeFailed && (
                 <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-100 dark:border-zinc-700 space-y-3">
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-white">自动备份</h3>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                  <div className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
                     {backupConfigured
                       ? `已设置自动备份文件夹「${backupDirName}」。每次数据变更后自动保存备份文件，浏览器清缓存也不会丢失数据。`
                       : '选择一个本地文件夹后，应用会自动将数据备份到该文件夹。即使浏览器缓存被清理，数据文件仍保留在电脑上。'}
@@ -371,7 +371,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     {backupConfigured ? (
                       <>
                         <button onClick={async () => { await clearBackupDirectory(); setBackupConfigured(false); setBackupDirName(''); addToast('已取消自动备份', 'info'); }} className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"><X size={16}/> 取消自动备份</button>
-                        <button onClick={() => { triggerBackup(); addToast('手动备份已触发，5秒后写入', 'success'); }} className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-600 transition-colors"><Save size={16}/> 立即备份</button>
+                        <button onClick={() => { triggerBackup(); addToast('手动备份已触发，5秒后写入', 'success'); }} className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-lg text-sm font-medium text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-600 transition-colors"><Save size={16}/> 立即备份</button>
                       </>
                     ) : (
                       <button onClick={async () => { const result = await selectBackupDirectoryNative(); if (result.success) { setBackupConfigured(true); setBackupDirName(result.dirName || ''); addToast('自动备份已设置，文件夹: ' + (result.dirName || ''), 'success'); } else { addToast(result.error || '选择文件夹失败', 'error'); setBackupNativeFailed(true); } }} className="flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"><FolderOpen size={16}/> 选择备份文件夹</button>
@@ -382,7 +382,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {(!isFileSystemAccessSupported() || backupNativeFailed) && !backupConfigured && (
                 <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 border border-gray-100 dark:border-zinc-700 space-y-3">
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-white">快速备份</h3>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                  <div className="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
                     当前浏览器不支持自动备份到文件夹（macOS Chrome 限制）。点击下方按钮可一键下载备份文件到本地，建议定期操作以防数据丢失。
                   </div>
                   <button onClick={async () => { try { const jsonString = await generateBackupData(); const blob = new Blob([jsonString], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `nextdo-backup-${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); addToast('备份文件已下载', 'success'); } catch { addToast('备份下载失败', 'error'); } }} className="flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"><Download size={16}/> 一键下载备份</button>
@@ -417,7 +417,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     className={`w-full flex items-center gap-3 text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
                       ${isActive
                         ? 'bg-gray-200/70 dark:bg-zinc-800 text-gray-900 dark:text-white'
-                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-zinc-800/50'
+                        : 'text-gray-500 dark:text-zinc-400 hover:bg-gray-200/50 dark:hover:bg-zinc-800/50'
                       }
                     `}
                   >
@@ -437,7 +437,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Footer */}
         <div className="px-6 py-3 bg-gray-50/80 dark:bg-zinc-950/80 border-t border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0 backdrop-blur-sm">
-          <button onClick={handleReset} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm flex items-center gap-1 transition-colors"><RotateCcw size={14}/> 恢复默认</button>
+          <button onClick={handleReset} className="text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300 text-sm flex items-center gap-1 transition-colors"><RotateCcw size={14}/> 恢复默认</button>
           <div className="flex gap-3">
              <Button variant="secondary" onClick={onClose} size="sm">关闭</Button>
              <Button onClick={handleSave} size="sm" className="min-w-[80px]">{showSuccess ? <Check size={16}/> : '保存'}</Button>

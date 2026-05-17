@@ -62,7 +62,7 @@ export const RecurringManager: React.FC<RecurringManagerProps> = ({
             <Repeat className="text-gray-400 dark:text-zinc-500" size={18} />
             <h3 className="text-base font-semibold text-gray-900 dark:text-white">周期任务管理</h3>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-zinc-300">
             <X size={20} />
           </button>
         </div>
@@ -105,7 +105,7 @@ export const RecurringManager: React.FC<RecurringManagerProps> = ({
                 </div>
                 
                 {/* 规则详情 */}
-                <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400 cursor-default">
+                <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-zinc-400 cursor-default">
                    <div className="flex items-center gap-2">
                       <Repeat size={14} />
                       <span>{getFrequencyText(rule)}</span>

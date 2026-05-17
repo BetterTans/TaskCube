@@ -75,7 +75,7 @@ export const TaskEditorCore: React.FC<TaskEditorCoreProps> = ({
   const toggleSubTask = (id: string) => onSubTasksChange(subTasks.map(s => s.id === id ? { ...s, completed: !s.completed } : s));
   const deleteSubTask = (id: string) => onSubTasksChange(subTasks.filter(s => s.id !== id));
 
-  const fieldClass = `w-full bg-gray-50 dark:bg-zinc-800/50 rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-indigo-300 dark:focus:border-indigo-600 focus:bg-white dark:focus:bg-zinc-800 transition-all text-gray-800 dark:text-gray-200 placeholder:text-gray-400`;
+  const fieldClass = `w-full bg-gray-50 dark:bg-zinc-800/50 rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-indigo-300 dark:focus:border-indigo-600 focus:bg-white dark:focus:bg-zinc-800 transition-all text-gray-800 dark:text-zinc-200 placeholder:text-gray-400`;
 
   return (
     <div className={`${isPanel ? 'divide-y divide-gray-100 dark:divide-zinc-800/50' : 'space-y-4'}`}>

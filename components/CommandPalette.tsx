@@ -89,7 +89,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
           <input ref={inputRef} type="text" value={searchQuery}
             onChange={(e) => { setSearchQuery(e.target.value); setSelectedIndex(0); }}
             placeholder="搜索任务或输入命令..."
-            className="w-full bg-transparent outline-none text-lg text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-zinc-600"
+            className="w-full bg-transparent outline-none text-lg text-gray-800 dark:text-zinc-200 placeholder:text-gray-400 dark:placeholder:text-zinc-600"
           />
         </div>
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto custom-scrollbar p-2">
@@ -105,7 +105,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                     className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${index === selectedIndex ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-zinc-800'}`}>
                     <div className={`mt-0.5 shrink-0 ${mc.color}`}>{mc.icon || <span className="text-xs font-bold">T</span>}</div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-sm text-gray-800 dark:text-gray-200 truncate">{result.task.title}</div>
+                      <div className="font-medium text-sm text-gray-800 dark:text-zinc-200 truncate">{result.task.title}</div>
                       {result.context && <div className="text-xs text-gray-400 dark:text-zinc-500 mt-0.5 truncate">{result.context}</div>}
                     </div>
                     <div className="shrink-0">
@@ -122,10 +122,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                 onClick={() => { cmd.action(); onClose(); }}
                 className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${index === selectedIndex ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-zinc-800'}`}>
                 <div className="flex items-center gap-3">
-                  <div className={`p-1.5 rounded-md ${index === selectedIndex ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'}`}>{cmd.icon}</div>
-                  <span className={`font-medium ${index === selectedIndex ? 'text-indigo-800 dark:text-indigo-200' : 'text-gray-800 dark:text-gray-200'}`}>{cmd.title}</span>
+                  <div className={`p-1.5 rounded-md ${index === selectedIndex ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-zinc-400'}`}>{cmd.icon}</div>
+                  <span className={`font-medium ${index === selectedIndex ? 'text-indigo-800 dark:text-indigo-200' : 'text-gray-800 dark:text-zinc-200'}`}>{cmd.title}</span>
                 </div>
-                {cmd.shortcut && <kbd className="text-xs font-mono bg-gray-200 dark:bg-zinc-700 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded border-b-2 border-gray-300 dark:border-zinc-600">{cmd.shortcut}</kbd>}
+                {cmd.shortcut && <kbd className="text-xs font-mono bg-gray-200 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400 px-1.5 py-0.5 rounded border-b-2 border-gray-300 dark:border-zinc-600">{cmd.shortcut}</kbd>}
               </div>
             ))
           ) : (

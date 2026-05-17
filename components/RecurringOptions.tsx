@@ -55,7 +55,7 @@ export const RecurringOptions: React.FC<RecurringOptionsProps> = ({
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               frequency === opt.id
                 ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200'
             }`}>
             {opt.label}
           </button>
@@ -67,7 +67,7 @@ export const RecurringOptions: React.FC<RecurringOptionsProps> = ({
         <span className="text-sm text-gray-500 dark:text-zinc-400">每</span>
         <input type="number" min="1" max="99" value={interval}
           onChange={(e) => onChange({ interval: Math.max(1, parseInt(e.target.value) || 1) })}
-          className="w-12 text-center font-semibold text-gray-800 dark:text-gray-200 outline-none border-b border-gray-300 dark:border-zinc-600 focus:border-indigo-400 bg-transparent transition-colors" />
+          className="w-12 text-center font-semibold text-gray-800 dark:text-zinc-200 outline-none border-b border-gray-300 dark:border-zinc-600 focus:border-indigo-400 bg-transparent transition-colors" />
         <span className="text-sm text-gray-500 dark:text-zinc-400">
           {frequency === 'daily' || frequency === 'custom' ? '天' : frequency === 'weekly' ? '周' : '月'}
         </span>
@@ -97,7 +97,7 @@ export const RecurringOptions: React.FC<RecurringOptionsProps> = ({
                 className={`w-9 h-9 rounded-xl text-xs font-semibold flex items-center justify-center transition-all duration-200 ${
                   weekDays.includes(idx)
                     ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                    : 'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 hover:bg-gray-200 dark:hover:bg-zinc-700'
                 }`}>
                 {label}
               </button>

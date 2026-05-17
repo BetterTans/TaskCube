@@ -400,7 +400,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
       <div className="bg-[#F2F2F7] dark:bg-black sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 border border-white/20 dark:border-zinc-800">
         
         <div className="bg-white dark:bg-zinc-900 px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
-          <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm font-medium px-2 py-1 ios-btn-active">取消</button>
+          <button onClick={onClose} className="text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-200 text-sm font-medium px-2 py-1 ios-btn-active">取消</button>
           <div className="font-semibold text-gray-900 dark:text-white">{task ? '编辑事项' : '新建事项'}</div>
           <button onClick={handleSave} className={`text-indigo-600 dark:text-indigo-400 font-semibold text-sm px-2 py-1 ios-btn-active ${isSaveDisabled ? 'opacity-50' : ''}`} disabled={isSaveDisabled}>完成</button>
         </div>
@@ -477,7 +477,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     <label className="text-[11px] text-gray-400 dark:text-zinc-500">前置任务 (需先完成)</label>
                     <div className="flex flex-wrap gap-1.5 mt-1">
                       {predecessors.map(p => (
-                        <span key={p.id} className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 text-xs pl-2.5 pr-1 py-1 rounded-full">
+                        <span key={p.id} className="inline-flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 text-xs pl-2.5 pr-1 py-1 rounded-full">
                           {p.title}
                           <button onClick={() => handleRemovePredecessor(p.id)} className="hover:text-red-500 transition-colors"><X size={11}/></button>
                         </span>
@@ -492,7 +492,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     <label className="text-[11px] text-gray-400 dark:text-zinc-500">后置任务 (依赖此项)</label>
                     <div className="flex flex-wrap gap-1.5 mt-1">
                       {successors.length > 0 ? successors.map(s => (
-                        <span key={s.id} className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs px-2.5 py-1 rounded-full">{s.title}</span>
+                        <span key={s.id} className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-zinc-400 text-xs px-2.5 py-1 rounded-full">{s.title}</span>
                       )) : <p className="text-xs text-gray-400 italic">无</p>}
                     </div>
                   </div>

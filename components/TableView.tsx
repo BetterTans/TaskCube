@@ -244,7 +244,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
                  const isFilterActive = (filters as any)[filterKey] && (filters as any)[filterKey] !== 'all';
                  
                  return (
-                 <div key={key} style={{ width: colWidths[key] }} className="py-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider select-none flex items-center justify-between group relative flex-shrink-0">
+                 <div key={key} style={{ width: colWidths[key] }} className="py-2 px-3 text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider select-none flex items-center justify-between group relative flex-shrink-0">
                     <div className="flex items-center gap-1.5">
                         <span>{headers[key]}</span>
                         {hasFilter && ( <button onMouseDown={e => e.stopPropagation()} onClick={(e) => openFilterPopover(filterKey as keyof TableFilters, e.currentTarget)}><FilterIcon size={12} className={`transition-colors ${isFilterActive ? 'text-indigo-600' : 'text-gray-300 dark:text-zinc-600 group-hover:text-gray-500'}`} /></button> )}
@@ -271,15 +271,15 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
                   <div key={task.id} className="absolute top-0 left-0 w-full flex border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors group" style={{ height: `${virtualRow.size}px`, transform: `translateY(${virtualRow.start}px)` }}>
                     {Object.keys(colWidths).map(key => (
                       <div key={key} style={{ width: colWidths[key] }} className="py-3 px-3 flex items-center flex-shrink-0 overflow-hidden">
-                        {key === 'status' && <div className="w-full text-center"><button disabled={isBlocked} onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }} className={`transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-gray-600 hover:text-indigo-500'}`}>{task.completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}</button></div>}
-                        {key === 'title' && <div onClick={() => onTaskClick(task)} className={`flex items-center font-medium text-sm truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-200'}`}>{isBlocked && <span title="被前置任务阻塞"><Lock size={12} className="mr-1.5 text-gray-400 shrink-0" /></span>}<span className="truncate">{task.title}</span></div>}
-                        {key === 'project' && <div className="text-sm text-gray-600 dark:text-gray-300 truncate">{getProjectTitle(task.projectId)}</div>}
+                        {key === 'status' && <div className="w-full text-center"><button disabled={isBlocked} onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }} className={`transition-colors disabled:cursor-not-allowed disabled:text-gray-300 dark:disabled:text-zinc-600 ${task.completed ? 'text-green-500' : 'text-gray-300 dark:text-zinc-600 hover:text-indigo-500'}`}>{task.completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}</button></div>}
+                        {key === 'title' && <div onClick={() => onTaskClick(task)} className={`flex items-center font-medium text-sm truncate hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer ${task.completed ? 'text-gray-400 dark:text-zinc-500 line-through' : 'text-gray-900 dark:text-zinc-200'}`}>{isBlocked && <span title="被前置任务阻塞"><Lock size={12} className="mr-1.5 text-gray-400 shrink-0" /></span>}<span className="truncate">{task.title}</span></div>}
+                        {key === 'project' && <div className="text-sm text-gray-600 dark:text-zinc-300 truncate">{getProjectTitle(task.projectId)}</div>}
                         {key === 'priority' && <span className={`px-1.5 py-0.5 rounded-md text-xs font-semibold ${getPriorityBadge(task.priority)}`}>{priorityBadgeStyles[task.priority].label}</span>}
-                        {key === 'quadrant' && (() => { const info = task.quadrant && quadrantInfo[task.quadrant]; return info ? (<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">{info.icon}<span>{info.title}</span></div>) : null; })()}
+                        {key === 'quadrant' && (() => { const info = task.quadrant && quadrantInfo[task.quadrant]; return info ? (<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-300">{info.icon}<span>{info.title}</span></div>) : null; })()}
                         {key === 'progress' && <span className={`px-1.5 py-0.5 rounded-md text-xs font-medium ${getProgressBadge(task.progress)}`}>{task.progress || '初始'}</span>}
-                        {key === 'date' && <div className="text-sm text-gray-600 dark:text-gray-300">{task.date}</div>}
+                        {key === 'date' && <div className="text-sm text-gray-600 dark:text-zinc-300">{task.date}</div>}
                         {key === 'tags' && <div className="flex flex-wrap gap-1">{task.tags?.map(tag => { const tc = getTagColor(tag); return <span key={tag} className={`text-xs px-1.5 py-0.5 rounded-md font-medium ${tc.light} ${tc.dark}`}>{tag}</span>; })}</div>}
-                        {key === 'subtasks' && <div className="text-center w-full text-sm text-gray-500 dark:text-gray-400">{task.subTasks?.length > 0 && (<span className="flex items-center justify-center gap-1.5"><AlignLeft size={12} /><span>{task.subTasks.filter(s => s.completed).length}/{task.subTasks.length}</span></span>)}</div>}
+                        {key === 'subtasks' && <div className="text-center w-full text-sm text-gray-500 dark:text-zinc-400">{task.subTasks?.length > 0 && (<span className="flex items-center justify-center gap-1.5"><AlignLeft size={12} /><span>{task.subTasks.filter(s => s.completed).length}/{task.subTasks.length}</span></span>)}</div>}
                       </div>
                     ))}
                   </div>
@@ -289,7 +289,7 @@ export const TableView: React.FC<TableViewProps> = ({ tasks, projects, blockedTa
           )}
         </div>
       </div>
-      <div className="bg-gray-50 dark:bg-zinc-800 border-t border-gray-200 dark:border-zinc-700 p-2 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between px-4">
+      <div className="bg-gray-50 dark:bg-zinc-800 border-t border-gray-200 dark:border-zinc-700 p-2 text-xs text-gray-500 dark:text-zinc-400 flex items-center justify-between px-4">
         <span>共 {sortedTasks.length} 个任务</span>
         <button onClick={clearFilters} className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">清除所有筛选</button>
       </div>

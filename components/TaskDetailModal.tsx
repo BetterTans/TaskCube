@@ -5,9 +5,10 @@ import { parseDate } from '../services/recurringService';
 import { Button } from './Button';
 import { RecurringOptions } from './RecurringOptions';
 import { TaskSelectorPopover } from './TaskSelectorPopover';
+import { TaskEditorCore, QUADRANT_OPTIONS } from './TaskEditorCore.tsx';
 import { generateUUID } from '../utils/generateUUID';
-import { ToastType } from '../hooks/useToast';
 import { priorityBadgeStyles, getTagColor } from '../config/taskColors';
+import { ToastType } from '../hooks/useToast';
 import {
   X,
   Trash2,

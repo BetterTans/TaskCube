@@ -7,6 +7,7 @@ import { breakDownTask, parseTaskFromNaturalLanguage } from '../services/aiServi
 import { parseDate } from '../services/recurringService.ts';
 import { RecurringOptions } from './RecurringOptions.tsx';
 import { TaskSelectorPopover } from './TaskSelectorPopover.tsx';
+import { TaskEditorCore, QUADRANT_OPTIONS, PROGRESS_OPTIONS } from './TaskEditorCore.tsx';
 import { priorityBadgeStyles, getTagColor } from '../config/taskColors.ts';
 import type { ToastType } from '../hooks/useToast.ts';
 
@@ -23,18 +24,6 @@ interface TaskDetailPanelProps {
   recurringRule?: RecurringRule;
   addToast: (message: string, type: ToastType) => string;
 }
-
-const QUADRANT_OPTIONS: { value: EisenhowerQuadrant; icon: React.ElementType; label: string; desc: string; selectedClass: string }[] = [
-  { value: EisenhowerQuadrant.Q1, icon: Zap, label: '重要 & 紧急', desc: '立即处理', selectedClass: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 border-red-200 dark:border-red-800' },
-  { value: EisenhowerQuadrant.Q2, icon: Star, label: '重要 & 不紧急', desc: '计划执行', selectedClass: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 border-green-200 dark:border-green-800' },
-  { value: EisenhowerQuadrant.Q3, icon: Bell, label: '紧急 & 不重要', desc: '审慎处理', selectedClass: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300 border-orange-200 dark:border-orange-800' },
-  { value: EisenhowerQuadrant.Q4, icon: Coffee, label: '不重要 & 不紧急', desc: '暂缓排除', selectedClass: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200 dark:border-blue-800' },
-];
-
-const PROGRESS_OPTIONS: TaskProgress[] = [
-  TaskProgress.INITIAL, TaskProgress.IN_PROGRESS, TaskProgress.ON_HOLD,
-  TaskProgress.BLOCKED, TaskProgress.COMPLETED, TaskProgress.DELAYED,
-];
 
 const getPriorityBtnClass = (p: Priority): string => {
   const s = priorityBadgeStyles[p];
@@ -378,38 +367,46 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
-          {/* Title + Smart Fill */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800">
-            <div className="relative">
-              <input
-                type="text"
-                value={form.title || ''}
-                onChange={(e) => { updateField('title', e.target.value); setTitleError(false); }}
-                onBlur={() => handleBlur('title', form.title)}
-                onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                className={`w-full pl-4 pr-12 py-3 border-b border-gray-100 dark:border-zinc-800 outline-none text-base font-medium bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 ${
-                  titleError ? 'ring-2 ring-red-200 dark:ring-red-800' : ''
-                }`}
-                placeholder="事项标题"
-              />
-              <button
-                onClick={handleSmartFill}
-                disabled={isSmartFilling}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-500 disabled:text-gray-400 disabled:animate-pulse p-1"
-                title="智能识别"
-              >
-                <Wand2 size={18} />
-              </button>
-            </div>
-            <textarea
-              value={form.description || ''}
-              onChange={(e) => updateField('description', e.target.value)}
-              onBlur={() => handleBlur('description', form.description)}
-              className="w-full px-4 py-3 outline-none text-sm text-gray-600 dark:text-gray-300 resize-none h-16 bg-transparent placeholder:text-gray-400 dark:placeholder:text-zinc-500"
-              placeholder="备注..."
-            />
-          </div>
-          {titleError && <p className="text-xs text-red-500 -mt-3 px-1">标题不能为空</p>}
+          <TaskEditorCore
+            mode="panel"
+            title={form.title || ''}
+            onTitleChange={(v) => { updateField('title', v); setTitleError(false); }}
+            onTitleBlur={() => handleBlur('title', form.title)}
+            titleError={titleError}
+            description={form.description || ''}
+            onDescriptionChange={(v) => updateField('description', v)}
+            priority={form.priority || Priority.MEDIUM}
+            onPriorityChange={(v) => { updateField('priority', v); handleBlur('priority', v); }}
+            quadrant={form.quadrant || EisenhowerQuadrant.Q2}
+            onQuadrantChange={(v) => { updateField('quadrant', v); handleBlur('quadrant', v); }}
+            progress={form.progress || TaskProgress.INITIAL}
+            onProgressChange={(v) => { updateField('progress', v); handleBlur('progress', v); }}
+            startDate={form.date || ''}
+            onStartDateChange={(v) => { updateField('date', v); handleBlur('date', v); }}
+            endDate={form.endDate || ''}
+            onEndDateChange={(v) => { updateField('endDate', v || undefined); handleBlur('endDate', v || undefined); }}
+            startTime={form.startTime}
+            onStartTimeChange={(v) => { updateField('startTime', v || undefined); handleBlur('startTime', v || undefined); }}
+            duration={form.duration}
+            onDurationChange={(v) => { updateField('duration', v || undefined); handleBlur('duration', v || undefined); }}
+            projectId={form.projectId}
+            onProjectIdChange={(v) => { updateField('projectId', v); handleBlur('projectId', v); }}
+            projects={projects}
+            tags={form.tags || []}
+            onTagsChange={(tags) => updateField('tags', tags)}
+            subTasks={form.subTasks || []}
+            onSubTasksChange={(subTasks) => updateField('subTasks', subTasks)}
+          >
+            <button
+              onClick={handleSmartFill}
+              disabled={isSmartFilling}
+              className="text-indigo-500 disabled:text-gray-400 disabled:animate-pulse p-1"
+              title="智能识别"
+            >
+              <Wand2 size={18} />
+            </button>
+          </TaskEditorCore>
+
           {showDeleteConfirm && (
             <div className="p-2 -mt-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-xs text-red-600 dark:text-red-400 flex items-center gap-2">
               <span>确定要删除此任务吗？此操作不可撤销。</span>
@@ -418,225 +415,14 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
             </div>
           )}
 
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 divide-y divide-gray-100 dark:divide-zinc-800">
-            {/* Date Range */}
-            <div className="p-3 flex items-center">
-              <div className="flex items-center gap-2 w-24 shrink-0">
-                <div className="bg-red-500 rounded-md p-1 text-white"><CalendarIcon size={14}/></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">日期</span>
-              </div>
-              <div className="flex-1 flex items-center justify-end gap-2 text-sm">
-                <input
-                  type="date"
-                  value={form.date || ''}
-                  onChange={(e) => { updateField('date', e.target.value); handleBlur('date', e.target.value); }}
-                  className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"
-                />
-                <span className="text-gray-400">-</span>
-                <input
-                  type="date"
-                  value={form.endDate || ''}
-                  onChange={(e) => { updateField('endDate', e.target.value || undefined); handleBlur('endDate', e.target.value || undefined); }}
-                  className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"
-                />
-              </div>
-            </div>
-
-            {/* Time & Duration */}
-            <div className="p-3 flex items-center">
-              <div className="flex items-center gap-2 w-24 shrink-0">
-                <div className="bg-blue-500 rounded-md p-1 text-white"><Clock size={14}/></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">时间</span>
-              </div>
-              <div className="flex-1 flex items-center justify-end gap-2 text-sm">
-                <input
-                  type="time"
-                  value={form.startTime || ''}
-                  onChange={(e) => { updateField('startTime', e.target.value || undefined); handleBlur('startTime', e.target.value || undefined); }}
-                  className="bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 dark:color-scheme-dark border-none"
-                />
-                <input
-                  type="number"
-                  value={form.duration || ''}
-                  onChange={(e) => { updateField('duration', e.target.value ? Number(e.target.value) : undefined); handleBlur('duration', e.target.value ? Number(e.target.value) : undefined); }}
-                  className="w-16 bg-gray-100 dark:bg-zinc-800 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-indigo-500 border-none"
-                  placeholder="60"
-                  min={0}
-                />
-                <span className="text-xs text-gray-400">分钟</span>
-              </div>
-            </div>
-
-            {/* Project */}
-            <div className="p-3 flex items-center">
-              <div className="flex items-center gap-2 w-24 shrink-0">
-                <div className="bg-purple-500 rounded-md p-1 text-white"><Briefcase size={14}/></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">项目</span>
-              </div>
-              <select
-                value={form.projectId || ''}
-                onChange={(e) => { updateField('projectId', e.target.value || undefined); handleBlur('projectId', e.target.value || undefined); }}
-                className="flex-1 bg-transparent text-right outline-none text-sm text-gray-500 dark:text-gray-400"
-              >
-                <option value="">无</option>
-                {projects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-              </select>
-              <ChevronRight size={16} className="text-gray-300 dark:text-zinc-600 ml-1"/>
-            </div>
-
-            {/* Priority */}
-            <div className="p-3 flex items-center">
-              <div className="flex items-center gap-2 w-24 shrink-0">
-                <div className="bg-orange-500 rounded-md p-1 text-white"><Zap size={14}/></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">优先级</span>
-              </div>
-              <div className="flex-1 flex justify-end">
-                <div className="flex bg-gray-100 dark:bg-zinc-800 p-0.5 rounded-lg">
-                  {[Priority.HIGH, Priority.MEDIUM, Priority.LOW].map(p => (
-                    <button
-                      key={p}
-                      onClick={() => { updateField('priority', p); handleBlur('priority', p); }}
-                      className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                        form.priority === p ? getPriorityBtnClass(p) : 'text-gray-500 dark:text-gray-400'
-                      }`}
-                    >
-                      {p === Priority.HIGH ? '高' : p === Priority.MEDIUM ? '中' : '低'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Progress */}
-            <div className="p-3 flex items-center">
-              <div className="flex items-center gap-2 w-24 shrink-0">
-                <div className="bg-green-500 rounded-md p-1 text-white"><Activity size={14}/></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">进展</span>
-              </div>
-              <select
-                value={form.progress || TaskProgress.INITIAL}
-                onChange={(e) => { updateField('progress', e.target.value as TaskProgress); handleBlur('progress', e.target.value); }}
-                className="flex-1 bg-gray-100 dark:bg-zinc-800 rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-indigo-500 text-sm border-none min-w-[120px] text-right"
-              >
-                {PROGRESS_OPTIONS.map(p => {
-                  const info = getProgressDisplay(p);
-                  return <option key={p} value={p}>{info.label}</option>;
-                })}
-              </select>
-            </div>
-          </div>
-
-          {/* Quadrant */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-3">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="bg-green-500 rounded-md p-1 text-white"><LayoutGrid size={14}/></div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">四象限</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {QUADRANT_OPTIONS.map(opt => {
-                const Icon = opt.icon;
-                const isSelected = form.quadrant === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    onClick={() => { updateField('quadrant', opt.value); handleBlur('quadrant', opt.value); }}
-                    className={`p-2 rounded-lg text-left transition-colors border ${
-                      isSelected
-                        ? opt.selectedClass
-                        : 'bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 border-gray-200 dark:border-zinc-700'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <Icon size={12} />
-                      <span className="text-xs font-semibold">{opt.label}</span>
-                    </div>
-                    <p className="text-[10px] mt-0.5 opacity-70">{opt.desc}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Tags */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="bg-teal-500 rounded-md p-1 text-white"><Tag size={14}/></div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">标签</span>
-            </div>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {(form.tags || []).map(tag => {
-                const tc = getTagColor(tag);
-                return (
-                  <span key={tag} className={`flex items-center ${tc.light} ${tc.dark} text-xs pl-2 pr-1 py-1 rounded-full font-medium`}>
-                    {tag}
-                    <button onClick={() => removeTag(tag)} className="ml-1 text-gray-400 hover:text-red-500"><X size={12}/></button>
-                  </span>
-                );
-              })}
-            </div>
-            <div className="flex gap-1">
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
-                className="flex-1 bg-transparent outline-none text-xs px-2 py-1"
-                placeholder="添加标签..."
-              />
-              <button onClick={addTag} className="px-2 py-1 rounded-lg bg-indigo-500 text-white text-xs hover:bg-indigo-600"><Plus size={14}/></button>
-            </div>
-          </div>
-
-          {/* Subtasks */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
-            <div className="p-3 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800">
-              <div className="flex items-center gap-2">
-                <div className="bg-cyan-500 rounded-md p-1 text-white"><AlignLeft size={14}/></div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">子任务</span>
-              </div>
-              <button
-                onClick={handleGenerateSubtasks}
-                disabled={isGenerating || !form.title?.trim()}
-                className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2 py-1 rounded-lg transition-colors disabled:opacity-50"
-              >
-                <Sparkles size={14} /> AI 拆解
-              </button>
-            </div>
-            <div className="p-3 space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-              {(form.subTasks || []).map(sub => (
-                <div key={sub.id} className="flex items-center gap-3 group/sub">
-                  <button
-                    onClick={() => toggleSubTask(sub.id)}
-                    className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-colors ${
-                      sub.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 dark:border-zinc-600'
-                    }`}
-                  >
-                    {sub.completed && <Check size={10} />}
-                  </button>
-                  <span className={`flex-1 text-sm ${sub.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-300'}`}>
-                    {sub.title}
-                  </span>
-                  <button
-                    onClick={() => deleteSubTask(sub.id)}
-                    className="opacity-0 group-hover/sub:opacity-100 text-gray-400 hover:text-red-500 transition-all"
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              ))}
-              <div className="flex items-center gap-3">
-                <Plus size={18} className="text-gray-300 dark:text-zinc-600 shrink-0"/>
-                <input
-                  type="text"
-                  value={newSubTaskTitle}
-                  onChange={(e) => setNewSubTaskTitle(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSubTask(); } }}
-                  className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-400 dark:placeholder:text-zinc-500"
-                  placeholder="添加子任务"
-                />
-              </div>
-            </div>
-          </div>
+          {/* AI Breakdown button */}
+          <button
+            onClick={handleGenerateSubtasks}
+            disabled={isGenerating || !form.title?.trim()}
+            className="flex items-center gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 w-full justify-center"
+          >
+            <Sparkles size={14} /> AI 拆解子任务
+          </button>
 
           {/* Collapsible: Recurring */}
           <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">

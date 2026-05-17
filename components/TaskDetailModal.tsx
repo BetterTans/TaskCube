@@ -429,18 +429,17 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
           </TaskEditorCore>
 
                 {/* Recurring */}
-                <div className="p-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                            <div className="bg-indigo-500 rounded-md p-1 text-white"><Repeat size={14}/></div>
-                            <span className="text-sm font-medium">重复</span>
-                        </div>
+                <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
+                    <div className="flex items-center gap-2 p-3 text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-zinc-800">
+                        <div className="bg-indigo-500 rounded-md p-1 text-white"><Repeat size={14}/></div>
+                        <span className="text-sm font-medium">重复</span>
+                        <div className="flex-1" />
                         <label htmlFor="recurring-toggle" className="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="recurring-toggle" className="sr-only peer" checked={isRecurring} onChange={handleRecurringToggle} />
                           <div className="w-11 h-6 bg-gray-200 dark:bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                         </label>
                     </div>
-                    {isRecurring && <div className="mt-3"><RecurringOptions 
+                    {isRecurring && <div className="p-3"><RecurringOptions 
                         frequency={recurFreq} 
                         interval={recurInterval} 
                         weekDays={recurWeekDays} 
@@ -456,12 +455,14 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                         }}
                     /></div>}
                     {recurringRule && (
-                      <div className="mt-3 bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
+                      <div className="px-3 pb-3">
+                        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-300">
                          <p className="mb-1 font-semibold">此为周期任务，你要编辑？</p>
                          <div className="flex gap-2">
-                            <button onClick={() => setEditMode('single')} className={`px-2 py-1 rounded ${editMode === 'single' ? 'bg-white dark:bg-indigo-800' : ''}`}>仅此事项</button>
-                            <button onClick={() => setEditMode('series')} className={`px-2 py-1 rounded ${editMode === 'series' ? 'bg-white dark:bg-indigo-800' : ''}`}>后续所有</button>
+                            <button onClick={() => setEditMode('single')} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${editMode === 'single' ? 'bg-white dark:bg-indigo-700 shadow-sm' : 'hover:bg-white/50 dark:hover:bg-indigo-800/50'}`}>仅此事项</button>
+                            <button onClick={() => setEditMode('series')} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${editMode === 'series' ? 'bg-white dark:bg-indigo-700 shadow-sm' : 'hover:bg-white/50 dark:hover:bg-indigo-800/50'}`}>后续所有</button>
                          </div>
+                        </div>
                       </div>
                     )}
                 </div>

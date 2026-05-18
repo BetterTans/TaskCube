@@ -16,12 +16,13 @@ NextDo is a React-based task management application with AI integration. It offe
 - lucide-react for icons
 - No cloud services - 100% local storage
 
-**Current Version:** v3.4.0
+**Current Version:** v3.4.1
 
 ## Version History
 
 | Version | Highlights |
 |---------|-----------|
+| v3.4.1 | Sidebar project search + drag resize, panel complete button, recurring edit fix, header alignment, dark scrollbar |
 | v3.4.0 | Design token unification, undo/redo, browser reminders, view transitions, dark mode polish |
 | v3.3.0 | Panel/Modal merge (TaskEditorCore), global search, tag management, unified logger |
 | v3.2.0 | Initial SDD spec system, calendar hub, filter fix |

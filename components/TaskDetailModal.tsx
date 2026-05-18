@@ -161,7 +161,34 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
            setRecurEndDate('');
         }
       } else if (recurringRule) {
-        // ... (existing logic, dependencies not supported on rules)
+        // 编辑周期规则：从规则填充表单
+        setTitle(recurringRule.title);
+        setDescription(recurringRule.description || '');
+        setPriority(recurringRule.priority);
+        setQuadrant(recurringRule.quadrant || EisenhowerQuadrant.Q2);
+        setSelectedProjectId(recurringRule.projectId || '');
+        setTags(recurringRule.tags || []);
+        setSubtasks([]);
+        setProgress(TaskProgress.INITIAL);
+        setPredecessorIds([]);
+        setEditMode('series');
+        setIsRecurring(true);
+        setRecurFreq(recurringRule.frequency);
+        setRecurInterval(recurringRule.interval);
+        setRecurWeekDays(recurringRule.weekDays || []);
+        setRecurStartDate(recurringRule.startDate);
+        setRecurEndDate(recurringRule.endDate || '');
+        setStartDate(recurringRule.startDate);
+        setEndDate(recurringRule.endDate || '');
+        if (recurringRule.startTime) {
+          setIsAllDay(false);
+          setStartTime(recurringRule.startTime);
+          setDuration(recurringRule.duration || 60);
+        } else {
+          setIsAllDay(true);
+          setStartTime('09:00');
+          setDuration(60);
+        }
       } else {
         // 新建任务
         setTitle('');

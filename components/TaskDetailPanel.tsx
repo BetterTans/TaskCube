@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Task, Project, Priority, EisenhowerQuadrant, TaskProgress, SubTask, RecurringFrequency, RecurringRule } from '../types.ts';
-import { X, Trash2, Plus, Zap, Star, Bell, Coffee, Check, Sparkles, Wand2, Calendar as CalendarIcon, Clock, AlignLeft, Repeat, Tag, LayoutGrid, Briefcase, Link2, Activity, ChevronDown, ChevronRight } from 'lucide-react';
+import { X, Trash2, Plus, Zap, Star, Bell, Coffee, Check, CheckCircle2, Circle, Sparkles, Wand2, Calendar as CalendarIcon, Clock, AlignLeft, Repeat, Tag, LayoutGrid, Briefcase, Link2, Activity, ChevronDown, ChevronRight } from 'lucide-react';
 import { getProgressDisplay } from '../utils/taskDisplay.ts';
 import { generateUUID } from '../utils/generateUUID.ts';
 import { breakDownTask, parseTaskFromNaturalLanguage } from '../services/aiService.ts';
@@ -348,6 +348,20 @@ export const TaskDetailPanel: React.FC<TaskDetailPanelProps> = ({
           <button onClick={onClose} className="text-gray-500 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-200 text-sm font-medium px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">取消</button>
           <h2 className="text-sm font-semibold text-gray-900 dark:text-white">编辑事项</h2>
           <div className="flex items-center gap-1">
+            <button
+              onClick={() => {
+                if (!task) return;
+                const newCompleted = !(form.completed ?? task.completed);
+                updateField('completed', newCompleted);
+                updateField('progress', newCompleted ? TaskProgress.COMPLETED : TaskProgress.INITIAL);
+                onUpdate({ id: task.id, completed: newCompleted, progress: newCompleted ? TaskProgress.COMPLETED : TaskProgress.INITIAL });
+                setInitialForm(prev => ({ ...prev, completed: newCompleted, progress: newCompleted ? TaskProgress.COMPLETED : TaskProgress.INITIAL }));
+              }}
+              title={(form.completed ?? task.completed) ? '标记为未完成' : '标记为已完成'}
+              className={`p-1.5 rounded-lg transition-colors ${(form.completed ?? task.completed) ? 'text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20' : 'text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'}`}
+            >
+              {(form.completed ?? task.completed) ? <CheckCircle2 size={16} /> : <Circle size={16} />}
+            </button>
             <button
               onClick={handleDelete}
               className={`p-1.5 rounded-lg transition-colors ${

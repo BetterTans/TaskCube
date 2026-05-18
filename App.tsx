@@ -482,7 +482,7 @@ export default function App() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-lg px-4 sm:px-6 py-3 shrink-0 z-20 border-b border-gray-100 dark:border-zinc-800 transition-colors flex items-center justify-between gap-3">
           {/* Left: Date navigation */}
-          <div className="flex items-center min-w-0">
+          <div className="flex items-center w-[250px] flex-shrink-0">
               {(viewMode === 'calendar' || viewMode === 'day') && (
                  <div className="flex items-center animate-in fade-in duration-200">
                    <button onClick={() => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - (viewMode === 'calendar' ? 1 : 0), d.getDate() - (viewMode === 'day' ? 1 : 0)))} className="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-zinc-700/50 flex-shrink-0"><ChevronLeft size={18} /></button>
